@@ -9,8 +9,10 @@ import { Plus, Edit, Trash2, Eye, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import type { Profile } from "@/lib/models"
 
+type SessionStatus = "authenticated" | "loading" | "unauthenticated"
+
 export default function DashboardPage() {
-  const { data: session, status } = useSession()
+  const { data: session, status }: { data: any, status: SessionStatus } = useSession()
   const router = useRouter()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -60,7 +62,7 @@ export default function DashboardPage() {
     return null
   }
 
-  if (status === "loading" || isLoading) {
+  if ((status as SessionStatus) === "loading" || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">

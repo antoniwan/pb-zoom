@@ -7,6 +7,8 @@ import { ProfilePreview } from "@/components/profile-preview"
 import type { Profile } from "@/lib/models"
 import { use } from "react"
 
+type SessionStatus = "authenticated" | "loading" | "unauthenticated"
+
 interface PageProps {
   params: Promise<{ id: string }>
 }
@@ -15,7 +17,7 @@ export default function PreviewProfilePage({ params }: PageProps) {
   const { id } = use(params)
   const [profile, setProfile] = React.useState<Profile | null>(null)
   const [error, setError] = React.useState<Error | null>(null)
-  const { status } = useSession()
+  const { status }: { status: SessionStatus } = useSession()
 
   React.useEffect(() => {
     const fetchProfile = async () => {
