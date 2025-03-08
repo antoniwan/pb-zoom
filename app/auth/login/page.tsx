@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Github, Mail } from "lucide-react"
+import { Github, Mail, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -93,6 +93,14 @@ export default function LoginPage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
+            <div className="flex items-center mb-2">
+              <Button variant="ghost" size="sm" className="gap-1" asChild>
+                <Link href="/">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Home
+                </Link>
+              </Button>
+            </div>
             <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
             <CardDescription>Sign in to your account to continue</CardDescription>
           </CardHeader>

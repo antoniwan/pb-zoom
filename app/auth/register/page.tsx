@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ArrowLeft } from "lucide-react"
 
 const registerSchema = z
   .object({
@@ -100,6 +101,14 @@ export default function RegisterPage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
+            <div className="flex items-center mb-2">
+              <Button variant="ghost" size="sm" className="gap-1" asChild>
+                <Link href="/">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Home
+                </Link>
+              </Button>
+            </div>
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
             <CardDescription>Enter your information to create an account</CardDescription>
           </CardHeader>
