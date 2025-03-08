@@ -13,7 +13,7 @@ import type { Session } from "next-auth"
 type SessionStatus = "authenticated" | "loading" | "unauthenticated"
 
 export default function DashboardPage() {
-  const { data: session, status }: { data: Session | null, status: SessionStatus } = useSession()
+  const { data: session, status }: { data: Session | null; status: SessionStatus } = useSession()
   const router = useRouter()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [isLoading, setIsLoading] = useState(true)

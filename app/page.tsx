@@ -240,7 +240,10 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h3 className="text-white font-bold text-lg">Ñ</h3>
+              <h3 className="flex items-center gap-1 mb-1">
+                <span className="text-white font-bold text-lg">Ñ</span>
+                <span className="text-gray-300 text-sm font-medium">enye.social</span>
+              </h3>
               <p className="text-sm text-gray-400">Create, customize, and share your professional profile.</p>
             </div>
             <div className="flex gap-8">

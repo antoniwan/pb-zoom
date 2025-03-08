@@ -24,12 +24,12 @@ export default function PreviewProfilePage({ params }: PageProps) {
       try {
         const response = await fetch(`/api/profiles/${id}`)
         if (!response.ok) {
-          throw new Error('Failed to fetch profile')
+          throw new Error("Failed to fetch profile")
         }
         const data = await response.json()
         setProfile(data)
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch profile'))
+        setError(err instanceof Error ? err : new Error("Failed to fetch profile"))
       }
     }
 

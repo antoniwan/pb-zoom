@@ -180,7 +180,9 @@ export default async function ProfilePage({ params }: PageProps) {
         </div>
 
         <div className="mt-12 text-center text-sm text-muted-foreground">
-          <p>Created with Profile Builder</p>
+          <p>
+            Created with <span className="font-medium">Ñ</span> <span className="opacity-80">enye.social</span>
+          </p>
         </div>
       </div>
     </div>

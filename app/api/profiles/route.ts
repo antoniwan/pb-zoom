@@ -55,18 +55,30 @@ export async function POST(req: Request) {
             title: z.string(),
             content: z.object({
               text: z.string().optional(),
-              attributes: z.array(z.object({
-                label: z.string(),
-                value: z.string(),
-              })).optional(),
-              images: z.array(z.object({
-                url: z.string(),
-                caption: z.string().optional(),
-              })).optional(),
-              videos: z.array(z.object({
-                url: z.string(),
-                title: z.string().optional(),
-              })).optional(),
+              attributes: z
+                .array(
+                  z.object({
+                    label: z.string(),
+                    value: z.string(),
+                  }),
+                )
+                .optional(),
+              images: z
+                .array(
+                  z.object({
+                    url: z.string(),
+                    caption: z.string().optional(),
+                  }),
+                )
+                .optional(),
+              videos: z
+                .array(
+                  z.object({
+                    url: z.string(),
+                    title: z.string().optional(),
+                  }),
+                )
+                .optional(),
               markdown: z.string().optional(),
               html: z.string().optional(),
             }),

@@ -68,7 +68,12 @@ export function SectionsEditor({ profile, updateProfile }: SectionsEditorProps) 
     updateProfile({ sections: updatedSections })
   }
 
-  const handleAttributeChange = (sectionIndex: number, attributeIndex: number, key: keyof ProfileAttribute, value: string) => {
+  const handleAttributeChange = (
+    sectionIndex: number,
+    attributeIndex: number,
+    key: keyof ProfileAttribute,
+    value: string,
+  ) => {
     const section = profile.sections[sectionIndex]
     const attributes = [...(section.content.attributes || [])]
     attributes[attributeIndex] = {
@@ -164,9 +169,7 @@ export function SectionsEditor({ profile, updateProfile }: SectionsEditorProps) 
               <Textarea
                 id={`section-${section._id || sectionIndex}-content`}
                 value={section.content.text}
-                onChange={(e) =>
-                  handleContentChange(sectionIndex, { text: e.target.value })
-                }
+                onChange={(e) => handleContentChange(sectionIndex, { text: e.target.value })}
                 rows={6}
               />
             </div>
@@ -188,20 +191,12 @@ export function SectionsEditor({ profile, updateProfile }: SectionsEditorProps) 
                   onChange={(e) => handleAttributeChange(sectionIndex, index, "value", e.target.value)}
                   placeholder="Value/Level"
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeAttribute(sectionIndex, index)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => removeAttribute(sectionIndex, index)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => addAttribute(sectionIndex)}
-            >
+            <Button variant="outline" size="sm" onClick={() => addAttribute(sectionIndex)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Attribute
             </Button>
@@ -215,9 +210,7 @@ export function SectionsEditor({ profile, updateProfile }: SectionsEditorProps) 
             <Textarea
               id={`section-${section._id || sectionIndex}-markdown`}
               value={section.content.markdown}
-              onChange={(e) =>
-                handleContentChange(sectionIndex, { markdown: e.target.value })
-              }
+              onChange={(e) => handleContentChange(sectionIndex, { markdown: e.target.value })}
               className="font-mono"
               rows={10}
             />

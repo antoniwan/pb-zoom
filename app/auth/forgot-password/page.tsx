@@ -40,11 +40,7 @@ export default function ForgotPasswordPage() {
   }
 
   if (error) {
-    return (
-      <div className="text-red-500 text-sm mt-2">
-        {error}
-      </div>
-    )
+    return <div className="text-red-500 text-sm mt-2">{error}</div>
   }
 
   return (
@@ -60,7 +56,9 @@ export default function ForgotPasswordPage() {
             </Button>
           </div>
           <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-          <CardDescription>Enter your email address and we&apos;ll send you a link to reset your password</CardDescription>
+          <CardDescription>
+            Enter your email address and we&apos;ll send you a link to reset your password
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isSubmitted ? (

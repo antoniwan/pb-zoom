@@ -60,10 +60,7 @@ export function UserNav() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <button
-            className="w-full"
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
+          <button className="w-full" onClick={() => signOut({ callbackUrl: "/" })}>
             <LogOut className="mr-2 h-4 w-4" />
             Log out
           </button>

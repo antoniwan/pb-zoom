@@ -103,11 +103,7 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto py-10">
-      {error && (
-        <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500">
-          {error}
-        </div>
-      )}
+      {error && <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500">{error}</div>}
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Manage your account settings and preferences</p>

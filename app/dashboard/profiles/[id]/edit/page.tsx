@@ -34,7 +34,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
       const fetchProfile = async () => {
         try {
           const response = await fetch(`/api/profiles/${profileId}`)
-    
+
           if (!response.ok) {
             if (response.status === 404) {
               router.push("/dashboard")
@@ -42,7 +42,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
             }
             throw new Error("Failed to fetch profile")
           }
-    
+
           const data = await response.json()
           setProfile(data)
         } catch (err) {

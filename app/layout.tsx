@@ -6,8 +6,8 @@ import NextAuthSessionProvider from "@/components/session-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Ñ",
-  description: "Create, customize, and share your professional profile page",
+  title: "Ñ | enye.social",
+  description: "Create, customize, and share your professional profile page with enye.social",
   generator: "v0.dev",
 }
 

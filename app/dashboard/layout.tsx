@@ -13,8 +13,13 @@ export default function DashboardLayout({
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-xl font-bold">
-              Ñ
+            <Link href="/" className="flex items-center gap-1 group">
+              <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-110">
+                Ñ
+              </span>
+              <span className="text-sm font-medium bg-gradient-to-r from-primary/80 to-purple-400/80 bg-clip-text text-transparent transition-all duration-300">
+                enye.social
+              </span>
             </Link>
             <nav className="hidden space-x-4 md:flex">
               <Link href="/dashboard" className="flex items-center gap-1 text-sm font-medium hover:text-primary">
