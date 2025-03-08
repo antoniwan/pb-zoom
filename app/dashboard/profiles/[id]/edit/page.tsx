@@ -25,6 +25,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -32,30 +33,31 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
     }
 
     if (status === "authenticated") {
+      const fetchProfile = async () => {
+        try {
+          const response = await fetch(`/api/profiles/${profileId}`)
+    
+          if (!response.ok) {
+            if (response.status === 404) {
+              router.push("/dashboard")
+              return
+            }
+            throw new Error("Failed to fetch profile")
+          }
+    
+          const data = await response.json()
+          setProfile(data)
+        } catch (error) {
+          console.error("Error fetching profile:", error)
+          setError("Failed to load profile")
+        } finally {
+          setIsLoading(false)
+        }
+      }
+
       fetchProfile()
     }
   }, [status, router, profileId])
-
-  const fetchProfile = async () => {
-    try {
-      const response = await fetch(`/api/profiles/${profileId}`)
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          router.push("/dashboard")
-          return
-        }
-        throw new Error("Failed to fetch profile")
-      }
-
-      const data = await response.json()
-      setProfile(data)
-    } catch (error) {
-      console.error("Error fetching profile:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleSave = async () => {
     if (!profile) return

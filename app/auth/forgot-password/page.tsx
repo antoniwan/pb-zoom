@@ -30,13 +30,21 @@ export default function ForgotPasswordPage() {
     try {
       // This would be a real API call in a production app
       await new Promise((resolve) => setTimeout(resolve, 1500))
-
       setIsSubmitted(true)
-    } catch (error) {
-      setError("An unexpected error occurred. Please try again.")
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred. Please try again."
+      setError(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-sm mt-2">
+        {error}
+      </div>
+    )
   }
 
   return (
@@ -65,7 +73,6 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {error && <div className="rounded-md bg-red-50 p-2 text-sm text-red-500">{error}</div>}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

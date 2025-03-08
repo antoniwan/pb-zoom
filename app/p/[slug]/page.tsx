@@ -1,8 +1,9 @@
 import { getProfileBySlug } from "@/lib/db"
 import { notFound } from "next/navigation"
-import type { ProfileSection } from "@/lib/models"
+import type { ProfileSection, ProfileAttribute, ProfileImage } from "@/lib/models"
 import { Facebook, Twitter, Instagram, Linkedin, Github, Youtube, Globe } from "lucide-react"
 import type { Metadata } from "next"
+import Image from "next/image"
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -67,7 +68,7 @@ export default async function ProfilePage({ params }: PageProps) {
       case "attributes":
         return (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {section.content.items.map((item: any, index: number) => (
+            {section.content.attributes?.map((item: ProfileAttribute, index: number) => (
               <div key={`attribute-${sectionIndex}-${index}`} className="flex flex-col space-y-1">
                 <div className="text-sm font-medium">{item.label}</div>
                 <div className="text-sm text-muted-foreground">{item.value}</div>
@@ -80,20 +81,22 @@ export default async function ProfilePage({ params }: PageProps) {
         return (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {section.content.images && section.content.images.length > 0 ? (
-              section.content.images.map((image: any, index: number) => (
+              section.content.images.map((image: ProfileImage, index: number) => (
                 <div
                   key={`image-${sectionIndex}-${index}`}
                   className="aspect-square overflow-hidden rounded-md bg-muted"
                 >
-                  <img
+                  <Image
                     src={image.url || "/placeholder.svg?height=300&width=300"}
-                    alt={image.title || "Gallery image"}
+                    alt={image.caption || "Gallery image"}
+                    width={300}
+                    height={300}
                     className="h-full w-full object-cover"
                   />
                 </div>
               ))
             ) : (
-              <div className="col-span-full text-center text-muted-foreground">No images added yet</div>
+              <div className="col-span-full text-center text-muted-foreground">No images to display</div>
             )}
           </div>
         )

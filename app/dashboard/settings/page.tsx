@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/hooks/use-toast"
 import { Save, User, Lock, Bell, Moon, Sun } from "lucide-react"
+import Image from "next/image"
 
 export default function SettingsPage() {
   const { data: session, status, update } = useSession()
@@ -160,10 +161,12 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4">
                       <div className="h-16 w-16 overflow-hidden rounded-full bg-muted">
                         {userData.image ? (
-                          <img
+                          <Image
                             src={userData.image || "/placeholder.svg"}
                             alt={userData.name || "User"}
-                            className="h-full w-full object-cover"
+                            className="object-cover"
+                            width={64}
+                            height={64}
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-primary/10 text-xl font-semibold text-primary">

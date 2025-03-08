@@ -4,14 +4,7 @@ export interface Profile {
   title: string
   slug: string
   isPublic: boolean
-  theme: {
-    primaryColor: string
-    secondaryColor: string
-    backgroundColor: string
-    textColor: string
-    fontFamily: string
-    customCSS?: string
-  }
+  theme: ProfileTheme
   layout: string
   sections: ProfileSection[]
   socialLinks: ProfileSocial[]
@@ -19,12 +12,43 @@ export interface Profile {
   updatedAt: Date
 }
 
+export interface ProfileTheme {
+  primaryColor: string
+  secondaryColor: string
+  backgroundColor: string
+  textColor: string
+  fontFamily: string
+  customCSS?: string
+}
+
 export interface ProfileSection {
   _id: string
   type: "bio" | "attributes" | "gallery" | "videos" | "markdown" | "custom"
   title: string
-  content: any
+  content: {
+    text?: string
+    attributes?: ProfileAttribute[]
+    images?: ProfileImage[]
+    videos?: ProfileVideo[]
+    markdown?: string
+    html?: string
+  }
   order: number
+}
+
+export interface ProfileAttribute {
+  label: string
+  value: string
+}
+
+export interface ProfileImage {
+  url: string
+  caption?: string
+}
+
+export interface ProfileVideo {
+  url: string
+  title?: string
 }
 
 export interface ProfileSocial {

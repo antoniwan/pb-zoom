@@ -22,25 +22,29 @@ type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const searchParams = useSearchParams()
   const errorType = searchParams.get("error")
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (status === "authenticated") {
-      router.push(callbackUrl)
+      router.push("/dashboard")
     }
-  }, [status, router, callbackUrl])
+  }, [status, router])
 
   useEffect(() => {
-    if (errorType === "session") {
-      setError("Your session has expired. Please sign in again.")
-    }
+    if (errorType === "OAuthSignin") setError("Error signing in with OAuth provider")
+    if (errorType === "OAuthCallback") setError("Error during OAuth callback")
+    if (errorType === "OAuthCreateAccount") setError("Error creating OAuth account")
+    if (errorType === "EmailCreateAccount") setError("Error creating email account")
+    if (errorType === "Callback") setError("Error during callback")
+    if (errorType === "OAuthAccountNotLinked") setError("Email already used with different provider")
+    if (errorType === "EmailSignin") setError("Error sending email signin link")
+    if (errorType === "CredentialsSignin") setError("Invalid credentials")
+    if (errorType === "SessionRequired") setError("Please sign in to access this page")
   }, [errorType])
 
   const {
@@ -68,7 +72,7 @@ export default function LoginPage() {
         return
       }
 
-      router.push(callbackUrl)
+      router.push("/dashboard")
     } catch (error) {
       setError("An unexpected error occurred")
       setIsLoading(false)
@@ -106,11 +110,11 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" onClick={() => signIn("github", { callbackUrl })}>
+              <Button variant="outline" onClick={() => signIn("github", { callbackUrl: "/dashboard" })}>
                 <Github className="mr-2 h-4 w-4" />
                 GitHub
               </Button>
-              <Button variant="outline" onClick={() => signIn("google", { callbackUrl })}>
+              <Button variant="outline" onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
                 <Mail className="mr-2 h-4 w-4" />
                 Google
               </Button>

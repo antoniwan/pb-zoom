@@ -224,7 +224,7 @@ export function ProfileThemeEditor({ profile, updateProfile }: ProfileThemeEdito
           className="font-mono rounded-xl"
           rows={8}
         />
-        <p className="text-sm text-muted-foreground">Add custom CSS to further customize your profile's appearance.</p>
+        <p className="text-sm text-muted-foreground">Add custom CSS to further customize your profile&apos;s appearance.</p>
       </div>
     </div>
   )
