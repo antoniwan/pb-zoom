@@ -58,10 +58,25 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     const body = await req.json()
 
+    const profilePictureSchema = z.object({
+      url: z.string().url(),
+      altText: z.string().optional(),
+      isPrimary: z.boolean().default(false),
+    })
+
+    const profileHeaderSchema = z.object({
+      name: z.string(),
+      title: z.string(),
+      subtitle: z.string(),
+      shortBio: z.string(),
+      pictures: z.array(profilePictureSchema),
+    })
+
     const profileSchema = z.object({
       title: z.string().min(1).optional(),
       slug: z.string().min(1).optional(),
       isPublic: z.boolean().optional(),
+      header: profileHeaderSchema.optional(),
       theme: z
         .object({
           primaryColor: z.string(),

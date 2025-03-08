@@ -88,6 +88,18 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
     }
   }
 
+  // Get the primary profile picture or the first one if no primary is set
+  const getPrimaryPicture = () => {
+    if (!profile.header?.pictures || profile.header.pictures.length === 0) {
+      return null
+    }
+
+    const primaryPic = profile.header.pictures.find((pic) => pic.isPrimary)
+    return primaryPic || profile.header.pictures[0]
+  }
+
+  const primaryPicture = getPrimaryPicture()
+
   return (
     <div className="space-y-6">
       <Tabs defaultValue="desktop">
@@ -106,29 +118,73 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
             }}
           >
             <div className="p-8">
-              <div className="mb-8 text-center">
-                <h1 className="mb-2 text-3xl font-bold" style={{ color: profile.theme.primaryColor }}>
-                  {profile.title}
-                </h1>
+              {/* Header Section with Name, Title, Subtitle, Picture, and Short Bio */}
+              <div className="mb-12">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+                  {/* Profile Picture */}
+                  {primaryPicture && (
+                    <div
+                      className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 flex-shrink-0"
+                      style={{ borderColor: profile.theme.primaryColor }}
+                    >
+                      <Image
+                        src={primaryPicture.url || "/placeholder.svg"}
+                        alt={primaryPicture.altText || profile.header?.name || "Profile picture"}
+                        width={160}
+                        height={160}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
 
-                {profile.socialLinks.length > 0 && (
-                  <div className="flex justify-center space-x-4">
-                    {profile.socialLinks.map((socialLink, index) => (
-                      <a
-                        key={`desktop-social-${index}`}
-                        href={socialLink.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-muted"
+                  {/* Name, Title, Subtitle */}
+                  <div className="text-center md:text-left flex-1">
+                    {profile.header?.name && (
+                      <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: profile.theme.primaryColor }}>
+                        {profile.header.name}
+                      </h1>
+                    )}
+
+                    {profile.header?.title && (
+                      <h2
+                        className="text-xl md:text-2xl font-medium mb-1"
                         style={{ color: profile.theme.secondaryColor }}
                       >
-                        {getSocialIcon(socialLink.platform)}
-                      </a>
-                    ))}
+                        {profile.header.title}
+                      </h2>
+                    )}
+
+                    {profile.header?.subtitle && <h3 className="text-lg opacity-80 mb-4">{profile.header.subtitle}</h3>}
+
+                    {/* Social Links */}
+                    {profile.socialLinks.length > 0 && (
+                      <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+                        {profile.socialLinks.map((socialLink, index) => (
+                          <a
+                            key={`desktop-social-${index}`}
+                            href={socialLink.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-muted"
+                            style={{ color: profile.theme.secondaryColor }}
+                          >
+                            {getSocialIcon(socialLink.platform)}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Short Bio */}
+                {profile.header?.shortBio && (
+                  <div className="mt-6 text-lg leading-relaxed max-w-3xl mx-auto md:mx-0">
+                    {profile.header.shortBio}
                   </div>
                 )}
               </div>
 
+              {/* Content Sections */}
               <div className={`space-y-8 ${profile.layout === "grid" ? "grid gap-8 md:grid-cols-2" : ""}`}>
                 {profile.sections.map((section, index) => (
                   <div key={`desktop-section-${index}`} className="space-y-4">
@@ -153,13 +209,44 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
             }}
           >
             <div className="p-4">
-              <div className="mb-6 text-center">
-                <h1 className="mb-2 text-2xl font-bold" style={{ color: profile.theme.primaryColor }}>
-                  {profile.title}
-                </h1>
+              {/* Mobile Header */}
+              <div className="mb-8 text-center">
+                {/* Profile Picture */}
+                {primaryPicture && (
+                  <div
+                    className="w-24 h-24 rounded-full overflow-hidden border-4 mx-auto mb-4"
+                    style={{ borderColor: profile.theme.primaryColor }}
+                  >
+                    <Image
+                      src={primaryPicture.url || "/placeholder.svg"}
+                      alt={primaryPicture.altText || profile.header?.name || "Profile picture"}
+                      width={96}
+                      height={96}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
 
+                {/* Name, Title, Subtitle */}
+                {profile.header?.name && (
+                  <h1 className="text-2xl font-bold mb-1" style={{ color: profile.theme.primaryColor }}>
+                    {profile.header.name}
+                  </h1>
+                )}
+
+                {profile.header?.title && (
+                  <h2 className="text-lg font-medium" style={{ color: profile.theme.secondaryColor }}>
+                    {profile.header.title}
+                  </h2>
+                )}
+
+                {profile.header?.subtitle && (
+                  <h3 className="text-sm opacity-80 mt-1 mb-3">{profile.header.subtitle}</h3>
+                )}
+
+                {/* Social Links */}
                 {profile.socialLinks.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-2">
+                  <div className="flex flex-wrap justify-center gap-2 mt-3">
                     {profile.socialLinks.map((socialLink, index) => (
                       <a
                         key={`mobile-social-${index}`}
@@ -174,8 +261,12 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
                     ))}
                   </div>
                 )}
+
+                {/* Short Bio */}
+                {profile.header?.shortBio && <div className="mt-4 text-sm">{profile.header.shortBio}</div>}
               </div>
 
+              {/* Content Sections */}
               <div className="space-y-6">
                 {profile.sections.map((section, index) => (
                   <div key={`mobile-section-${index}`} className="space-y-3">
@@ -199,7 +290,7 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
             <li>Custom CSS will be applied in the actual public profile</li>
             <li>
               View your public profile at:{" "}
-              <code className="rounded bg-muted px-1 py-0.5">example.com/p/{profile.slug}</code>
+              <code className="rounded bg-muted px-1 py-0.5">enye.social/p/{profile.slug}</code>
             </li>
           </ul>
         </CardContent>

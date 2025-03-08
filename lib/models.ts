@@ -1,24 +1,37 @@
+export interface ProfileHeader {
+  name: string
+  title: string
+  subtitle: string
+  shortBio: string
+  pictures: ProfilePicture[]
+}
+
+export interface ProfilePicture {
+  url: string
+  altText?: string
+  isPrimary: boolean
+}
+
 export interface Profile {
   _id: string
   userId: string
   title: string
   slug: string
   isPublic: boolean
-  theme: ProfileTheme
-  layout: string
-  sections: ProfileSection[]
-  socialLinks: ProfileSocial[]
   createdAt: Date
   updatedAt: Date
-}
-
-export interface ProfileTheme {
-  primaryColor: string
-  secondaryColor: string
-  backgroundColor: string
-  textColor: string
-  fontFamily: string
-  customCSS?: string
+  theme: {
+    primaryColor: string
+    secondaryColor: string
+    backgroundColor: string
+    textColor: string
+    fontFamily: string
+    customCSS?: string
+  }
+  layout: string
+  header: ProfileHeader // New field for the complex title system
+  sections: ProfileSection[]
+  socialLinks: ProfileSocial[]
 }
 
 export interface ProfileSection {

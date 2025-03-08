@@ -50,10 +50,10 @@ export function MainNav() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-1 group">
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-110">
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-110">
                 Ñ
               </span>
-              <span className="text-sm font-medium bg-gradient-to-r from-primary/80 to-purple-400/80 bg-clip-text text-transparent transition-all duration-300">
+              <span className="text-sm font-medium bg-gradient-to-r from-blue-700/80 to-blue-600/80 bg-clip-text text-transparent transition-all duration-300">
                 enye.social
               </span>
             </Link>
@@ -61,13 +61,13 @@ export function MainNav() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/#features" className="text-sm font-medium text-gray-700 hover:text-primary transition-colors">
+            <Link href="/#features" className="text-sm font-medium text-gray-700 hover:text-blue-700 transition-colors">
               Features
             </Link>
-            <Link href="#" className="text-sm font-medium text-gray-700 hover:text-primary transition-colors">
+            <Link href="#" className="text-sm font-medium text-gray-700 hover:text-blue-700 transition-colors">
               Pricing
             </Link>
-            <Link href="#" className="text-sm font-medium text-gray-700 hover:text-primary transition-colors">
+            <Link href="#" className="text-sm font-medium text-gray-700 hover:text-blue-700 transition-colors">
               Examples
             </Link>
 
@@ -155,13 +155,13 @@ export function MainNav() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t py-4">
           <div className="container mx-auto px-4 space-y-4">
-            <Link href="/#features" className="block py-2 text-base font-medium text-gray-700 hover:text-primary">
+            <Link href="/#features" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-700">
               Features
             </Link>
-            <Link href="#" className="block py-2 text-base font-medium text-gray-700 hover:text-primary">
+            <Link href="#" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-700">
               Pricing
             </Link>
-            <Link href="#" className="block py-2 text-base font-medium text-gray-700 hover:text-primary">
+            <Link href="#" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-700">
               Examples
             </Link>
 

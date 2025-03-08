@@ -75,7 +75,12 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
     updateProfile({ sections: updatedSections })
   }
 
-  const handleAttributeChange = (sectionIndex: number, attributeIndex: number, key: keyof ProfileAttribute, value: string) => {
+  const handleAttributeChange = (
+    sectionIndex: number,
+    attributeIndex: number,
+    key: keyof ProfileAttribute,
+    value: string,
+  ) => {
     const section = profile.sections[sectionIndex]
     const attributes = [...(section.content.attributes || [])]
     attributes[attributeIndex] = {
@@ -186,12 +191,16 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
               <div key={index} className="flex items-center gap-2">
                 <Input
                   value={attribute.label}
-                  onChange={(e) => handleAttributeChange(profile.sections.indexOf(section), index, "label", e.target.value)}
+                  onChange={(e) =>
+                    handleAttributeChange(profile.sections.indexOf(section), index, "label", e.target.value)
+                  }
                   placeholder="Skill/Attribute"
                 />
                 <Input
                   value={attribute.value}
-                  onChange={(e) => handleAttributeChange(profile.sections.indexOf(section), index, "value", e.target.value)}
+                  onChange={(e) =>
+                    handleAttributeChange(profile.sections.indexOf(section), index, "value", e.target.value)
+                  }
                   placeholder="Value/Level"
                 />
                 <Button
@@ -203,11 +212,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
                 </Button>
               </div>
             ))}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => addAttribute(profile.sections.indexOf(section))}
-            >
+            <Button variant="outline" size="sm" onClick={() => addAttribute(profile.sections.indexOf(section))}>
               <Plus className="mr-2 h-4 w-4" />
               Add Attribute
             </Button>

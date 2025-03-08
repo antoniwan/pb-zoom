@@ -21,9 +21,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  // Use the profile name if available, otherwise fall back to profile title
+  const title = profile.header?.name || profile.title
+  const description = profile.header?.shortBio || `View ${title}'s profile`
+
   return {
-    title: profile.title,
-    description: `View ${profile.title}'s profile`,
+    title,
+    description,
   }
 }
 
@@ -108,6 +112,18 @@ export default async function ProfilePage({ params }: PageProps) {
     }
   }
 
+  // Get the primary profile picture or the first one if no primary is set
+  const getPrimaryPicture = () => {
+    if (!profile.header?.pictures || profile.header.pictures.length === 0) {
+      return null
+    }
+
+    const primaryPic = profile.header.pictures.find((pic) => pic.isPrimary)
+    return primaryPic || profile.header.pictures[0]
+  }
+
+  const primaryPicture = getPrimaryPicture()
+
   return (
     <div
       style={{
@@ -134,30 +150,73 @@ export default async function ProfilePage({ params }: PageProps) {
       )}
 
       <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl" style={{ color: profile.theme.primaryColor }}>
-            {profile.title}
-          </h1>
+        {/* Header Section with Name, Title, Subtitle, Picture, and Short Bio */}
+        <div className="mb-12">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+            {/* Profile Picture */}
+            {primaryPicture && (
+              <div
+                className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 flex-shrink-0"
+                style={{ borderColor: profile.theme.primaryColor }}
+              >
+                <Image
+                  src={primaryPicture.url || "/placeholder.svg"}
+                  alt={primaryPicture.altText || profile.header?.name || "Profile picture"}
+                  width={160}
+                  height={160}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
 
-          {profile.socialLinks.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-4">
-              {profile.socialLinks.map((socialLink: ProfileSocial, index: number) => (
-                <a
-                  key={`social-${index}`}
-                  href={socialLink.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-muted"
-                  style={{ color: profile.theme.secondaryColor }}
-                  aria-label={socialLink.platform}
-                >
-                  {getSocialIcon(socialLink.platform)}
-                </a>
-              ))}
+            {/* Name, Title, Subtitle */}
+            <div className="text-center md:text-left flex-1">
+              {profile.header?.name ? (
+                <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: profile.theme.primaryColor }}>
+                  {profile.header.name}
+                </h1>
+              ) : (
+                <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: profile.theme.primaryColor }}>
+                  {profile.title}
+                </h1>
+              )}
+
+              {profile.header?.title && (
+                <h2 className="text-xl md:text-2xl font-medium mb-1" style={{ color: profile.theme.secondaryColor }}>
+                  {profile.header.title}
+                </h2>
+              )}
+
+              {profile.header?.subtitle && <h3 className="text-lg opacity-80 mb-4">{profile.header.subtitle}</h3>}
+
+              {/* Social Links */}
+              {profile.socialLinks.length > 0 && (
+                <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+                  {profile.socialLinks.map((socialLink: ProfileSocial, index: number) => (
+                    <a
+                      key={`social-${index}`}
+                      href={socialLink.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-muted"
+                      style={{ color: profile.theme.secondaryColor }}
+                      aria-label={socialLink.platform}
+                    >
+                      {getSocialIcon(socialLink.platform)}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
+          </div>
+
+          {/* Short Bio */}
+          {profile.header?.shortBio && (
+            <div className="mt-6 text-lg leading-relaxed max-w-3xl mx-auto md:mx-0">{profile.header.shortBio}</div>
           )}
         </div>
 
+        {/* Content Sections */}
         <div
           className={
             profile.layout === "grid"

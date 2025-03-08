@@ -34,10 +34,31 @@ export async function POST(req: Request) {
 
     const body = await req.json()
 
+    const profilePictureSchema = z.object({
+      url: z.string().url(),
+      altText: z.string().optional(),
+      isPrimary: z.boolean().default(false),
+    })
+
+    const profileHeaderSchema = z.object({
+      name: z.string().default(""),
+      title: z.string().default(""),
+      subtitle: z.string().default(""),
+      shortBio: z.string().default(""),
+      pictures: z.array(profilePictureSchema).default([]),
+    })
+
     const profileSchema = z.object({
       title: z.string().min(1),
       slug: z.string().min(1),
       isPublic: z.boolean().default(false),
+      header: profileHeaderSchema.default({
+        name: "",
+        title: "",
+        subtitle: "",
+        shortBio: "",
+        pictures: [],
+      }),
       theme: z.object({
         primaryColor: z.string(),
         secondaryColor: z.string(),

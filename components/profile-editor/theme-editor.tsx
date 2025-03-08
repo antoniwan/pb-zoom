@@ -25,15 +25,47 @@ export function ProfileThemeEditor({ profile, updateProfile }: ProfileThemeEdito
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="primaryColor">Primary Color</Label>
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-md border" style={{ backgroundColor: profile.theme.primaryColor }}></div>
-            <Input
-              id="primaryColor"
-              type="text"
-              value={profile.theme.primaryColor}
-              onChange={(e) => handleThemeChange("primaryColor", e.target.value)}
-              placeholder="#000000"
-            />
+          <div className="flex flex-col">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 rounded-md border" style={{ backgroundColor: profile.theme.primaryColor }}></div>
+              <Input
+                id="primaryColor"
+                type="text"
+                value={profile.theme.primaryColor}
+                onChange={(e) => handleThemeChange("primaryColor", e.target.value)}
+                placeholder="#000000"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <button
+                type="button"
+                className="w-6 h-6 rounded-full border"
+                style={{ backgroundColor: "#1d4ed8" }}
+                onClick={() => handleThemeChange("primaryColor", "#1d4ed8")}
+                aria-label="Blue"
+              />
+              <button
+                type="button"
+                className="w-6 h-6 rounded-full border"
+                style={{ backgroundColor: "#4338ca" }}
+                onClick={() => handleThemeChange("primaryColor", "#4338ca")}
+                aria-label="Indigo"
+              />
+              <button
+                type="button"
+                className="w-6 h-6 rounded-full border"
+                style={{ backgroundColor: "#0369a1" }}
+                onClick={() => handleThemeChange("primaryColor", "#0369a1")}
+                aria-label="Sky Blue"
+              />
+              <button
+                type="button"
+                className="w-6 h-6 rounded-full border"
+                style={{ backgroundColor: "#047857" }}
+                onClick={() => handleThemeChange("primaryColor", "#047857")}
+                aria-label="Emerald"
+              />
+            </div>
           </div>
         </div>
 
@@ -107,7 +139,9 @@ export function ProfileThemeEditor({ profile, updateProfile }: ProfileThemeEdito
           className="font-mono rounded-xl"
           rows={8}
         />
-        <p className="text-sm text-muted-foreground">Add custom CSS to further customize your profile&apos;s appearance.</p>
+        <p className="text-sm text-muted-foreground">
+          Add custom CSS to further customize your profile&apos;s appearance.
+        </p>
       </div>
     </div>
   )

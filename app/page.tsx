@@ -40,7 +40,7 @@ function CyclingProfileTypes() {
 
   return (
     <span
-      className={`bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
+      className={`bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
     >
       {profileTypes[currentIndex]}
     </span>
@@ -63,7 +63,7 @@ export default function HomePage() {
                   <span className="inline-block">
                     <CyclingProfileTypes />
                   </span>{" "}
-                  <span className="bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
                     profile
                   </span>{" "}
                   in minutes
@@ -83,17 +83,17 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center">
-                    <CheckCircle className="mr-1 h-4 w-4 text-primary" /> Free to start
+                    <CheckCircle className="mr-1 h-4 w-4 text-blue-700" /> Free to start
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="mr-1 h-4 w-4 text-primary" /> No credit card required
+                    <CheckCircle className="mr-1 h-4 w-4 text-blue-700" /> No credit card required
                   </div>
                 </div>
               </div>
               <div className="relative">
                 <div className="relative rounded-2xl shadow-lg overflow-hidden border border-secondary">
                   <Image src="/placeholder.svg" alt="Ñ Dashboard" width={600} height={500} className="w-full h-auto" />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-700/10 to-transparent"></div>
                 </div>
               </div>
             </div>
@@ -113,8 +113,8 @@ export default function HomePage() {
             <div className="grid gap-8 md:grid-cols-3">
               <Card className="rounded-xl border-secondary/30">
                 <CardHeader className="space-y-1">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                    <Sparkles className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 rounded-full bg-blue-700/10 flex items-center justify-center mb-2">
+                    <Sparkles className="h-6 w-6 text-blue-700" />
                   </div>
                   <CardTitle>Beautiful Themes</CardTitle>
                 </CardHeader>
@@ -127,8 +127,8 @@ export default function HomePage() {
 
               <Card className="rounded-xl border-secondary/30">
                 <CardHeader className="space-y-1">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                    <Layout className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 rounded-full bg-blue-700/10 flex items-center justify-center mb-2">
+                    <Layout className="h-6 w-6 text-blue-700" />
                   </div>
                   <CardTitle>Flexible Content</CardTitle>
                 </CardHeader>
@@ -141,8 +141,8 @@ export default function HomePage() {
 
               <Card className="rounded-xl border-secondary/30">
                 <CardHeader className="space-y-1">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                    <Users className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 rounded-full bg-blue-700/10 flex items-center justify-center mb-2">
+                    <Users className="h-6 w-6 text-blue-700" />
                   </div>
                   <CardTitle>Easy Sharing</CardTitle>
                 </CardHeader>
@@ -168,7 +168,7 @@ export default function HomePage() {
 
             <div className="grid gap-8 md:grid-cols-3">
               <div className="relative">
-                <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-bold">
                   1
                 </div>
                 <Card className="h-full rounded-xl border-secondary/30">
@@ -184,7 +184,7 @@ export default function HomePage() {
               </div>
 
               <div className="relative">
-                <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-bold">
                   2
                 </div>
                 <Card className="h-full rounded-xl border-secondary/30">
@@ -200,7 +200,7 @@ export default function HomePage() {
               </div>
 
               <div className="relative">
-                <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-bold">
                   3
                 </div>
                 <Card className="h-full rounded-xl border-secondary/30">
@@ -217,7 +217,7 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-gradient-to-r from-primary/90 to-purple-400/90 text-primary-foreground">
+        <section className="py-16 bg-gradient-to-r from-blue-700/90 to-blue-600/90 text-primary-foreground">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-6">Ready to Create Your Profile?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
@@ -226,7 +226,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="secondary"
-              className="px-8 bg-white text-primary hover:bg-white/90 rounded-full"
+              className="px-8 bg-white text-blue-700 hover:bg-white/90 rounded-full"
               asChild
             >
               <Link href="/auth/register">Get Started Free</Link>

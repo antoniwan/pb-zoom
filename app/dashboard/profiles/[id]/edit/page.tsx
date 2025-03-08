@@ -4,15 +4,9 @@ import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Save, ArrowLeft } from "lucide-react"
 import type { Profile } from "@/lib/models"
-import { ProfileBasicInfo } from "@/components/profile-editor/basic-info"
-import { ProfileThemeEditor } from "@/components/profile-editor/theme-editor"
-import { ProfileSectionsEditor } from "@/components/profile-editor/sections-editor"
-import { ProfileSocialEditor } from "@/components/profile-editor/social-editor"
-import { ProfilePreview } from "@/components/profile-preview"
-import { ArrowLeft, Save } from "lucide-react"
+import { ProfileEditorTabs } from "@/components/profile-editor/tabs"
 import Link from "next/link"
 import { use } from "react"
 
@@ -151,55 +145,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
         </Button>
       </div>
 
-      <Tabs defaultValue="basic">
-        <TabsList className="mb-6">
-          <TabsTrigger value="basic">Basic Info</TabsTrigger>
-          <TabsTrigger value="theme">Theme</TabsTrigger>
-          <TabsTrigger value="sections">Sections</TabsTrigger>
-          <TabsTrigger value="social">Social Links</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="basic">
-          <Card>
-            <CardContent className="pt-6">
-              <ProfileBasicInfo profile={profile} updateProfile={updateProfile} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="theme">
-          <Card>
-            <CardContent className="pt-6">
-              <ProfileThemeEditor profile={profile} updateProfile={updateProfile} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="sections">
-          <Card>
-            <CardContent className="pt-6">
-              <ProfileSectionsEditor profile={profile} updateProfile={updateProfile} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="social">
-          <Card>
-            <CardContent className="pt-6">
-              <ProfileSocialEditor profile={profile} updateProfile={updateProfile} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="preview">
-          <Card>
-            <CardContent className="pt-6">
-              <ProfilePreview profile={profile} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <ProfileEditorTabs profile={profile} updateProfile={updateProfile} />
     </div>
   )
 }
