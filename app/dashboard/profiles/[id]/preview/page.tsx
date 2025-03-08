@@ -5,8 +5,14 @@ import { redirect } from "next/navigation"
 import React from "react"
 import { ProfilePreview } from "@/components/profile-preview"
 import type { Profile } from "@/lib/models"
+import { use } from "react"
 
-export default function PreviewProfilePage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default function PreviewProfilePage({ params }: PageProps) {
+  const { id } = use(params)
   const [profile, setProfile] = React.useState<Profile | null>(null)
   const [error, setError] = React.useState<Error | null>(null)
   const { status } = useSession()
@@ -14,7 +20,7 @@ export default function PreviewProfilePage({ params }: { params: { id: string } 
   React.useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`/api/profiles/${params.id}`)
+        const response = await fetch(`/api/profiles/${id}`)
         if (!response.ok) {
           throw new Error('Failed to fetch profile')
         }
@@ -28,7 +34,7 @@ export default function PreviewProfilePage({ params }: { params: { id: string } 
     if (status === "authenticated") {
       fetchProfile()
     }
-  }, [status, params.id])
+  }, [status, id])
 
   if (status === "loading") {
     return <div>Loading...</div>

@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 import { getProfiles, createProfile } from "@/lib/db"
 import { z } from "zod"
+import type { Session } from "next-auth"
 
 // GET /api/profiles - Get all profiles for the current user
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = (await getServerSession(authOptions)) as Session
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
@@ -25,7 +26,7 @@ export async function GET() {
 // POST /api/profiles - Create a new profile
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = (await getServerSession(authOptions)) as Session
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
@@ -49,9 +50,26 @@ export async function POST(req: Request) {
       sections: z
         .array(
           z.object({
+            _id: z.string(),
             type: z.enum(["bio", "attributes", "gallery", "videos", "markdown", "custom"]),
             title: z.string(),
-            content: z.any(),
+            content: z.object({
+              text: z.string().optional(),
+              attributes: z.array(z.object({
+                label: z.string(),
+                value: z.string(),
+              })).optional(),
+              images: z.array(z.object({
+                url: z.string(),
+                caption: z.string().optional(),
+              })).optional(),
+              videos: z.array(z.object({
+                url: z.string(),
+                title: z.string().optional(),
+              })).optional(),
+              markdown: z.string().optional(),
+              html: z.string().optional(),
+            }),
             order: z.number(),
           }),
         )
