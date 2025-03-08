@@ -1,6 +1,6 @@
 import { getProfileBySlug } from "@/lib/db"
 import { notFound } from "next/navigation"
-import type { ProfileSection, ProfileAttribute, ProfileImage } from "@/lib/models"
+import type { ProfileSection, ProfileAttribute, ProfileImage, ProfileSocial } from "@/lib/models"
 import { Facebook, Twitter, Instagram, Linkedin, Github, Youtube, Globe } from "lucide-react"
 import type { Metadata } from "next"
 import Image from "next/image"
@@ -141,7 +141,7 @@ export default async function ProfilePage({ params }: PageProps) {
 
           {profile.socialLinks.length > 0 && (
             <div className="flex flex-wrap justify-center gap-4">
-              {profile.socialLinks.map((socialLink, index) => (
+              {profile.socialLinks.map((socialLink: ProfileSocial, index: number) => (
                 <a
                   key={`social-${index}`}
                   href={socialLink.url}
@@ -168,8 +168,8 @@ export default async function ProfilePage({ params }: PageProps) {
           }
         >
           {profile.sections
-            .sort((a, b) => a.order - b.order)
-            .map((section, index) => (
+            .sort((a: ProfileSection, b: ProfileSection) => a.order - b.order)
+            .map((section: ProfileSection, index: number) => (
               <div key={`section-${index}`} className="space-y-4">
                 <h2 className="text-2xl font-bold" style={{ color: profile.theme.secondaryColor }}>
                   {section.title}
