@@ -1,9 +1,51 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, ArrowRight, Sparkles, Users, Layout } from "lucide-react"
 import { MainNav } from "@/components/main-nav"
+
+function CyclingProfileTypes() {
+  const profileTypes = [
+    "professional",
+    "gaming",
+    "role-playing",
+    "sports",
+    "fantasy",
+    "job hunting",
+    "creative",
+    "social",
+    "academic",
+    "business",
+  ]
+
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isVisible, setIsVisible] = useState(true)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsVisible(false)
+
+      setTimeout(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % profileTypes.length)
+        setIsVisible(true)
+      }, 500) // Wait for fade out before changing text
+    }, 3000) // Change every 3 seconds
+
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <span
+      className={`bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
+    >
+      {profileTypes[currentIndex]}
+    </span>
+  )
+}
 
 export default function HomePage() {
   return (
@@ -17,7 +59,10 @@ export default function HomePage() {
             <div className="grid gap-8 md:grid-cols-2 items-center">
               <div className="space-y-6">
                 <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                  Create your professional{" "}
+                  Create your{" "}
+                  <span className="inline-block">
+                    <CyclingProfileTypes />
+                  </span>{" "}
                   <span className="bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
                     profile
                   </span>{" "}
@@ -47,13 +92,7 @@ export default function HomePage() {
               </div>
               <div className="relative">
                 <div className="relative rounded-2xl shadow-lg overflow-hidden border border-secondary">
-                  <Image
-                    src="/placeholder.svg"
-                    alt="Ñ Dashboard"
-                    width={600}
-                    height={500}
-                    className="w-full h-auto"
-                  />
+                  <Image src="/placeholder.svg" alt="Ñ Dashboard" width={600} height={500} className="w-full h-auto" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
                 </div>
               </div>
