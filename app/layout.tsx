@@ -1,13 +1,13 @@
 import type React from "react"
-import { Inter } from "next/font/google"
+import { Inter } from 'next/font/google'
 import "./globals.css"
 import NextAuthSessionProvider from "@/components/session-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Profile Builder",
-  description: "Create, customize, and share your personal profile page",
+  title: "Ñ",
+  description: "Create, customize, and share your professional profile page",
   generator: "v0.dev",
 }
 

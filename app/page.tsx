@@ -46,11 +46,7 @@ export default function HomePage() {
               </div>
               <div className="relative">
                 <div className="relative rounded-lg shadow-lg overflow-hidden border border-gray-200">
-                  <img
-                    src="/placeholder.svg?height=500&width=600"
-                    alt="Profile Builder Dashboard"
-                    className="w-full h-auto"
-                  />
+                  <img src="/placeholder.svg?height=500&width=600" alt="Ñ Dashboard" className="w-full h-auto" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
                 </div>
               </div>
@@ -179,7 +175,7 @@ export default function HomePage() {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-6">Ready to Create Your Profile?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-              Join thousands of professionals who are showcasing their work with Profile Builder.
+              Join thousands of professionals who are showcasing their work with Ñ.
             </p>
             <Button size="lg" variant="secondary" className="px-8" asChild>
               <Link href="/auth/register">Get Started Free</Link>
@@ -193,7 +189,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h3 className="text-white font-bold text-lg">Profile Builder</h3>
+              <h3 className="text-white font-bold text-lg">Ñ</h3>
               <p className="text-sm text-gray-400">Create, customize, and share your professional profile.</p>
             </div>
             <div className="flex gap-8">
@@ -240,7 +236,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} Profile Builder. All rights reserved.
+            © {new Date().getFullYear()} Ñ. All rights reserved.
           </div>
         </div>
       </footer>

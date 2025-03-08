@@ -14,7 +14,7 @@ export default function DashboardLayout({
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
             <Link href="/" className="text-xl font-bold">
-              Profile Builder
+              Ñ
             </Link>
             <nav className="hidden space-x-4 md:flex">
               <Link href="/dashboard" className="flex items-center gap-1 text-sm font-medium hover:text-primary">
