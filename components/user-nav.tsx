@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { LayoutDashboard, Users, Settings, LogOut } from "lucide-react"
 
 export function UserNav() {
   const { data: session, status } = useSession()
@@ -65,17 +66,30 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/dashboard" className="flex items-center">
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Dashboard
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/profiles">Profiles</Link>
+            <Link href="/dashboard/profiles" className="flex items-center">
+              <Users className="mr-2 h-4 w-4" />
+              Profiles
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/settings">Settings</Link>
+            <Link href="/dashboard/settings" className="flex items-center">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="cursor-pointer flex items-center text-destructive"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

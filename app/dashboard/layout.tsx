@@ -1,6 +1,7 @@
 import type React from "react"
 import Link from "next/link"
 import { UserNav } from "@/components/user-nav"
+import { LayoutDashboard, Users, Settings } from "lucide-react"
 
 export default function DashboardLayout({
   children,
@@ -16,13 +17,22 @@ export default function DashboardLayout({
               Profile Builder
             </Link>
             <nav className="hidden space-x-4 md:flex">
-              <Link href="/dashboard" className="text-sm font-medium hover:underline">
+              <Link href="/dashboard" className="flex items-center gap-1 text-sm font-medium hover:text-primary">
+                <LayoutDashboard className="h-4 w-4" />
                 Dashboard
               </Link>
-              <Link href="/dashboard/profiles" className="text-sm font-medium hover:underline">
+              <Link
+                href="/dashboard/profiles"
+                className="flex items-center gap-1 text-sm font-medium hover:text-primary"
+              >
+                <Users className="h-4 w-4" />
                 Profiles
               </Link>
-              <Link href="/dashboard/settings" className="text-sm font-medium hover:underline">
+              <Link
+                href="/dashboard/settings"
+                className="flex items-center gap-1 text-sm font-medium hover:text-primary"
+              >
+                <Settings className="h-4 w-4" />
                 Settings
               </Link>
             </nav>

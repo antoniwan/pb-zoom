@@ -31,7 +31,7 @@ export function ProfileSocialEditor({ profile, updateProfile }: ProfileSocialEdi
     <div className="space-y-6">
       <div className="space-y-4">
         {profile.socialLinks.map((socialLink, index) => (
-          <div key={`social-link-${index}`} className="flex items-center space-x-2">
+          <div key={index} className="flex items-center space-x-2">
             <select
               value={socialLink.platform}
               onChange={(e) => handleUpdateSocialLink(index, { platform: e.target.value })}
