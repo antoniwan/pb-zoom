@@ -26,6 +26,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
+// Create a Client Component for custom CSS
+function CustomCss({ css }: { css: string }) {
+  return <style dangerouslySetInnerHTML={{ __html: css }} />
+}
+
 export default async function ProfilePage({ params }: PageProps) {
   // Properly await the params object
   const { slug } = await params
@@ -114,9 +119,21 @@ export default async function ProfilePage({ params }: PageProps) {
       }}
       className="min-h-screen"
     >
-      <style jsx global>{`
-        ${profile.theme.customCSS || ""}
-      `}</style>
+      {/* Add custom CSS as a script tag */}
+      {profile.theme.customCSS && (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const style = document.createElement('style');
+                style.textContent = ${JSON.stringify(profile.theme.customCSS)};
+                document.head.appendChild(style);
+              })();
+            `,
+          }}
+          type="text/javascript"
+        />
+      )}
 
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="mb-8 text-center">
