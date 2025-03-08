@@ -73,10 +73,10 @@ export default function NewProfilePage() {
           slug,
           isPublic: false,
           theme: {
-            primaryColor: "#3b82f6",
-            secondaryColor: "#10b981",
-            backgroundColor: "#ffffff",
-            textColor: "#1f2937",
+            primaryColor: "#e779c1", // Soft pink
+            secondaryColor: "#67e8f9", // Soft teal
+            backgroundColor: "#faf8f9", // Very light warm background
+            textColor: "#352f44", // Soft dark purple
             fontFamily: "Inter",
           },
           layout: "standard",
@@ -110,7 +110,7 @@ export default function NewProfilePage() {
   return (
     <div className="container mx-auto py-10">
       <div className="mb-6 flex items-center gap-4">
-        <Button variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" className="rounded-xl" asChild>
           <Link href="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Link>
@@ -118,14 +118,20 @@ export default function NewProfilePage() {
         <h1 className="text-2xl font-bold">Create New Profile</h1>
       </div>
 
-      <Card>
+      <Card className="rounded-xl border-secondary/30">
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-500">{error}</div>}
 
             <div className="space-y-2">
               <Label htmlFor="title">Profile Title</Label>
-              <Input id="title" value={title} onChange={handleTitleChange} placeholder="My Awesome Profile" />
+              <Input
+                id="title"
+                value={title}
+                onChange={handleTitleChange}
+                placeholder="My Awesome Profile"
+                className="rounded-xl"
+              />
               <p className="text-sm text-muted-foreground">Give your profile a name that describes its purpose.</p>
             </div>
 
@@ -133,13 +139,19 @@ export default function NewProfilePage() {
               <Label htmlFor="slug">Profile URL</Label>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted-foreground">example.com/p/</span>
-                <Input id="slug" value={slug} onChange={handleSlugChange} placeholder="my-awesome-profile" />
+                <Input
+                  id="slug"
+                  value={slug}
+                  onChange={handleSlugChange}
+                  placeholder="my-awesome-profile"
+                  className="rounded-xl"
+                />
               </div>
               <p className="text-sm text-muted-foreground">This is the URL where your profile will be accessible.</p>
             </div>
 
             <div className="flex justify-end">
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} className="rounded-xl">
                 <Save className="mr-2 h-4 w-4" />
                 {isLoading ? "Creating..." : "Create Profile"}
               </Button>

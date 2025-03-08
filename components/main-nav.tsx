@@ -51,7 +51,7 @@ export function MainNav() {
           <div className="flex items-center">
             <Link
               href="/"
-              className="text-xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent"
+              className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent"
             >
               Ñ
             </Link>
@@ -93,7 +93,7 @@ export function MainNav() {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuContent className="w-56 rounded-xl" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
@@ -122,7 +122,7 @@ export function MainNav() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => signOut({ callbackUrl: "/" })}
-                      className="cursor-pointer text-red-600 focus:text-red-600"
+                      className="cursor-pointer text-red-400 focus:text-red-400"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       Log out
@@ -135,7 +135,7 @@ export function MainNav() {
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="/auth/login">Sign In</Link>
                 </Button>
-                <Button size="sm" asChild>
+                <Button size="sm" className="rounded-full" asChild>
                   <Link href="/auth/register">Sign Up</Link>
                 </Button>
               </div>
@@ -187,19 +187,19 @@ export function MainNav() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start" asChild>
+                    <Button variant="outline" className="w-full justify-start rounded-xl" asChild>
                       <Link href="/dashboard">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         Dashboard
                       </Link>
                     </Button>
-                    <Button variant="outline" className="w-full justify-start" asChild>
+                    <Button variant="outline" className="w-full justify-start rounded-xl" asChild>
                       <Link href="/dashboard/profiles">
                         <User className="mr-2 h-4 w-4" />
                         My Profiles
                       </Link>
                     </Button>
-                    <Button variant="outline" className="w-full justify-start" asChild>
+                    <Button variant="outline" className="w-full justify-start rounded-xl" asChild>
                       <Link href="/dashboard/settings">
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
@@ -207,7 +207,7 @@ export function MainNav() {
                     </Button>
                     <Button
                       variant="destructive"
-                      className="w-full justify-start"
+                      className="w-full justify-start rounded-xl"
                       onClick={() => signOut({ callbackUrl: "/" })}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
@@ -217,10 +217,10 @@ export function MainNav() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  <Button className="w-full" asChild>
+                  <Button className="w-full rounded-xl" asChild>
                     <Link href="/auth/register">Sign Up</Link>
                   </Button>
-                  <Button variant="outline" className="w-full" asChild>
+                  <Button variant="outline" className="w-full rounded-xl" asChild>
                     <Link href="/auth/login">Sign In</Link>
                   </Button>
                 </div>

@@ -11,13 +11,13 @@ export default function HomePage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-gradient-to-b from-white to-gray-50 py-16 md:py-24">
+        <section className="bg-gradient-to-b from-secondary/40 to-background py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="grid gap-8 md:grid-cols-2 items-center">
               <div className="space-y-6">
                 <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
                   Create your professional{" "}
-                  <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
                     profile
                   </span>{" "}
                   in minutes
@@ -26,10 +26,10 @@ export default function HomePage() {
                   Build, customize, and share your personal profile page with the world.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="px-8" asChild>
+                  <Button size="lg" className="px-8 rounded-full" asChild>
                     <Link href="/auth/register">Get Started</Link>
                   </Button>
-                  <Button variant="outline" size="lg" asChild>
+                  <Button variant="outline" size="lg" className="rounded-full" asChild>
                     <Link href="#features">
                       Learn More <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -37,15 +37,15 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center">
-                    <CheckCircle className="mr-1 h-4 w-4 text-green-500" /> Free to start
+                    <CheckCircle className="mr-1 h-4 w-4 text-primary" /> Free to start
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="mr-1 h-4 w-4 text-green-500" /> No credit card required
+                    <CheckCircle className="mr-1 h-4 w-4 text-primary" /> No credit card required
                   </div>
                 </div>
               </div>
               <div className="relative">
-                <div className="relative rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                <div className="relative rounded-2xl shadow-lg overflow-hidden border border-secondary">
                   <img src="/placeholder.svg?height=500&width=600" alt="Ñ Dashboard" className="w-full h-auto" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
                 </div>
@@ -65,9 +65,9 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-8 md:grid-cols-3">
-              <Card>
+              <Card className="rounded-xl border-secondary/30">
                 <CardHeader className="space-y-1">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
                     <Sparkles className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle>Beautiful Themes</CardTitle>
@@ -79,9 +79,9 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="rounded-xl border-secondary/30">
                 <CardHeader className="space-y-1">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
                     <Layout className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle>Flexible Content</CardTitle>
@@ -93,9 +93,9 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="rounded-xl border-secondary/30">
                 <CardHeader className="space-y-1">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
                     <Users className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle>Easy Sharing</CardTitle>
@@ -111,7 +111,7 @@ export default function HomePage() {
         </section>
 
         {/* How It Works */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-accent/20">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">How It Works</h2>
@@ -125,7 +125,7 @@ export default function HomePage() {
                 <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
                   1
                 </div>
-                <Card className="h-full">
+                <Card className="h-full rounded-xl border-secondary/30">
                   <CardHeader>
                     <CardTitle>Sign Up</CardTitle>
                   </CardHeader>
@@ -141,7 +141,7 @@ export default function HomePage() {
                 <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
                   2
                 </div>
-                <Card className="h-full">
+                <Card className="h-full rounded-xl border-secondary/30">
                   <CardHeader>
                     <CardTitle>Customize</CardTitle>
                   </CardHeader>
@@ -157,7 +157,7 @@ export default function HomePage() {
                 <div className="absolute -left-3 -top-3 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
                   3
                 </div>
-                <Card className="h-full">
+                <Card className="h-full rounded-xl border-secondary/30">
                   <CardHeader>
                     <CardTitle>Share</CardTitle>
                   </CardHeader>
@@ -171,13 +171,18 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-primary text-white">
+        <section className="py-16 bg-gradient-to-r from-primary/90 to-purple-400/90 text-primary-foreground">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-6">Ready to Create Your Profile?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
               Join thousands of professionals who are showcasing their work with Ñ.
             </p>
-            <Button size="lg" variant="secondary" className="px-8" asChild>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="px-8 bg-white text-primary hover:bg-white/90 rounded-full"
+              asChild
+            >
               <Link href="/auth/register">Get Started Free</Link>
             </Button>
             <p className="mt-4 text-sm opacity-80">No credit card required</p>
