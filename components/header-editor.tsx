@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,18 +19,19 @@ interface HeaderEditorProps {
 export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProps) {
   const [activeTab, setActiveTab] = useState("info")
 
-  // Initialize header if it doesn't exist
-  if (!profile.header) {
-    updateProfile({
-      header: {
-        name: "",
-        title: "",
-        subtitle: "",
-        shortBio: "",
-        pictures: [],
-      },
-    })
-  }
+  useEffect(() => {
+    if (!profile.header) {
+      updateProfile({
+        header: {
+          name: "",
+          title: "",
+          subtitle: "",
+          shortBio: "",
+          pictures: [],
+        },
+      })
+    }
+  }, [profile.header, updateProfile])
 
   const handleHeaderChange = (field: keyof Profile["header"], value: string) => {
     if (!profile.header) return

@@ -9,6 +9,21 @@ import type { Profile } from "@/lib/models"
 import { ProfileEditorTabs } from "@/components/profile-editor/tabs"
 import Link from "next/link"
 import { use } from "react"
+import { v4 as uuidv4 } from "uuid"
+import type { ProfileSection } from "@/lib/models"
+
+// Add a function to ensure all sections have an _id before updating
+const ensureSectionIds = (sections: ProfileSection[] = []): ProfileSection[] => {
+  return sections.map((section) => {
+    if (!section._id) {
+      return {
+        ...section,
+        _id: uuidv4(),
+      }
+    }
+    return section
+  })
+}
 
 export default function EditProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: profileId } = use(params)
@@ -78,8 +93,15 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
     }
   }
 
+  // Modify the updateProfile function to ensure all sections have IDs
   const updateProfile = (updates: Partial<Profile>) => {
     if (!profile) return
+
+    // If updates include sections, ensure all have IDs
+    if (updates.sections) {
+      updates.sections = ensureSectionIds(updates.sections)
+    }
+
     setProfile({ ...profile, ...updates })
   }
 

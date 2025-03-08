@@ -72,6 +72,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       pictures: z.array(profilePictureSchema),
     })
 
+    // Modify the profileSchema to handle sections without _id by generating one
     const profileSchema = z.object({
       title: z.string().min(1).optional(),
       slug: z.string().min(1).optional(),
@@ -91,7 +92,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       sections: z
         .array(
           z.object({
-            _id: z.string(),
+            _id: z
+              .string()
+              .default(() => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15))),
             type: z.enum(["bio", "attributes", "gallery", "videos", "markdown", "custom"]),
             title: z.string(),
             content: z.object({
