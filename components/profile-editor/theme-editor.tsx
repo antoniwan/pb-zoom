@@ -104,10 +104,10 @@ export function ProfileThemeEditor({ profile, updateProfile }: ProfileThemeEdito
           value={profile.theme.customCSS || ""}
           onChange={(e) => handleThemeChange("customCSS", e.target.value)}
           placeholder=".profile-container { /* your custom styles */ }"
-          className="font-mono"
+          className="font-mono rounded-xl"
           rows={8}
         />
-        <p className="text-sm text-muted-foreground">Add custom CSS to further customize your profile's appearance.</p>
+        <p className="text-sm text-muted-foreground">Add custom CSS to further customize your profile&apos;s appearance.</p>
       </div>
     </div>
   )

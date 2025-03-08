@@ -17,10 +17,8 @@ import Link from "next/link"
 import { use } from "react"
 
 export default function EditProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  // Properly await params using React.use()
   const { id: profileId } = use(params)
-
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -47,8 +45,8 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
     
           const data = await response.json()
           setProfile(data)
-        } catch (error) {
-          console.error("Error fetching profile:", error)
+        } catch (err) {
+          console.error("Error fetching profile:", err)
           setError("Failed to load profile")
         } finally {
           setIsLoading(false)
@@ -91,6 +89,22 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
     setProfile({ ...profile, ...updates })
   }
 
+  if (error) {
+    return (
+      <div className="container mx-auto py-10">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Error</h1>
+          <p className="mt-2 text-muted-foreground">{error}</p>
+          <Button asChild className="mt-4">
+            <Link href="/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+            </Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   if (status === "loading" || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -108,7 +122,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
         <div className="text-center">
           <h1 className="text-2xl font-bold">Profile not found</h1>
           <p className="mt-2 text-muted-foreground">
-            The profile you're looking for doesn't exist or you don't have permission to view it.
+            The profile you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
           </p>
           <Button asChild className="mt-4">
             <Link href="/dashboard">

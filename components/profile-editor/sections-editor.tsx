@@ -6,9 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import type { Profile, ProfileSection } from "@/lib/models"
+import type { Profile, ProfileSection, ProfileAttribute, ProfileImage, ProfileVideo } from "@/lib/models"
 import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
+
+interface SectionContent {
+  text?: string
+  attributes?: ProfileAttribute[]
+  images?: ProfileImage[]
+  videos?: ProfileVideo[]
+  markdown?: string
+  html?: string
+}
 
 interface ProfileSectionsEditorProps {
   profile: Profile
@@ -37,11 +46,55 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
     updateProfile({ sections: updatedSections })
   }
 
-  const handleUpdateSection = (id: string, updates: Partial<ProfileSection>) => {
-    const updatedSections = profile.sections.map((section) =>
-      section._id === id ? { ...section, ...updates } : section,
-    )
+  const handleSectionChange = (sectionIndex: number, key: keyof ProfileSection, value: string | SectionContent) => {
+    const updatedSections = [...profile.sections]
+    updatedSections[sectionIndex] = {
+      ...updatedSections[sectionIndex],
+      [key]: value,
+    }
     updateProfile({ sections: updatedSections })
+  }
+
+  const handleTextChange = (sectionIndex: number, text: string) => {
+    handleContentChange(sectionIndex, { text })
+  }
+
+  const handleMarkdownChange = (sectionIndex: number, markdown: string) => {
+    handleContentChange(sectionIndex, { markdown })
+  }
+
+  const handleContentChange = (sectionIndex: number, content: Partial<SectionContent>) => {
+    const updatedSections = [...profile.sections]
+    updatedSections[sectionIndex] = {
+      ...updatedSections[sectionIndex],
+      content: {
+        ...updatedSections[sectionIndex].content,
+        ...content,
+      },
+    }
+    updateProfile({ sections: updatedSections })
+  }
+
+  const handleAttributeChange = (sectionIndex: number, attributeIndex: number, key: keyof ProfileAttribute, value: string) => {
+    const section = profile.sections[sectionIndex]
+    const attributes = [...(section.content.attributes || [])]
+    attributes[attributeIndex] = {
+      ...attributes[attributeIndex],
+      [key]: value,
+    }
+    handleContentChange(sectionIndex, { attributes })
+  }
+
+  const addAttribute = (sectionIndex: number) => {
+    const section = profile.sections[sectionIndex]
+    const attributes = [...(section.content.attributes || []), { label: "New Skill", value: "Beginner" }]
+    handleContentChange(sectionIndex, { attributes })
+  }
+
+  const removeAttribute = (sectionIndex: number, attributeIndex: number) => {
+    const section = profile.sections[sectionIndex]
+    const attributes = (section.content.attributes || []).filter((_, i) => i !== attributeIndex)
+    handleContentChange(sectionIndex, { attributes })
   }
 
   const handleMoveSection = (id: string, direction: "up" | "down") => {
@@ -117,13 +170,10 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
               <Label htmlFor={`section-${section._id}-content`}>Bio Text</Label>
               <Textarea
                 id={`section-${section._id}-content`}
-                value={section.content.text}
-                onChange={(e) =>
-                  handleUpdateSection(section._id, {
-                    content: { ...section.content, text: e.target.value },
-                  })
-                }
+                value={section.content.text || ""}
+                onChange={(e) => handleTextChange(profile.sections.indexOf(section), e.target.value)}
                 rows={6}
+                placeholder="Enter your bio..."
               />
             </div>
           </div>
@@ -132,39 +182,22 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
       case "attributes":
         return (
           <div className="space-y-4">
-            {section.content.items.map((item: any, index: number) => (
-              <div key={index} className="flex items-center space-x-2">
+            {section.content.attributes?.map((attribute, index) => (
+              <div key={index} className="flex items-center gap-2">
                 <Input
-                  value={item.label}
-                  onChange={(e) => {
-                    const updatedItems = [...section.content.items]
-                    updatedItems[index] = { ...item, label: e.target.value }
-                    handleUpdateSection(section._id, {
-                      content: { ...section.content, items: updatedItems },
-                    })
-                  }}
+                  value={attribute.label}
+                  onChange={(e) => handleAttributeChange(profile.sections.indexOf(section), index, "label", e.target.value)}
                   placeholder="Skill/Attribute"
                 />
                 <Input
-                  value={item.value}
-                  onChange={(e) => {
-                    const updatedItems = [...section.content.items]
-                    updatedItems[index] = { ...item, value: e.target.value }
-                    handleUpdateSection(section._id, {
-                      content: { ...section.content, items: updatedItems },
-                    })
-                  }}
+                  value={attribute.value}
+                  onChange={(e) => handleAttributeChange(profile.sections.indexOf(section), index, "value", e.target.value)}
                   placeholder="Value/Level"
                 />
                 <Button
                   variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    const updatedItems = section.content.items.filter((_: any, i: number) => i !== index)
-                    handleUpdateSection(section._id, {
-                      content: { ...section.content, items: updatedItems },
-                    })
-                  }}
+                  size="sm"
+                  onClick={() => removeAttribute(profile.sections.indexOf(section), index)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -173,14 +206,10 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                const updatedItems = [...section.content.items, { label: "New Skill", value: "Beginner" }]
-                handleUpdateSection(section._id, {
-                  content: { ...section.content, items: updatedItems },
-                })
-              }}
+              onClick={() => addAttribute(profile.sections.indexOf(section))}
             >
-              <Plus className="mr-2 h-4 w-4" /> Add Attribute
+              <Plus className="mr-2 h-4 w-4" />
+              Add Attribute
             </Button>
           </div>
         )
@@ -191,14 +220,11 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
             <Label htmlFor={`section-${section._id}-markdown`}>Markdown Content</Label>
             <Textarea
               id={`section-${section._id}-markdown`}
-              value={section.content.markdown}
-              onChange={(e) =>
-                handleUpdateSection(section._id, {
-                  content: { ...section.content, markdown: e.target.value },
-                })
-              }
+              value={section.content.markdown || ""}
+              onChange={(e) => handleMarkdownChange(profile.sections.indexOf(section), e.target.value)}
               className="font-mono"
               rows={10}
+              placeholder="Enter markdown content..."
             />
             <p className="text-sm text-muted-foreground">
               Use Markdown to format your content. Supports headings, lists, links, and more.
@@ -225,7 +251,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
                   <CardTitle className="text-base">
                     <Input
                       value={section.title}
-                      onChange={(e) => handleUpdateSection(section._id, { title: e.target.value })}
+                      onChange={(e) => handleSectionChange(profile.sections.indexOf(section), "title", e.target.value)}
                       className="h-7 px-2 py-1"
                     />
                   </CardTitle>

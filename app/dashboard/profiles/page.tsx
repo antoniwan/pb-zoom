@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,10 +10,23 @@ import Link from "next/link"
 import type { Profile } from "@/lib/models"
 
 export default function ProfilesPage() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  const fetchProfiles = useCallback(async () => {
+    try {
+      const response = await fetch("/api/profiles")
+      if (!response.ok) throw new Error("Failed to fetch profiles")
+      const data = await response.json()
+      setProfiles(data)
+    } catch (error) {
+      console.error("Error fetching profiles:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -23,22 +36,7 @@ export default function ProfilesPage() {
     if (status === "authenticated") {
       fetchProfiles()
     }
-  }, [status, router])
-
-  const fetchProfiles = async () => {
-    try {
-      const response = await fetch("/api/profiles")
-      const data = await response.json()
-
-      if (response.ok) {
-        setProfiles(data)
-      }
-    } catch (error) {
-      console.error("Error fetching profiles:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  }, [status, router, fetchProfiles])
 
   const handleDeleteProfile = async (id: string) => {
     if (!confirm("Are you sure you want to delete this profile?")) {

@@ -1,10 +1,11 @@
 "use client"
 
-import type { Profile, ProfileSection } from "@/lib/models"
+import type { Profile, ProfileSection, ProfileAttribute, ProfileImage } from "@/lib/models"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Facebook, Twitter, Instagram, Linkedin, Github, Youtube, Globe } from "lucide-react"
 import ReactMarkdown from "react-markdown"
+import Image from "next/image"
 
 interface ProfilePreviewProps {
   profile: Profile
@@ -41,11 +42,11 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
 
       case "attributes":
         return (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {section.content.items.map((item: any, index: number) => (
-              <div key={`preview-attribute-${sectionIndex}-${index}`} className="flex flex-col space-y-1">
-                <div className="text-sm font-medium">{item.label}</div>
-                <div className="text-sm text-muted-foreground">{item.value}</div>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {section.content.attributes?.map((attribute: ProfileAttribute, index: number) => (
+              <div key={`attribute-${sectionIndex}-${index}`} className="flex flex-col space-y-1">
+                <div className="text-sm font-medium">{attribute.label}</div>
+                <div className="text-sm text-muted-foreground">{attribute.value}</div>
               </div>
             ))}
           </div>
@@ -55,20 +56,22 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
         return (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {section.content.images && section.content.images.length > 0 ? (
-              section.content.images.map((image: any, index: number) => (
+              section.content.images.map((image: ProfileImage, index: number) => (
                 <div
-                  key={`preview-image-${sectionIndex}-${index}`}
+                  key={`image-${sectionIndex}-${index}`}
                   className="aspect-square overflow-hidden rounded-md bg-muted"
                 >
-                  <img
-                    src={image.url || "/placeholder.svg?height=300&width=300"}
-                    alt={image.title || "Gallery image"}
+                  <Image
+                    src={image.url || "/placeholder.svg"}
+                    alt={image.caption || "Gallery image"}
+                    width={300}
+                    height={300}
                     className="h-full w-full object-cover"
                   />
                 </div>
               ))
             ) : (
-              <div className="col-span-full text-center text-muted-foreground">No images added yet</div>
+              <div className="col-span-full text-center text-muted-foreground">No images to display</div>
             )}
           </div>
         )

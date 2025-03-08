@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, ArrowRight, Sparkles, Users, Layout } from "lucide-react"
@@ -46,7 +47,13 @@ export default function HomePage() {
               </div>
               <div className="relative">
                 <div className="relative rounded-2xl shadow-lg overflow-hidden border border-secondary">
-                  <img src="/placeholder.svg?height=500&width=600" alt="Ñ Dashboard" className="w-full h-auto" />
+                  <Image
+                    src="/placeholder.svg"
+                    alt="Ñ Dashboard"
+                    width={600}
+                    height={500}
+                    className="w-full h-auto"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
                 </div>
               </div>

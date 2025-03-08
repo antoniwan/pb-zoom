@@ -21,6 +21,7 @@ export default function SettingsPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -51,6 +52,7 @@ export default function SettingsPage() {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
+    setError(null)
 
     try {
       // This would be a real API call in a production app
@@ -69,10 +71,12 @@ export default function SettingsPage() {
         title: "Profile updated",
         description: "Your profile information has been updated successfully.",
       })
-    } catch (error) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update profile. Please try again."
+      setError(errorMessage)
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -99,6 +103,11 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto py-10">
+      {error && (
+        <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500">
+          {error}
+        </div>
+      )}
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Manage your account settings and preferences</p>

@@ -18,7 +18,7 @@ export default function VerifyRequestPage() {
         <CardContent>
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              If you don't see it, check your spam folder. If you still don't see it, try requesting another link.
+              If you don&apos;t see it, check your spam folder. If you still don&apos;t see it, try requesting another link.
             </p>
           </div>
         </CardContent>

@@ -28,11 +28,9 @@ export default function DashboardPage() {
   const fetchProfiles = async () => {
     try {
       const response = await fetch("/api/profiles")
+      if (!response.ok) throw new Error("Failed to fetch profiles")
       const data = await response.json()
-
-      if (response.ok) {
-        setProfiles(data)
-      }
+      setProfiles(data)
     } catch (error) {
       console.error("Error fetching profiles:", error)
     } finally {
@@ -56,6 +54,10 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Error deleting profile:", error)
     }
+  }
+
+  if (!session) {
+    return null
   }
 
   if (status === "loading" || isLoading) {
