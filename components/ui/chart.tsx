@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
+import type { Payload } from "recharts/types/component/DefaultTooltipContent"
+import type { TooltipProps, LegendProps } from "recharts"
 
 import { cn } from "@/lib/utils"
 
@@ -20,16 +22,6 @@ export type ChartConfig = {
 
 type ChartContextProps = {
   config: ChartConfig
-}
-
-interface PayloadItem {
-  dataKey?: string
-  name?: string
-  value?: number
-  color?: string
-  payload?: {
-    fill?: string
-  }
 }
 
 const ChartContext = React.createContext<ChartContextProps | null>(null)
@@ -113,15 +105,19 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+// Remove custom PayloadItem interface and use Recharts types directly
+type TooltipPayload = Payload<number | string, string>
+
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+  Omit<TooltipProps<number | string, string>, "formatter"> &
     React.ComponentProps<"div"> & {
       hideLabel?: boolean
       hideIndicator?: boolean
       indicator?: "line" | "dot" | "dashed"
       nameKey?: string
       labelKey?: string
+      formatter?: (value: number | string, name: string, props: TooltipPayload) => React.ReactNode
     }
 >(
   (
@@ -149,7 +145,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      const [item] = payload as PayloadItem[]
+      const [item] = payload as TooltipPayload[]
       const key = `${labelKey || item.dataKey || item.name || "value"}`
       const itemConfig = getPayloadConfigFromPayload(config, item, key)
       const value =
@@ -196,7 +192,7 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {(payload as PayloadItem[]).map((item, index) => {
+          {(payload as TooltipPayload[]).map((item) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
             const indicatorColor = color || item.payload?.fill || item.color
@@ -210,7 +206,7 @@ const ChartTooltipContent = React.forwardRef<
                 )}
               >
                 {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name, item, index, item)
+                  formatter(item.value, item.name, item)
                 ) : (
                   <>
                     {itemConfig?.icon ? (
@@ -251,7 +247,7 @@ const ChartTooltipContent = React.forwardRef<
                       </div>
                       {item.value && (
                         <span className="font-mono font-medium tabular-nums text-foreground">
-                          {item.value.toLocaleString()}
+                          {typeof item.value === 'number' ? item.value.toLocaleString() : item.value}
                         </span>
                       )}
                     </div>
@@ -329,7 +325,7 @@ ChartLegendContent.displayName = "ChartLegend"
 
 function getPayloadConfigFromPayload(
   config: ChartConfig,
-  payload: PayloadItem | null,
+  payload: TooltipPayload | NonNullable<LegendProps["payload"]>[number] | null,
   key: string
 ) {
   if (!payload) return null
