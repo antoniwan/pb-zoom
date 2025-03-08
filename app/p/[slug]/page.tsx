@@ -26,11 +26,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-// Create a Client Component for custom CSS
-function CustomCss({ css }: { css: string }) {
-  return <style dangerouslySetInnerHTML={{ __html: css }} />
-}
-
 export default async function ProfilePage({ params }: PageProps) {
   // Properly await the params object
   const { slug } = await params
@@ -60,7 +55,7 @@ export default async function ProfilePage({ params }: PageProps) {
     }
   }
 
-  const renderSection = (section: ProfileSection) => {
+  const renderSection = (section: ProfileSection, sectionIndex: number) => {
     switch (section.type) {
       case "bio":
         return (
@@ -73,7 +68,7 @@ export default async function ProfilePage({ params }: PageProps) {
         return (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {section.content.items.map((item: any, index: number) => (
-              <div key={`public-attribute-${section._id}-${index}`} className="flex flex-col space-y-1">
+              <div key={`attribute-${sectionIndex}-${index}`} className="flex flex-col space-y-1">
                 <div className="text-sm font-medium">{item.label}</div>
                 <div className="text-sm text-muted-foreground">{item.value}</div>
               </div>
@@ -87,7 +82,7 @@ export default async function ProfilePage({ params }: PageProps) {
             {section.content.images && section.content.images.length > 0 ? (
               section.content.images.map((image: any, index: number) => (
                 <div
-                  key={`public-image-${section._id}-${index}`}
+                  key={`image-${sectionIndex}-${index}`}
                   className="aspect-square overflow-hidden rounded-md bg-muted"
                 >
                   <img
@@ -145,7 +140,7 @@ export default async function ProfilePage({ params }: PageProps) {
             <div className="flex flex-wrap justify-center gap-4">
               {profile.socialLinks.map((socialLink, index) => (
                 <a
-                  key={`public-social-${index}`}
+                  key={`social-${index}`}
                   href={socialLink.url}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -171,12 +166,12 @@ export default async function ProfilePage({ params }: PageProps) {
         >
           {profile.sections
             .sort((a, b) => a.order - b.order)
-            .map((section) => (
-              <div key={`public-section-${section._id}`} className="space-y-4">
+            .map((section, index) => (
+              <div key={`section-${index}`} className="space-y-4">
                 <h2 className="text-2xl font-bold" style={{ color: profile.theme.secondaryColor }}>
                   {section.title}
                 </h2>
-                {renderSection(section)}
+                {renderSection(section, index)}
               </div>
             ))}
         </div>
