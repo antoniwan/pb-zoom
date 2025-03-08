@@ -1,5 +1,6 @@
 "use client"
 
+import { useSession, signOut } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,18 +12,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { signOut } from "next-auth/react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
-interface UserNavProps {
-  user: {
-    name?: string | null
-    email?: string | null
-    image?: string | null
+export function UserNav() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  if (status === "loading") {
+    return <div className="h-8 w-8 rounded-full bg-muted"></div>
   }
-}
 
-export function UserNav({ user }: UserNavProps) {
+  if (status === "unauthenticated") {
+    return (
+      <Button variant="outline" size="sm" asChild>
+        <Link href="/auth/login">Sign In</Link>
+      </Button>
+    )
+  }
+
+  const user = session?.user
+
+  if (!user) {
+    return null
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
