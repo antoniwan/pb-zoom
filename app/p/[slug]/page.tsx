@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import type { ProfileSection } from "@/lib/models"
 import { Facebook, Twitter, Instagram, Linkedin, Github, Youtube, Globe } from "lucide-react"
 import type { Metadata } from "next"
+import { use } from "react"
 
 interface PageProps {
   params: {
@@ -11,7 +12,10 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const profile = await getProfileBySlug(params.slug)
+  // Ensure params.slug is accessed safely
+  const slug = params.slug
+
+  const profile = await getProfileBySlug(slug)
 
   if (!profile) {
     return {
@@ -26,7 +30,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProfilePage({ params }: PageProps) {
-  const profile = await getProfileBySlug(params.slug)
+  // Ensure params.slug is accessed safely
+  const unwrappedParams = use(params as unknown as Promise<{ slug: string }>)
+  const slug = unwrappedParams.slug
+
+  const profile = await getProfileBySlug(slug)
 
   if (!profile) {
     notFound()

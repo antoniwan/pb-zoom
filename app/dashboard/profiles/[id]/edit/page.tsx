@@ -14,8 +14,13 @@ import { ProfileSocialEditor } from "@/components/profile-editor/social-editor"
 import { ProfilePreview } from "@/components/profile-preview"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
+import { use } from "react"
 
 export default function EditProfilePage({ params }: { params: { id: string } }) {
+  // Unwrap params using React.use()
+  const unwrappedParams = use(params as unknown as Promise<{ id: string }>)
+  const profileId = unwrappedParams.id
+
   const { data: session, status } = useSession()
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -30,11 +35,11 @@ export default function EditProfilePage({ params }: { params: { id: string } }) 
     if (status === "authenticated") {
       fetchProfile()
     }
-  }, [status, router, params.id])
+  }, [status, router, profileId])
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch(`/api/profiles/${params.id}`)
+      const response = await fetch(`/api/profiles/${profileId}`)
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -59,7 +64,7 @@ export default function EditProfilePage({ params }: { params: { id: string } }) 
     setIsSaving(true)
 
     try {
-      const response = await fetch(`/api/profiles/${params.id}`, {
+      const response = await fetch(`/api/profiles/${profileId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

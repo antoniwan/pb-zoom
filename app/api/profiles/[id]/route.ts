@@ -7,13 +7,16 @@ import { z } from "zod"
 // GET /api/profiles/[id] - Get a specific profile
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
+    // Ensure params.id is accessed safely
+    const id = params.id
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
-    const profile = await getProfile(params.id)
+    const profile = await getProfile(id)
 
     if (!profile) {
       return NextResponse.json({ message: "Profile not found" }, { status: 404 })
@@ -33,13 +36,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 // PATCH /api/profiles/[id] - Update a profile
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
+    // Ensure params.id is accessed safely
+    const id = params.id
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
-    const profile = await getProfile(params.id)
+    const profile = await getProfile(id)
 
     if (!profile) {
       return NextResponse.json({ message: "Profile not found" }, { status: 404 })
@@ -89,7 +95,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     const validatedData = profileSchema.parse(body)
 
-    const success = await updateProfile(params.id, validatedData)
+    const success = await updateProfile(id, validatedData)
 
     if (!success) {
       return NextResponse.json({ message: "Failed to update profile" }, { status: 500 })
@@ -110,13 +116,16 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 // DELETE /api/profiles/[id] - Delete a profile
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
+    // Ensure params.id is accessed safely
+    const id = params.id
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
-    const profile = await getProfile(params.id)
+    const profile = await getProfile(id)
 
     if (!profile) {
       return NextResponse.json({ message: "Profile not found" }, { status: 404 })
@@ -126,7 +135,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ message: "Unauthorized" }, { status: 403 })
     }
 
-    const success = await deleteProfile(params.id)
+    const success = await deleteProfile(id)
 
     if (!success) {
       return NextResponse.json({ message: "Failed to delete profile" }, { status: 500 })
