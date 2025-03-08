@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useId } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,7 @@ interface ProfileSectionsEditorProps {
 
 export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSectionsEditorProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
+  const componentId = useId() // Generate a unique ID for this component instance
 
   const handleAddSection = (type: ProfileSection["type"]) => {
     const newSection: ProfileSection = {
@@ -108,15 +109,15 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
     }
   }
 
-  const renderSectionEditor = (section: ProfileSection) => {
+  const renderSectionEditor = (section: ProfileSection, sectionIndex: number) => {
     switch (section.type) {
       case "bio":
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor={`section-${section._id}-content`}>Bio Text</Label>
+              <Label htmlFor={`section-${section._id || sectionIndex}-content`}>Bio Text</Label>
               <Textarea
-                id={`section-${section._id}-content`}
+                id={`section-${section._id || sectionIndex}-content`}
                 value={section.content.text}
                 onChange={(e) =>
                   handleUpdateSection(section._id, {
@@ -132,49 +133,54 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
       case "attributes":
         return (
           <div className="space-y-4">
-            {section.content.items.map((item: any, index: number) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Input
-                  value={item.label}
-                  onChange={(e) => {
-                    const updatedItems = [...section.content.items]
-                    updatedItems[index] = { ...item, label: e.target.value }
-                    handleUpdateSection(section._id, {
-                      content: { ...section.content, items: updatedItems },
-                    })
-                  }}
-                  placeholder="Skill/Attribute"
-                />
-                <Input
-                  value={item.value}
-                  onChange={(e) => {
-                    const updatedItems = [...section.content.items]
-                    updatedItems[index] = { ...item, value: e.target.value }
-                    handleUpdateSection(section._id, {
-                      content: { ...section.content, items: updatedItems },
-                    })
-                  }}
-                  placeholder="Value/Level"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    const updatedItems = section.content.items.filter((_: any, i: number) => i !== index)
-                    handleUpdateSection(section._id, {
-                      content: { ...section.content, items: updatedItems },
-                    })
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+            {section.content.items && section.content.items.map ? (
+              section.content.items.map((item: any, index: number) => (
+                <div key={`${componentId}-attribute-${sectionIndex}-${index}`} className="flex items-center space-x-2">
+                  <Input
+                    value={item.label}
+                    onChange={(e) => {
+                      const updatedItems = [...section.content.items]
+                      updatedItems[index] = { ...item, label: e.target.value }
+                      handleUpdateSection(section._id, {
+                        content: { ...section.content, items: updatedItems },
+                      })
+                    }}
+                    placeholder="Skill/Attribute"
+                  />
+                  <Input
+                    value={item.value}
+                    onChange={(e) => {
+                      const updatedItems = [...section.content.items]
+                      updatedItems[index] = { ...item, value: e.target.value }
+                      handleUpdateSection(section._id, {
+                        content: { ...section.content, items: updatedItems },
+                      })
+                    }}
+                    placeholder="Value/Level"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      const updatedItems = section.content.items.filter((_: any, i: number) => i !== index)
+                      handleUpdateSection(section._id, {
+                        content: { ...section.content, items: updatedItems },
+                      })
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <div>No items available</div>
+            )}
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                const updatedItems = [...section.content.items, { label: "New Skill", value: "Beginner" }]
+                const currentItems = Array.isArray(section.content.items) ? section.content.items : []
+                const updatedItems = [...currentItems, { label: "New Skill", value: "Beginner" }]
                 handleUpdateSection(section._id, {
                   content: { ...section.content, items: updatedItems },
                 })
@@ -188,9 +194,9 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
       case "markdown":
         return (
           <div className="space-y-2">
-            <Label htmlFor={`section-${section._id}-markdown`}>Markdown Content</Label>
+            <Label htmlFor={`section-${section._id || sectionIndex}-markdown`}>Markdown Content</Label>
             <Textarea
-              id={`section-${section._id}-markdown`}
+              id={`section-${section._id || sectionIndex}-markdown`}
               value={section.content.markdown}
               onChange={(e) =>
                 handleUpdateSection(section._id, {
@@ -213,84 +219,90 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
     }
   }
 
+  // Define section types with their labels for the "Add New Section" buttons
+  const sectionTypes = [
+    { id: "bio-section", type: "bio" as const, label: "Bio" },
+    { id: "attributes-section", type: "attributes" as const, label: "Attributes" },
+    { id: "gallery-section", type: "gallery" as const, label: "Gallery" },
+    { id: "videos-section", type: "videos" as const, label: "Videos" },
+    { id: "markdown-section", type: "markdown" as const, label: "Markdown" },
+    { id: "custom-section", type: "custom" as const, label: "Custom" },
+  ]
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        {profile.sections.map((section) => (
-          <Card key={section._id}>
-            <CardHeader className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <GripVertical className="h-5 w-5 text-muted-foreground" />
-                  <CardTitle className="text-base">
-                    <Input
-                      value={section.title}
-                      onChange={(e) => handleUpdateSection(section._id, { title: e.target.value })}
-                      className="h-7 px-2 py-1"
-                    />
-                  </CardTitle>
-                  <span className="rounded-full bg-muted px-2 py-1 text-xs">{section.type}</span>
+        {profile.sections && profile.sections.map ? (
+          profile.sections.map((section, index) => (
+            <Card key={`${componentId}-section-${section._id || index}`}>
+              <CardHeader className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <GripVertical className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-base">
+                      <Input
+                        value={section.title}
+                        onChange={(e) => handleUpdateSection(section._id, { title: e.target.value })}
+                        className="h-7 px-2 py-1"
+                      />
+                    </CardTitle>
+                    <span className="rounded-full bg-muted px-2 py-1 text-xs">{section.type}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleMoveSection(section._id, "up")}
+                      disabled={section.order === 0}
+                    >
+                      <ChevronUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleMoveSection(section._id, "down")}
+                      disabled={section.order === profile.sections.length - 1}
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setExpandedSection(expandedSection === section._id ? null : section._id)}
+                    >
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${expandedSection === section._id ? "rotate-180" : ""}`}
+                      />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleRemoveSection(section._id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleMoveSection(section._id, "up")}
-                    disabled={section.order === 0}
-                  >
-                    <ChevronUp className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleMoveSection(section._id, "down")}
-                    disabled={section.order === profile.sections.length - 1}
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setExpandedSection(expandedSection === section._id ? null : section._id)}
-                  >
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${expandedSection === section._id ? "rotate-180" : ""}`}
-                    />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleRemoveSection(section._id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            {expandedSection === section._id && (
-              <CardContent className="p-4 pt-0">{renderSectionEditor(section)}</CardContent>
-            )}
-          </Card>
-        ))}
+              </CardHeader>
+              {expandedSection === section._id && (
+                <CardContent className="p-4 pt-0">{renderSectionEditor(section, index)}</CardContent>
+              )}
+            </Card>
+          ))
+        ) : (
+          <div>No sections available</div>
+        )}
       </div>
 
       <div className="rounded-lg border p-4">
         <h3 className="mb-4 text-sm font-medium">Add New Section</h3>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("bio")}>
-            <span className="mb-2">Bio</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("attributes")}>
-            <span className="mb-2">Attributes</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("gallery")}>
-            <span className="mb-2">Gallery</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("videos")}>
-            <span className="mb-2">Videos</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("markdown")}>
-            <span className="mb-2">Markdown</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("custom")}>
-            <span className="mb-2">Custom</span>
-          </Button>
+          {sectionTypes.map((sectionType) => (
+            <Button
+              key={`${componentId}-${sectionType.id}`}
+              variant="outline"
+              className="h-auto flex-col p-4"
+              onClick={() => handleAddSection(sectionType.type)}
+            >
+              <span className="mb-2">{sectionType.label}</span>
+            </Button>
+          ))}
         </div>
       </div>
     </div>
