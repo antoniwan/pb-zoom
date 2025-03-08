@@ -107,7 +107,51 @@ export default function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-40 rounded-md bg-muted"></div>
+                <div
+                  className="h-40 rounded-md overflow-hidden border"
+                  style={{ backgroundColor: profile.theme.backgroundColor }}
+                >
+                  <div
+                    className="h-8 w-full px-3 py-2 flex items-center"
+                    style={{ backgroundColor: profile.theme.primaryColor, color: "#fff" }}
+                  >
+                    <span className="text-sm font-medium truncate">{profile.title}</span>
+                  </div>
+                  <div className="p-3">
+                    {profile.sections && profile.sections.length > 0 ? (
+                      <div className="space-y-2">
+                        {profile.sections.slice(0, 2).map((section, i) => (
+                          <div key={i} className="flex flex-col">
+                            <span className="text-xs font-medium" style={{ color: profile.theme.secondaryColor }}>
+                              {section.title}
+                            </span>
+                            <div
+                              className="h-2 w-full mt-1 rounded-full"
+                              style={{ backgroundColor: `${profile.theme.secondaryColor}20` }}
+                            >
+                              <div
+                                className="h-full rounded-full"
+                                style={{
+                                  backgroundColor: profile.theme.secondaryColor,
+                                  width: `${Math.random() * 60 + 20}%`,
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                        ))}
+                        {profile.sections.length > 2 && (
+                          <div className="text-xs text-center mt-1" style={{ color: profile.theme.textColor }}>
+                            +{profile.sections.length - 2} more sections
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
+                        No sections added yet
+                      </div>
+                    )}
+                  </div>
+                </div>
               </CardContent>
               <CardFooter className="flex justify-between">
                 <div className="flex space-x-2">
