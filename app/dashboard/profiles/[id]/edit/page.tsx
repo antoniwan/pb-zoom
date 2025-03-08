@@ -16,10 +16,9 @@ import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 import { use } from "react"
 
-export default function EditProfilePage({ params }: { params: { id: string } }) {
-  // Unwrap params using React.use()
-  const unwrappedParams = use(params as unknown as Promise<{ id: string }>)
-  const profileId = unwrappedParams.id
+export default function EditProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  // Properly await params using React.use()
+  const { id: profileId } = use(params)
 
   const { data: session, status } = useSession()
   const router = useRouter()

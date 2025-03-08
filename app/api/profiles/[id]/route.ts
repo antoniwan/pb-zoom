@@ -5,10 +5,10 @@ import { getProfile, updateProfile, deleteProfile } from "@/lib/db"
 import { z } from "zod"
 
 // GET /api/profiles/[id] - Get a specific profile
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Ensure params.id is accessed safely
-    const id = params.id
+    // Properly await the params object
+    const { id } = await params
 
     const session = await getServerSession(authOptions)
 
@@ -34,10 +34,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 // PATCH /api/profiles/[id] - Update a profile
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Ensure params.id is accessed safely
-    const id = params.id
+    // Properly await the params object
+    const { id } = await params
 
     const session = await getServerSession(authOptions)
 
@@ -114,10 +114,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 // DELETE /api/profiles/[id] - Delete a profile
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Ensure params.id is accessed safely
-    const id = params.id
+    // Properly await the params object
+    const { id } = await params
 
     const session = await getServerSession(authOptions)
 

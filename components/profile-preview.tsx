@@ -43,7 +43,7 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
         return (
           <div className="grid gap-4 sm:grid-cols-2">
             {section.content.items.map((item: any, index: number) => (
-              <div key={index} className="flex flex-col space-y-1">
+              <div key={`preview-attribute-${section._id}-${index}`} className="flex flex-col space-y-1">
                 <div className="text-sm font-medium">{item.label}</div>
                 <div className="text-sm text-muted-foreground">{item.value}</div>
               </div>
@@ -56,7 +56,10 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {section.content.images && section.content.images.length > 0 ? (
               section.content.images.map((image: any, index: number) => (
-                <div key={index} className="aspect-square overflow-hidden rounded-md bg-muted">
+                <div
+                  key={`preview-image-${section._id}-${index}`}
+                  className="aspect-square overflow-hidden rounded-md bg-muted"
+                >
                   <img
                     src={image.url || "/placeholder.svg?height=300&width=300"}
                     alt={image.title || "Gallery image"}
@@ -109,7 +112,7 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
                   <div className="flex justify-center space-x-4">
                     {profile.socialLinks.map((socialLink, index) => (
                       <a
-                        key={index}
+                        key={`preview-social-desktop-${index}`}
                         href={socialLink.url}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -125,7 +128,7 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
 
               <div className={`space-y-8 ${profile.layout === "grid" ? "grid gap-8 md:grid-cols-2" : ""}`}>
                 {profile.sections.map((section) => (
-                  <div key={section._id} className="space-y-4">
+                  <div key={`preview-section-desktop-${section._id}`} className="space-y-4">
                     <h2 className="text-xl font-bold" style={{ color: profile.theme.secondaryColor }}>
                       {section.title}
                     </h2>
@@ -156,7 +159,7 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
                   <div className="flex flex-wrap justify-center gap-2">
                     {profile.socialLinks.map((socialLink, index) => (
                       <a
-                        key={index}
+                        key={`preview-social-mobile-${index}`}
                         href={socialLink.url}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -172,7 +175,7 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
 
               <div className="space-y-6">
                 {profile.sections.map((section) => (
-                  <div key={section._id} className="space-y-3">
+                  <div key={`preview-section-mobile-${section._id}`} className="space-y-3">
                     <h2 className="text-lg font-bold" style={{ color: profile.theme.secondaryColor }}>
                       {section.title}
                     </h2>

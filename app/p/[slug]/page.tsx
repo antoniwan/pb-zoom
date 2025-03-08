@@ -3,17 +3,14 @@ import { notFound } from "next/navigation"
 import type { ProfileSection } from "@/lib/models"
 import { Facebook, Twitter, Instagram, Linkedin, Github, Youtube, Globe } from "lucide-react"
 import type { Metadata } from "next"
-import { use } from "react"
 
 interface PageProps {
-  params: {
-    slug: string
-  }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  // Ensure params.slug is accessed safely
-  const slug = params.slug
+  // Properly await the params object
+  const { slug } = await params
 
   const profile = await getProfileBySlug(slug)
 
@@ -30,9 +27,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProfilePage({ params }: PageProps) {
-  // Ensure params.slug is accessed safely
-  const unwrappedParams = use(params as unknown as Promise<{ slug: string }>)
-  const slug = unwrappedParams.slug
+  // Properly await the params object
+  const { slug } = await params
 
   const profile = await getProfileBySlug(slug)
 
@@ -72,7 +68,7 @@ export default async function ProfilePage({ params }: PageProps) {
         return (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {section.content.items.map((item: any, index: number) => (
-              <div key={index} className="flex flex-col space-y-1">
+              <div key={`public-attribute-${section._id}-${index}`} className="flex flex-col space-y-1">
                 <div className="text-sm font-medium">{item.label}</div>
                 <div className="text-sm text-muted-foreground">{item.value}</div>
               </div>
@@ -85,7 +81,10 @@ export default async function ProfilePage({ params }: PageProps) {
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {section.content.images && section.content.images.length > 0 ? (
               section.content.images.map((image: any, index: number) => (
-                <div key={index} className="aspect-square overflow-hidden rounded-md bg-muted">
+                <div
+                  key={`public-image-${section._id}-${index}`}
+                  className="aspect-square overflow-hidden rounded-md bg-muted"
+                >
                   <img
                     src={image.url || "/placeholder.svg?height=300&width=300"}
                     alt={image.title || "Gallery image"}
@@ -129,7 +128,7 @@ export default async function ProfilePage({ params }: PageProps) {
             <div className="flex flex-wrap justify-center gap-4">
               {profile.socialLinks.map((socialLink, index) => (
                 <a
-                  key={index}
+                  key={`public-social-${index}`}
                   href={socialLink.url}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -156,7 +155,7 @@ export default async function ProfilePage({ params }: PageProps) {
           {profile.sections
             .sort((a, b) => a.order - b.order)
             .map((section) => (
-              <div key={section._id} className="space-y-4">
+              <div key={`public-section-${section._id}`} className="space-y-4">
                 <h2 className="text-2xl font-bold" style={{ color: profile.theme.secondaryColor }}>
                   {section.title}
                 </h2>

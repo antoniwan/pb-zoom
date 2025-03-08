@@ -133,7 +133,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
         return (
           <div className="space-y-4">
             {section.content.items.map((item: any, index: number) => (
-              <div key={index} className="flex items-center space-x-2">
+              <div key={`attribute-${section._id}-${index}`} className="flex items-center space-x-2">
                 <Input
                   value={item.label}
                   onChange={(e) => {
@@ -213,6 +213,16 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
     }
   }
 
+  // Define section types with their labels for the "Add New Section" buttons
+  const sectionTypes = [
+    { type: "bio" as const, label: "Bio" },
+    { type: "attributes" as const, label: "Attributes" },
+    { type: "gallery" as const, label: "Gallery" },
+    { type: "videos" as const, label: "Videos" },
+    { type: "markdown" as const, label: "Markdown" },
+    { type: "custom" as const, label: "Custom" },
+  ]
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -273,24 +283,16 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
       <div className="rounded-lg border p-4">
         <h3 className="mb-4 text-sm font-medium">Add New Section</h3>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("bio")}>
-            <span className="mb-2">Bio</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("attributes")}>
-            <span className="mb-2">Attributes</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("gallery")}>
-            <span className="mb-2">Gallery</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("videos")}>
-            <span className="mb-2">Videos</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("markdown")}>
-            <span className="mb-2">Markdown</span>
-          </Button>
-          <Button variant="outline" className="h-auto flex-col p-4" onClick={() => handleAddSection("custom")}>
-            <span className="mb-2">Custom</span>
-          </Button>
+          {sectionTypes.map((sectionType) => (
+            <Button
+              key={`add-section-${sectionType.type}`}
+              variant="outline"
+              className="h-auto flex-col p-4"
+              onClick={() => handleAddSection(sectionType.type)}
+            >
+              <span className="mb-2">{sectionType.label}</span>
+            </Button>
+          ))}
         </div>
       </div>
     </div>
