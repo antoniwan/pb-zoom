@@ -8,11 +8,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Plus, Edit, Trash2, Eye, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import type { Profile } from "@/lib/models"
+import type { Session } from "next-auth"
 
 type SessionStatus = "authenticated" | "loading" | "unauthenticated"
 
 export default function DashboardPage() {
-  const { data: session, status }: { data: any, status: SessionStatus } = useSession()
+  const { data: session, status }: { data: Session | null, status: SessionStatus } = useSession()
   const router = useRouter()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [isLoading, setIsLoading] = useState(true)
