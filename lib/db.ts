@@ -308,7 +308,7 @@ export async function updateProfile(id: string, data: Partial<Omit<Profile, "_id
           ...data,
           updatedAt: new Date(),
         },
-      }
+      },
     )
 
     return result.modifiedCount > 0

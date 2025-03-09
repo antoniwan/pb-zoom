@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowLeft } from "lucide-react"
+import { toast } from "sonner"
 
 const registerSchema = z
   .object({
@@ -71,15 +72,31 @@ export default function RegisterPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        setError(result.message || "Registration failed")
+        // More detailed error handling
+        if (result.errors && Array.isArray(result.errors)) {
+          // Handle Zod validation errors
+          const errorMessage = result.errors.map((err: any) => `${err.path.join(".")}: ${err.message}`).join(", ")
+          setError(errorMessage || result.message || "Registration failed")
+        } else {
+          setError(result.message || "Registration failed")
+        }
         setIsLoading(false)
         return
       }
 
-      router.push("/auth/login?registered=true")
+      // Show success message before redirecting
+      toast({
+        title: "Account created successfully!",
+        description: "You can now sign in with your credentials.",
+      })
+
+      // Redirect with a slight delay to show the toast
+      setTimeout(() => {
+        router.push("/auth/login?registered=true")
+      }, 1500)
     } catch (error) {
-      console.log(error)
-      setError("An unexpected error occurred")
+      console.error("Registration error:", error)
+      setError("An unexpected error occurred. Please try again.")
       setIsLoading(false)
     }
   }

@@ -16,9 +16,27 @@ export async function GET() {
 
     const profiles = await getProfiles(session.user.id)
 
-    return NextResponse.json(profiles)
+    // Add cache control headers for better performance
+    return NextResponse.json(profiles, {
+      headers: {
+        "Cache-Control": "private, max-age=60, stale-while-revalidate=300",
+      },
+    })
   } catch (error) {
     console.error("Error fetching profiles:", error)
+
+    // More detailed error handling
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          message: "Internal server error",
+          error: error.message,
+          stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+        },
+        { status: 500 },
+      )
+    }
+
     return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
 }

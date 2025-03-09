@@ -18,17 +18,34 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!profile) {
     return {
-      title: "Profile Not Found",
+      title: "Profile Not Found | Ñ",
+      description: "The requested profile could not be found.",
     }
   }
 
   // Use the profile name if available, otherwise fall back to profile title
   const title = profile.header?.name || profile.title
-  const description = profile.header?.shortBio || `View ${title}'s profile`
+  const description = profile.header?.shortBio || `View ${title}'s profile on Ñ`
+
+  // Get primary image for OpenGraph
+  const primaryPicture = profile.header?.pictures?.find((pic) => pic.isPrimary) || profile.header?.pictures?.[0]
+  const imageUrl = primaryPicture?.url
 
   return {
-    title,
+    title: `${title} | Ñ`,
     description,
+    openGraph: {
+      title: `${title} | Ñ`,
+      description,
+      type: "profile",
+      ...(imageUrl && { images: [{ url: imageUrl }] }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Ñ`,
+      description,
+      ...(imageUrl && { images: [imageUrl] }),
+    },
   }
 }
 

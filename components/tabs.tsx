@@ -10,6 +10,17 @@ import { ProfileSocialEditor } from "@/components/profile-editor/social-editor"
 import { ProfilePreview } from "@/components/profile-preview"
 import type { Profile } from "@/lib/models"
 
+// Add React.memo to optimize re-renders
+import { memo } from "react"
+
+// Wrap the ProfileBasicInfo component with memo
+const MemoizedProfileBasicInfo = memo(ProfileBasicInfo)
+const MemoizedProfileHeaderEditor = memo(ProfileHeaderEditor)
+const MemoizedProfileThemeEditor = memo(ProfileThemeEditor)
+const MemoizedProfileSectionsEditor = memo(ProfileSectionsEditor)
+const MemoizedProfileSocialEditor = memo(ProfileSocialEditor)
+const MemoizedProfilePreview = memo(ProfilePreview)
+
 interface ProfileEditorTabsProps {
   profile: Profile
   updateProfile: (updates: Partial<Profile>) => void
@@ -30,7 +41,7 @@ export function ProfileEditorTabs({ profile, updateProfile }: ProfileEditorTabsP
       <TabsContent value="basic">
         <Card>
           <CardContent className="pt-6">
-            <ProfileBasicInfo profile={profile} updateProfile={updateProfile} />
+            <MemoizedProfileBasicInfo profile={profile} updateProfile={updateProfile} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -38,7 +49,7 @@ export function ProfileEditorTabs({ profile, updateProfile }: ProfileEditorTabsP
       <TabsContent value="header">
         <Card>
           <CardContent className="pt-6">
-            <ProfileHeaderEditor profile={profile} updateProfile={updateProfile} />
+            <MemoizedProfileHeaderEditor profile={profile} updateProfile={updateProfile} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -46,7 +57,7 @@ export function ProfileEditorTabs({ profile, updateProfile }: ProfileEditorTabsP
       <TabsContent value="theme">
         <Card>
           <CardContent className="pt-6">
-            <ProfileThemeEditor profile={profile} updateProfile={updateProfile} />
+            <MemoizedProfileThemeEditor profile={profile} updateProfile={updateProfile} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -54,7 +65,7 @@ export function ProfileEditorTabs({ profile, updateProfile }: ProfileEditorTabsP
       <TabsContent value="sections">
         <Card>
           <CardContent className="pt-6">
-            <ProfileSectionsEditor profile={profile} updateProfile={updateProfile} />
+            <MemoizedProfileSectionsEditor profile={profile} updateProfile={updateProfile} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -62,7 +73,7 @@ export function ProfileEditorTabs({ profile, updateProfile }: ProfileEditorTabsP
       <TabsContent value="social">
         <Card>
           <CardContent className="pt-6">
-            <ProfileSocialEditor profile={profile} updateProfile={updateProfile} />
+            <MemoizedProfileSocialEditor profile={profile} updateProfile={updateProfile} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -70,7 +81,7 @@ export function ProfileEditorTabs({ profile, updateProfile }: ProfileEditorTabsP
       <TabsContent value="preview">
         <Card>
           <CardContent className="pt-6">
-            <ProfilePreview profile={profile} />
+            <MemoizedProfilePreview profile={profile} />
           </CardContent>
         </Card>
       </TabsContent>

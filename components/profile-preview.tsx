@@ -1,5 +1,3 @@
-"use client"
-
 import type { Profile, ProfileSection, ProfileAttribute, ProfileImage } from "@/lib/models"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"

@@ -36,6 +36,9 @@ import Image from "next/image"
 import type { Profile, ProfileCategory } from "@/lib/models"
 import type { Session } from "next-auth"
 
+// Add the import for the debounce hook at the top
+import { useDebounce } from "@/hooks/use-debounce"
+
 // Add these imports for the dropdown menu
 import {
   DropdownMenu,
@@ -53,7 +56,9 @@ export default function DashboardPage() {
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [categories, setCategories] = useState<ProfileCategory[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  // Find the searchQuery state and add a new debouncedSearchQuery state
   const [searchQuery, setSearchQuery] = useState("")
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
@@ -146,9 +151,9 @@ export default function DashboardPage() {
   // Filter profiles based on search query and selected category
   const filteredProfiles = profiles.filter((profile) => {
     const matchesSearch =
-      searchQuery === "" ||
-      profile.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (profile.header?.name && profile.header.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      debouncedSearchQuery === "" ||
+      profile.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      (profile.header?.name && profile.header.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
 
     const matchesCategory = selectedCategory === null || profile.categoryId === selectedCategory
 
@@ -521,6 +526,8 @@ function ProfileCard({
                 width={64}
                 height={64}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             ) : (
               <div
