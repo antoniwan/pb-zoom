@@ -71,7 +71,6 @@ export default function DashboardPage() {
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [sortBy, setSortBy] = useState<"recent" | "name" | "views">("recent")
   const [activeTab, setActiveTab] = useState("all")
 
@@ -792,7 +791,6 @@ function ProfileListItem({
   profile,
   onDelete,
   onToggleVisibility,
-  hideCategoryBadge = false,
   getCategoryName,
   getCategoryIcon,
   getCategoryColor,
@@ -800,7 +798,6 @@ function ProfileListItem({
   profile: Profile
   onDelete: (id: string) => void
   onToggleVisibility: (id: string, isPublic: boolean) => void
-  hideCategoryBadge?: boolean
   getCategoryName: (id: string | undefined) => string
   getCategoryIcon: (id: string | undefined) => React.ReactNode
   getCategoryColor: (id: string | undefined) => string
@@ -856,6 +853,20 @@ function ProfileListItem({
                 >
                   {profile.isPublic ? "Public" : "Private"}
                 </div>
+
+                {profile.categoryIds?.map((categoryId) => (
+                  <div
+                    key={categoryId}
+                    className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium"
+                    style={{
+                      backgroundColor: `${getCategoryColor(categoryId)}20`,
+                      color: getCategoryColor(categoryId),
+                    }}
+                  >
+                    {getCategoryIcon(categoryId)}
+                    <span>{getCategoryName(categoryId)}</span>
+                  </div>
+                ))}
               </div>
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">

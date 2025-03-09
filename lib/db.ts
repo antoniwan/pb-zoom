@@ -47,8 +47,11 @@ export interface Profile {
   userId: string
   title: string
   slug: string
+  description?: string
   isPublic: boolean
   categoryIds?: string[]
+  viewCount?: number
+  completionPercentage?: number
   header: {
     name: string
     title: string
@@ -79,14 +82,23 @@ export interface Profile {
     platform: string
     url: string
   }>
+  seo?: {
+    title?: string
+    description?: string
+    keywords?: string
+    ogImage?: string
+    twitterCard?: boolean
+    indexed?: boolean
+  }
   createdAt: Date
   updatedAt: Date
 }
 
 export interface ProfileSection {
   _id: string
-  type: "bio" | "attributes" | "gallery" | "videos" | "markdown" | "custom"
+  type: "bio" | "attributes" | "gallery" | "videos" | "markdown" | "custom" | "links"
   title: string
+  isVisible?: boolean
   content: {
     text: string
     attributes: ProfileAttribute[]
@@ -94,8 +106,17 @@ export interface ProfileSection {
     videos: ProfileVideo[]
     markdown: string
     html: string
+    customCSS?: string
+    links?: LinkItem[]
   }
   order: number
+}
+
+export interface LinkItem {
+  id: string
+  title: string
+  url: string
+  icon?: string
 }
 
 export interface ProfileAttribute {
