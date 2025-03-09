@@ -20,6 +20,7 @@ type NextLinkProps = {
 jest.mock('next/image', () => ({
   __esModule: true,
   default: ({ src, alt, width, height, className }: NextImageProps) => (
+    // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} width={width} height={height} className={className} />
   ),
 }))
@@ -176,7 +177,7 @@ describe('ProfileCard', () => {
 
   it('validates required profile properties', () => {
     const invalidProfile = { ...mockProfile }
-    delete (invalidProfile as any)._id
+    delete (invalidProfile as Partial<Profile>)._id
     
     expect(() => {
       render(

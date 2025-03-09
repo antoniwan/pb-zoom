@@ -72,6 +72,22 @@ const profileSchema = z.object({
   })),
 })
 
+const validateProfile = (data: Profile): { isValid: boolean; errors: string[] } => {
+  try {
+    profileSchema.parse(data)
+    return { isValid: true, errors: [] }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errors = error.errors.map(err => {
+        const field = err.path.join('.')
+        return `${field}: ${err.message}`
+      })
+      return { isValid: false, errors }
+    }
+    return { isValid: false, errors: ['Invalid profile data'] }
+  }
+}
+
 export default function EditProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: profileId } = use(params)
   const { status } = useSession()
@@ -113,30 +129,20 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
     }
   }, [status, router, profileId])
 
-  const validateProfile = (data: any): { isValid: boolean; errors: string[] } => {
-    try {
-      profileSchema.parse(data)
-      return { isValid: true, errors: [] }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const errors = error.errors.map(err => {
-          const field = err.path.join('.')
-          return `${field}: ${err.message}`
-        })
-        return { isValid: false, errors }
-      }
-      return { isValid: false, errors: ['Invalid profile data'] }
-    }
-  }
-
   const handleSave = async () => {
     if (!profile) return
 
     setIsSaving(true)
     setError(null)
 
+    // Ensure all sections have IDs before validation
+    const updatedProfile = {
+      ...profile,
+      sections: ensureSectionIds(profile.sections),
+    }
+
     // Validate profile data before sending to server
-    const validation = validateProfile(profile)
+    const validation = validateProfile(updatedProfile)
     if (!validation.isValid) {
       setError(validation.errors.join('\n'))
       setIsSaving(false)
@@ -154,7 +160,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(profile),
+        body: JSON.stringify(updatedProfile),
       })
 
       const data = await response.json()

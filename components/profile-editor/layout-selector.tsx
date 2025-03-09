@@ -16,7 +16,11 @@ interface LayoutSelectorProps {
     sectionSpacing?: number
     fullWidth?: boolean
   }
-  onChange: (layout: string, options?: any) => void
+  onChange: (layout: string, options?: {
+    columnCount?: number
+    sectionSpacing?: number
+    fullWidth?: boolean
+  }) => void
 }
 
 const layouts = [
@@ -105,11 +109,15 @@ const layouts = [
   },
 ]
 
-export function LayoutSelector({ value, customOptions = {}, onChange }: LayoutSelectorProps) {
+export function LayoutSelector({ value, customOptions = {
+  columnCount: 2,
+  sectionSpacing: 8,
+  fullWidth: false
+}, onChange }: LayoutSelectorProps) {
   const [activeTab, setActiveTab] = useState(value === "custom" ? "custom" : "preset")
-  const [columns, setColumns] = useState(customOptions.columnCount || 2)
-  const [spacing, setSpacing] = useState(customOptions.sectionSpacing || 8)
-  const [fullWidth, setFullWidth] = useState(customOptions.fullWidth || false)
+  const [columns, setColumns] = useState(customOptions.columnCount)
+  const [spacing, setSpacing] = useState(customOptions.sectionSpacing)
+  const [fullWidth, setFullWidth] = useState(customOptions.fullWidth)
 
   const handleCustomChange = () => {
     onChange("custom", {

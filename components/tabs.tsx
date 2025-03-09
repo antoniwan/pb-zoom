@@ -4,7 +4,7 @@ import { Tabs as TabsRoot, TabsContent, TabsList, TabsTrigger } from "@/componen
 import { Card, CardContent } from "@/components/ui/card"
 import { ProfileBasicInfo } from "@/components/profile-editor/basic-info"
 import { ProfileHeaderEditor } from "@/components/profile-editor/header-editor"
-import { ProfileThemeEditor } from "@/components/profile-editor/theme-editor"
+import { ThemeEditor } from "@/components/profile-editor/theme-editor"
 import { ProfileSectionsEditor } from "@/components/profile-editor/sections-editor"
 import { ProfileSocialEditor } from "@/components/profile-editor/social-editor"
 import { ProfilePreview } from "@/components/profile-preview"
@@ -16,7 +16,7 @@ import { memo } from "react"
 // Wrap the ProfileBasicInfo component with memo
 const MemoizedProfileBasicInfo = memo(ProfileBasicInfo)
 const MemoizedProfileHeaderEditor = memo(ProfileHeaderEditor)
-const MemoizedProfileThemeEditor = memo(ProfileThemeEditor)
+const MemoizedProfileThemeEditor = memo(ThemeEditor)
 const MemoizedProfileSectionsEditor = memo(ProfileSectionsEditor)
 const MemoizedProfileSocialEditor = memo(ProfileSocialEditor)
 const MemoizedProfilePreview = memo(ProfilePreview)

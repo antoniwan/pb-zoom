@@ -49,7 +49,11 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
     updateProfile({ categoryId })
   }
 
-  const handleLayoutChange = (layout: string, options?: any) => {
+  const handleLayoutChange = (layout: string, options?: {
+    columnCount?: number;
+    sectionSpacing?: number;
+    fullWidth?: boolean;
+  }) => {
     updateProfile({
       layout,
       layoutOptions: options,

@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { toast } from "@/hooks/use-toast"
-import { cn } from "@/lib/utils"
 import type { Profile } from "@/lib/db"
 
 interface ThemeEditorProps {
@@ -102,7 +101,8 @@ export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
         style.textContent = value
         document.head.appendChild(style)
         document.head.removeChild(style)
-      } catch (error) {
+      } catch (err) {
+        console.error("Error validating CSS:", err)
         setErrors(prev => ({ ...prev, [field]: "Please enter valid CSS" }))
         return false
       }
