@@ -28,6 +28,8 @@ import {
   Layers,
   Link2,
   MoreHorizontal,
+  LayoutGrid,
+  LayoutList,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -161,13 +163,6 @@ export default function DashboardPage() {
     },
     {} as Record<string, Profile[]>,
   )
-
-  const stats = {
-    total: profiles.length,
-    public: profiles.filter((p) => p.isPublic).length,
-    private: profiles.filter((p) => !p.isPublic).length,
-    categorized: profiles.filter((p) => p.categoryId).length
-  }
 
   const recentProfiles = [...profiles]
     .sort((a, b) => {
@@ -705,96 +700,6 @@ function ProfileListItem({
           </div>
         </div>
       </div>
-    </Card>
-  )
-}
-
-function Lock(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  )
-}
-
-function LayoutGrid(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="7" height="7" x="3" y="3" rx="1" />
-      <rect width="7" height="7" x="14" y="3" rx="1" />
-      <rect width="7" height="7" x="14" y="14" rx="1" />
-      <rect width="7" height="7" x="3" y="14" rx="1" />
-    </svg>
-  )
-}
-
-function LayoutList(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="7" height="7" x="3" y="3" rx="1" />
-      <rect width="7" height="7" x="3" y="14" rx="1" />
-      <path d="M14 4h7" />
-      <path d="M14 9h7" />
-      <path d="M14 15h7" />
-      <path d="M14 20h7" />
-    </svg>
-  )
-}
-
-function StatsCard({
-  title,
-  value,
-  icon,
-}: {
-  title: string
-  value: number
-  icon: React.ReactNode
-}) {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold mt-1">{value}</p>
-          </div>
-          <div className="rounded-full p-2 bg-muted">{icon}</div>
-        </div>
-      </CardContent>
     </Card>
   )
 }
