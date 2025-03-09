@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { toast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 import type { Profile } from "@/lib/db"
 
 interface ThemeEditorProps {
@@ -14,61 +15,94 @@ interface ThemeEditorProps {
   updateProfile: (updates: Partial<Profile>) => void
 }
 
-// Validation helpers
-const isValidHexColor = (color: string): boolean => {
-  return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)
-}
-
-const isValidFontFamily = (font: string): boolean => {
-  const validFonts = [
-    "Inter",
-    "Arial",
-    "Helvetica",
-    "Times New Roman",
-    "Georgia",
-    "Verdana",
-    "system-ui",
-    "sans-serif",
-    "serif",
-    "monospace"
-  ]
-  return validFonts.includes(font)
-}
-
-const isValidCSS = (css: string): boolean => {
-  try {
-    const style = document.createElement('style')
-    style.textContent = css
-    document.head.appendChild(style)
-    document.head.removeChild(style)
-    return true
-  } catch (error) {
-    return false
-  }
+// Popular Google Fonts categorized
+const fontOptions = {
+  sans: [
+    { name: "Inter", value: "Inter" },
+    { name: "Roboto", value: "Roboto" },
+    { name: "Open Sans", value: "Open Sans" },
+    { name: "Poppins", value: "Poppins" },
+    { name: "Montserrat", value: "Montserrat" },
+    { name: "Lato", value: "Lato" },
+  ],
+  serif: [
+    { name: "Merriweather", value: "Merriweather" },
+    { name: "Playfair Display", value: "Playfair Display" },
+    { name: "Lora", value: "Lora" },
+    { name: "PT Serif", value: "PT Serif" },
+    { name: "Crimson Text", value: "Crimson Text" },
+  ],
+  display: [
+    { name: "Abril Fatface", value: "Abril Fatface" },
+    { name: "Lobster", value: "Lobster" },
+    { name: "Pacifico", value: "Pacifico" },
+    { name: "Righteous", value: "Righteous" },
+  ],
+  monospace: [
+    { name: "JetBrains Mono", value: "JetBrains Mono" },
+    { name: "Source Code Pro", value: "Source Code Pro" },
+    { name: "Fira Code", value: "Fira Code" },
+    { name: "IBM Plex Mono", value: "IBM Plex Mono" },
+  ],
+  system: [
+    { name: "System UI", value: "system-ui" },
+    { name: "Arial", value: "Arial" },
+    { name: "Helvetica", value: "Helvetica" },
+    { name: "Times New Roman", value: "Times New Roman" },
+    { name: "Georgia", value: "Georgia" },
+  ],
 }
 
 export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [selectedFontCategory, setSelectedFontCategory] = useState(() => {
+    // Determine initial category based on current font
+    for (const [category, fonts] of Object.entries(fontOptions)) {
+      if (fonts.some(font => font.value === profile.theme.fontFamily)) {
+        return category
+      }
+    }
+    return "sans"
+  })
+
+  // Load Google Fonts when font family changes
+  useEffect(() => {
+    const loadGoogleFont = async (fontFamily: string) => {
+      // Skip system fonts
+      if (fontOptions.system.some(font => font.value === fontFamily)) {
+        return
+      }
+
+      try {
+        const link = document.createElement("link")
+        link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/\s+/g, "+")}:wght@400;500;600;700&display=swap`
+        link.rel = "stylesheet"
+        document.head.appendChild(link)
+      } catch (error) {
+        console.error("Error loading Google Font:", error)
+      }
+    }
+
+    loadGoogleFont(profile.theme.fontFamily)
+  }, [profile.theme.fontFamily])
 
   const validateThemeUpdate = (field: string, value: string): boolean => {
     setErrors(prev => ({ ...prev, [field]: "" }))
 
     if (field.includes("Color")) {
-      if (!isValidHexColor(value)) {
+      if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value)) {
         setErrors(prev => ({ ...prev, [field]: "Please enter a valid hex color (e.g., #FF0000)" }))
         return false
       }
     }
 
-    if (field === "fontFamily") {
-      if (!isValidFontFamily(value)) {
-        setErrors(prev => ({ ...prev, [field]: "Please select a valid font family" }))
-        return false
-      }
-    }
-
     if (field === "customCSS") {
-      if (value && !isValidCSS(value)) {
+      try {
+        const style = document.createElement("style")
+        style.textContent = value
+        document.head.appendChild(style)
+        document.head.removeChild(style)
+      } catch (error) {
         setErrors(prev => ({ ...prev, [field]: "Please enter valid CSS" }))
         return false
       }
@@ -190,26 +224,43 @@ export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
           <h3 className="font-medium">Typography & Custom CSS</h3>
           
           <div className="space-y-2">
+            <Label htmlFor="fontCategory">Font Category</Label>
+            <select
+              id="fontCategory"
+              value={selectedFontCategory}
+              onChange={(e) => setSelectedFontCategory(e.target.value)}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm ring-offset-background"
+            >
+              <option value="sans">Sans-Serif</option>
+              <option value="serif">Serif</option>
+              <option value="display">Display</option>
+              <option value="monospace">Monospace</option>
+              <option value="system">System Fonts</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="fontFamily">Font Family</Label>
             <select
               id="fontFamily"
               value={profile.theme.fontFamily}
               onChange={(e) => handleThemeChange("fontFamily", e.target.value)}
-              className={`w-full rounded-lg border bg-background px-3 py-2 text-sm ring-offset-background 
-                ${errors.fontFamily ? "border-red-500" : "border-input"}`}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm ring-offset-background"
+              style={{ fontFamily: profile.theme.fontFamily }}
             >
-              <option value="Inter">Inter</option>
-              <option value="Arial">Arial</option>
-              <option value="Helvetica">Helvetica</option>
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Georgia">Georgia</option>
-              <option value="Verdana">Verdana</option>
-              <option value="system-ui">System UI</option>
-              <option value="sans-serif">Sans Serif</option>
-              <option value="serif">Serif</option>
-              <option value="monospace">Monospace</option>
+              {fontOptions[selectedFontCategory as keyof typeof fontOptions].map((font) => (
+                <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                  {font.name}
+                </option>
+              ))}
             </select>
-            {errors.fontFamily && <p className="text-xs text-red-500">{errors.fontFamily}</p>}
+          </div>
+
+          <div className="mt-4 p-4 rounded-lg bg-muted">
+            <p className="text-sm" style={{ fontFamily: profile.theme.fontFamily }}>
+              The quick brown fox jumps over the lazy dog
+            </p>
+            <p className="text-xs mt-2 text-muted-foreground">Preview text in {profile.theme.fontFamily}</p>
           </div>
 
           <div className="space-y-2">
