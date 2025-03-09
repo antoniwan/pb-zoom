@@ -152,3 +152,45 @@ This document outlines remaining work, technical debt, and future enhancements f
 7. Create integration marketplace
 8. Implement advanced SEO tools
 
+## Non-Dynamic UI Components To Address
+
+- [ ] **Theme Preview**
+  - Theme previews in the customization panel are currently static
+  - Need to implement real-time preview updates
+  - Add dynamic color palette generation
+
+- [ ] **Layout Thumbnails**
+  - Layout selection thumbnails are static images
+  - Need to implement dynamic previews based on user content
+  - Add live preview on hover
+
+- [ ] **Profile Statistics**
+  - Profile view counter shows placeholder data
+  - Analytics graphs use static data
+  - Need to implement real-time statistics tracking
+
+- [ ] **Gallery Grid**
+  - Gallery placeholder images are static
+  - Need to implement dynamic image loading and optimization
+  - Add lazy loading for better performance
+
+- [ ] **Social Media Preview Cards**
+  - Social media preview cards show static examples
+  - Need to implement dynamic OpenGraph preview generation
+  - Add real-time preview updates
+
+- [ ] **Navigation Menu**
+  - Some menu items are hardcoded
+  - Need to implement dynamic menu generation based on user permissions
+  - Add support for custom menu items
+
+- [ ] **Dashboard Widgets**
+  - Dashboard cards show static data
+  - Need to implement real-time data updates
+  - Add customizable widget layouts
+
+- [ ] **Profile Templates**
+  - Template previews are static images
+  - Need to implement dynamic template preview generation
+  - Add custom template support
+
