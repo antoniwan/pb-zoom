@@ -48,7 +48,7 @@ export interface Profile {
   title: string
   slug: string
   isPublic: boolean
-  categoryId?: string
+  categoryIds?: string[]
   header: {
     name: string
     title: string

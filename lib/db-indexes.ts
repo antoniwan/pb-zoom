@@ -16,6 +16,7 @@ export async function createIndexes() {
 
     // Create indexes for categories collection
     await db.collection("profileCategories").createIndexes([
+      { key: { name: 1 }, name: "name_index", unique: true },
       { key: { isEnabled: 1 }, name: "isEnabled_index" },
       { key: { isCorrect: 1 }, name: "isCorrect_index" },
       { key: { createdBy: 1 }, name: "createdBy_index" },

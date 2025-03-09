@@ -54,7 +54,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   useEffect(() => {
@@ -147,18 +147,21 @@ export default function DashboardPage() {
       profile.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
       (profile.header?.name && profile.header.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
 
-    const matchesCategory = selectedCategory === null || profile.categoryId === selectedCategory
+    const matchesCategory = selectedCategories.length === 0 || 
+      (profile.categoryIds && profile.categoryIds.some(id => selectedCategories.includes(id)))
 
     return matchesSearch && matchesCategory
   })
 
   const profilesByCategory = filteredProfiles.reduce(
     (acc, profile) => {
-      const categoryId = profile.categoryId || "uncategorized"
-      if (!acc[categoryId]) {
-        acc[categoryId] = []
-      }
-      acc[categoryId].push(profile)
+      const categoryIds = profile.categoryIds || ["uncategorized"]
+      categoryIds.forEach(categoryId => {
+        if (!acc[categoryId]) {
+          acc[categoryId] = []
+        }
+        acc[categoryId].push(profile)
+      })
       return acc
     },
     {} as Record<string, Profile[]>,
@@ -228,10 +231,13 @@ export default function DashboardPage() {
                 {categories.length > 0 && (
                   <select
                     className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    value={selectedCategory || ""}
-                    onChange={(e) => setSelectedCategory(e.target.value === "" ? null : e.target.value)}
+                    value={selectedCategories}
+                    multiple
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, option => option.value)
+                      setSelectedCategories(selected)
+                    }}
                   >
-                    <option value="">All Categories</option>
                     {categories.map((category) => (
                       <option key={category._id} value={category._id}>
                         {category.name}
@@ -261,8 +267,10 @@ export default function DashboardPage() {
                       key={profile._id?.toString()}
                       profile={profile}
                       onDelete={handleDeleteProfile}
-                      categoryName={getCategoryName(profile.categoryId)}
-                      categoryIcon={getCategoryIcon(profile.categoryId)}
+                      categoryName={getCategoryName(profile.categoryIds?.[0])}
+                      categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
+                      getCategoryName={getCategoryName}
+                      getCategoryIcon={getCategoryIcon}
                     />
                   ))}
                 </div>
@@ -273,8 +281,10 @@ export default function DashboardPage() {
                       key={profile._id?.toString()}
                       profile={profile}
                       onDelete={handleDeleteProfile}
-                      categoryName={getCategoryName(profile.categoryId)}
-                      categoryIcon={getCategoryIcon(profile.categoryId)}
+                      categoryName={getCategoryName(profile.categoryIds?.[0])}
+                      categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
+                      getCategoryName={getCategoryName}
+                      getCategoryIcon={getCategoryIcon}
                     />
                   ))}
                 </div>
@@ -305,8 +315,10 @@ export default function DashboardPage() {
                               key={profile._id?.toString()}
                               profile={profile}
                               onDelete={handleDeleteProfile}
-                              categoryName={getCategoryName(profile.categoryId)}
-                              categoryIcon={getCategoryIcon(profile.categoryId)}
+                              categoryName={getCategoryName(profile.categoryIds?.[0])}
+                              categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
+                              getCategoryName={getCategoryName}
+                              getCategoryIcon={getCategoryIcon}
                               hideCategoryBadge
                             />
                           ))}
@@ -318,8 +330,10 @@ export default function DashboardPage() {
                               key={profile._id?.toString()}
                               profile={profile}
                               onDelete={handleDeleteProfile}
-                              categoryName={getCategoryName(profile.categoryId)}
-                              categoryIcon={getCategoryIcon(profile.categoryId)}
+                              categoryName={getCategoryName(profile.categoryIds?.[0])}
+                              categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
+                              getCategoryName={getCategoryName}
+                              getCategoryIcon={getCategoryIcon}
                               hideCategoryBadge
                             />
                           ))}
@@ -347,8 +361,10 @@ export default function DashboardPage() {
                         key={profile._id?.toString()}
                         profile={profile}
                         onDelete={handleDeleteProfile}
-                        categoryName={getCategoryName(profile.categoryId)}
-                        categoryIcon={getCategoryIcon(profile.categoryId)}
+                        categoryName={getCategoryName(profile.categoryIds?.[0])}
+                        categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
+                        getCategoryName={getCategoryName}
+                        getCategoryIcon={getCategoryIcon}
                       />
                     ))}
                   </div>
@@ -428,12 +444,16 @@ function ProfileCard({
   categoryName,
   categoryIcon,
   hideCategoryBadge = false,
+  getCategoryName,
+  getCategoryIcon,
 }: {
   profile: Profile
   onDelete: (id: string) => void
   categoryName: string
   categoryIcon: React.ReactNode
   hideCategoryBadge?: boolean
+  getCategoryName: (id: string | undefined) => string
+  getCategoryIcon: (id: string | undefined) => React.ReactNode
 }) {
   const primaryPicture = profile.header?.pictures?.find((pic) => pic.isPrimary) || profile.header?.pictures?.[0]
 
@@ -446,6 +466,11 @@ function ProfileCard({
     day: "numeric",
     year: updatedDate.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
   }).format(updatedDate)
+
+  const categories = profile.categoryIds?.map(id => ({
+    name: getCategoryName(id),
+    icon: getCategoryIcon(id)
+  })) || []
 
   return (
     <Card className="overflow-hidden group hover:shadow-md transition-all duration-200 border-opacity-40">
@@ -463,11 +488,15 @@ function ProfileCard({
             <span className="text-xs font-medium text-muted-foreground">{profile.isPublic ? "Public" : "Private"}</span>
           </div>
 
-          {!hideCategoryBadge && profile.categoryId && (
-            <Badge variant="outline" className="flex items-center gap-1 bg-background/80">
-              {categoryIcon}
-              <span className="text-xs">{categoryName}</span>
-            </Badge>
+          {!hideCategoryBadge && categories.length > 0 && (
+            <div className="flex flex-wrap gap-1 justify-end">
+              {categories.map((category, index) => (
+                <Badge key={index} variant="outline" className="flex items-center gap-1 bg-background/80">
+                  {category.icon}
+                  <span className="text-xs">{category.name}</span>
+                </Badge>
+              ))}
+            </div>
           )}
         </div>
 
@@ -572,12 +601,16 @@ function ProfileListItem({
   categoryName,
   categoryIcon,
   hideCategoryBadge = false,
+  getCategoryName,
+  getCategoryIcon,
 }: {
   profile: Profile
   onDelete: (id: string) => void
   categoryName: string
   categoryIcon: React.ReactNode
   hideCategoryBadge?: boolean
+  getCategoryName: (id: string | undefined) => string
+  getCategoryIcon: (id: string | undefined) => React.ReactNode
 }) {
   const primaryPicture = profile.header?.pictures?.find((pic) => pic.isPrimary) || profile.header?.pictures?.[0]
 
@@ -630,11 +663,15 @@ function ProfileListItem({
                 {profile.isPublic ? "Public" : "Private"}
               </div>
 
-              {!hideCategoryBadge && profile.categoryId && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  {categoryIcon}
-                  <span>{categoryName}</span>
-                </Badge>
+              {!hideCategoryBadge && profile.categoryIds && profile.categoryIds.length > 0 && (
+                <div className="flex flex-wrap gap-1 justify-end">
+                  {profile.categoryIds.map((id, index) => (
+                    <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                      {getCategoryIcon(id)}
+                      <span>{getCategoryName(id)}</span>
+                    </Badge>
+                  ))}
+                </div>
               )}
             </div>
 
