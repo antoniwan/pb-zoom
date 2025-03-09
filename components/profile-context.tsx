@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { createContext, useContext } from "react"
+import { createContext, useContext, type ReactNode } from "react"
 import type { Profile } from "@/lib/db"
 
 interface ProfileContextType {
@@ -12,19 +10,18 @@ interface ProfileContextType {
   isLoading: boolean
 }
 
-const ProfileContext = createContext<ProfileContextType>({
-  profile: null,
-  updateProfile: () => {},
-  saveProfile: async () => {
-    throw new Error("Not implemented")
-  },
-  isLoading: true,
-})
+const ProfileContext = createContext<ProfileContextType | undefined>(undefined)
 
-export const useProfile = () => useContext(ProfileContext)
+export function useProfile() {
+  const context = useContext(ProfileContext)
+  if (context === undefined) {
+    throw new Error("useProfile must be used within a ProfileProvider")
+  }
+  return context
+}
 
 interface ProfileProviderProps {
-  children: React.ReactNode
+  children: ReactNode
   profile: Profile | null
   updateProfile: (updates: Partial<Profile>) => void
   saveProfile: () => Promise<Profile>
@@ -33,14 +30,7 @@ interface ProfileProviderProps {
 
 export function ProfileProvider({ children, profile, updateProfile, saveProfile, isLoading }: ProfileProviderProps) {
   return (
-    <ProfileContext.Provider
-      value={{
-        profile,
-        updateProfile,
-        saveProfile,
-        isLoading,
-      }}
-    >
+    <ProfileContext.Provider value={{ profile, updateProfile, saveProfile, isLoading }}>
       {children}
     </ProfileContext.Provider>
   )

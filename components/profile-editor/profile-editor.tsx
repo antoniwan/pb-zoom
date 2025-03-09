@@ -1,13 +1,9 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useProfile } from "@/components/profile-context"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { toast } from "@/hooks/use-toast"
 
 // UI Components
 import { Button } from "@/components/ui/button"
@@ -45,37 +41,65 @@ import { ProfileSectionsEditor } from "@/components/profile-editor/sections-edit
 import { ProfileSocialEditor } from "@/components/profile-editor/social-editor"
 import { ProfilePreview } from "@/components/profile-preview"
 
-export function ProfileEditor() {
-  const router = useRouter()
-  const { profile, updateProfile, saveProfile, isLoading } = useProfile()
+// Define the props interface
+export interface ProfileEditorProps {
+  profile: any // Replace with your actual Profile type
+  updateProfile: (updates: any) => void
+  saveProfile: () => Promise<any>
+  isLoading?: boolean
+  onBack?: () => void
+}
+
+// Default empty profile for development and testing
+const DEFAULT_PROFILE = {
+  _id: "sample-id",
+  title: "Sample Profile",
+  slug: "sample-profile",
+  isPublic: false,
+  updatedAt: new Date().toISOString(),
+  completionPercentage: 30,
+  sections: [],
+  viewCount: 0,
+  socialLinks: [],
+  theme: {
+    primaryColor: "#1d4ed8",
+    secondaryColor: "#67e8f9",
+    backgroundColor: "#faf8f9",
+    textColor: "#352f44",
+    fontFamily: "Inter",
+  },
+  header: {
+    name: "John Doe",
+    title: "Web Developer",
+    subtitle: "Building amazing web experiences",
+    shortBio: "I love creating websites and applications that people enjoy using.",
+    pictures: [],
+  },
+  layout: "standard",
+  layoutOptions: {},
+  categoryIds: [],
+}
+
+export function ProfileEditor({
+  profile = DEFAULT_PROFILE,
+  updateProfile = () => {},
+  saveProfile = async () => {},
+  isLoading = false,
+  onBack = () => {},
+}: ProfileEditorProps) {
   const [activeTab, setActiveTab] = useState("basic")
   const [isSaving, setIsSaving] = useState(false)
-  const [lastSaved, setLastSaved] = useState<Date | null>(null)
-
-  useEffect(() => {
-    if (profile?.updatedAt) {
-      setLastSaved(new Date(profile.updatedAt))
-    }
-  }, [profile?.updatedAt])
+  const [lastSaved, setLastSaved] = useState<Date | null>(profile?.updatedAt ? new Date(profile.updatedAt) : null)
 
   const handleSave = async () => {
-    if (!profile) return
-
     setIsSaving(true)
     try {
       await saveProfile()
       setLastSaved(new Date())
-      toast({
-        title: "Profile saved",
-        description: "Your profile has been saved successfully.",
-      })
+      // Success message would go here
     } catch (error) {
       console.error("Error saving profile:", error)
-      toast({
-        title: "Error",
-        description: "Failed to save your profile. Please try again.",
-        variant: "destructive",
-      })
+      // Error message would go here
     } finally {
       setIsSaving(false)
     }
@@ -99,7 +123,7 @@ export function ProfileEditor() {
     return lastSaved.toLocaleDateString()
   }
 
-  if (isLoading || !profile) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col space-y-8">
@@ -137,26 +161,27 @@ export function ProfileEditor() {
     { icon: <Eye className="h-4 w-4" />, label: "Preview", value: "preview" },
   ]
 
+  // Safely access sections with fallback to empty array
+  const sections = profile?.sections || []
+  const viewCount = profile?.viewCount || 0
+  const isPublic = profile?.isPublic || false
+  const completionPercentage = profile?.completionPercentage || 0
+
   return (
     <div className="container mx-auto px-4 sm:px-6 py-8">
       <div className="flex flex-col space-y-8">
         {/* Header Section */}
         <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={() => router.push("/dashboard")}
-            >
+            <Button variant="ghost" size="sm" className="flex items-center gap-1" onClick={onBack}>
               <ChevronLeft className="h-4 w-4" />
               <span>Back</span>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">{profile.title || "Untitled Profile"}</h1>
+              <h1 className="text-3xl font-bold">{profile?.title || "Untitled Profile"}</h1>
               <div className="flex items-center gap-2 mt-1">
-                <div className={`w-2.5 h-2.5 rounded-full ${profile.isPublic ? "bg-green-500" : "bg-amber-500"}`} />
-                <span className="text-sm text-muted-foreground">{profile.isPublic ? "Public" : "Private"}</span>
+                <div className={`w-2.5 h-2.5 rounded-full ${isPublic ? "bg-green-500" : "bg-amber-500"}`} />
+                <span className="text-sm text-muted-foreground">{isPublic ? "Public" : "Private"}</span>
                 {lastSaved && (
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Clock className="h-3.5 w-3.5" />
@@ -167,9 +192,9 @@ export function ProfileEditor() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {profile.isPublic && (
+            {isPublic && (
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/p/${profile.slug}`} target="_blank">
+                <Link href={`/p/${profile?.slug}`} target="_blank">
                   <ExternalLink className="mr-2 h-4 w-4" /> View Live
                 </Link>
               </Button>
@@ -186,19 +211,19 @@ export function ProfileEditor() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href={`/dashboard/profiles/${profile._id}/preview`}>
+                  <Link href={`/dashboard/profiles/${profile?._id}/preview`}>
                     <Eye className="mr-2 h-4 w-4" /> Preview
                   </Link>
                 </DropdownMenuItem>
-                {profile.isPublic && (
+                {isPublic && (
                   <DropdownMenuItem asChild>
-                    <Link href={`/p/${profile.slug}`} target="_blank">
+                    <Link href={`/p/${profile?.slug}`} target="_blank">
                       <ExternalLink className="mr-2 h-4 w-4" /> View Live
                     </Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                <DropdownMenuItem onClick={onBack}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back to Dashboard
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -210,35 +235,35 @@ export function ProfileEditor() {
         <div className="grid gap-4 md:grid-cols-4">
           <StatsCard
             title="Completion"
-            value={`${profile.completionPercentage || 0}%`}
+            value={`${completionPercentage}%`}
             icon={<LayoutGrid className="h-5 w-5 text-blue-500" />}
             description="Profile completion"
-            trend={profile.completionPercentage >= 80 ? "Almost complete!" : "Keep adding content"}
-            trendUp={profile.completionPercentage >= 50}
+            trend={completionPercentage >= 80 ? "Almost complete!" : "Keep adding content"}
+            trendUp={completionPercentage >= 50}
           />
           <StatsCard
             title="Sections"
-            value={profile.sections.length.toString()}
+            value={sections.length.toString()}
             icon={<LayoutGrid className="h-5 w-5 text-green-500" />}
             description="Content sections"
-            trend={profile.sections.length > 0 ? `${profile.sections.length} sections added` : "Add your first section"}
-            trendUp={profile.sections.length > 0}
+            trend={sections.length > 0 ? `${sections.length} sections added` : "Add your first section"}
+            trendUp={sections.length > 0}
           />
           <StatsCard
             title="Visibility"
-            value={profile.isPublic ? "Public" : "Private"}
+            value={isPublic ? "Public" : "Private"}
             icon={<Eye className="h-5 w-5 text-purple-500" />}
             description="Profile visibility"
-            trend={profile.isPublic ? "Visible to everyone" : "Only visible to you"}
-            trendUp={profile.isPublic}
+            trend={isPublic ? "Visible to everyone" : "Only visible to you"}
+            trendUp={isPublic}
           />
           <StatsCard
             title="Views"
-            value={(profile.viewCount || 0).toString()}
+            value={viewCount.toString()}
             icon={<ArrowUpRight className="h-5 w-5 text-amber-500" />}
             description="Total profile views"
-            trend={profile.viewCount > 0 ? `${profile.viewCount} impressions` : "Share to get views"}
-            trendUp={profile.viewCount > 0}
+            trend={viewCount > 0 ? `${viewCount} impressions` : "Share to get views"}
+            trendUp={viewCount > 0}
           />
         </div>
 
