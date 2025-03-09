@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { Profile, ProfileSocial } from "@/lib/models"
+import type { Profile, ProfileSocial } from "@/lib/db"
 import { Trash2, Plus } from "lucide-react"
 
 interface ProfileSocialEditorProps {

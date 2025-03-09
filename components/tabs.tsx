@@ -1,6 +1,6 @@
 "use client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs as TabsRoot, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { ProfileBasicInfo } from "@/components/profile-editor/basic-info"
 import { ProfileHeaderEditor } from "@/components/profile-editor/header-editor"
@@ -8,7 +8,7 @@ import { ProfileThemeEditor } from "@/components/profile-editor/theme-editor"
 import { ProfileSectionsEditor } from "@/components/profile-editor/sections-editor"
 import { ProfileSocialEditor } from "@/components/profile-editor/social-editor"
 import { ProfilePreview } from "@/components/profile-preview"
-import type { Profile } from "@/lib/models"
+import type { Profile } from "@/lib/db"
 
 // Add React.memo to optimize re-renders
 import { memo } from "react"
@@ -28,7 +28,7 @@ interface ProfileEditorTabsProps {
 
 export function ProfileEditorTabs({ profile, updateProfile }: ProfileEditorTabsProps) {
   return (
-    <Tabs defaultValue="basic">
+    <TabsRoot defaultValue="basic">
       <TabsList className="mb-6">
         <TabsTrigger value="basic">Basic Info</TabsTrigger>
         <TabsTrigger value="header">Header</TabsTrigger>
@@ -85,7 +85,7 @@ export function ProfileEditorTabs({ profile, updateProfile }: ProfileEditorTabsP
           </CardContent>
         </Card>
       </TabsContent>
-    </Tabs>
+    </TabsRoot>
   )
 }
 

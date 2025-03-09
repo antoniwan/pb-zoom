@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import type { Profile, ProfileSection, ProfileAttribute, ProfileImage, ProfileVideo } from "@/lib/models"
+import type { Profile, ProfileSection, ProfileAttribute, ProfileImage, ProfileVideo } from "@/lib/db"
 import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
 
@@ -90,7 +90,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
   const handleAttributeChange = (
     sectionIndex: number,
     attributeIndex: number,
-    key: keyof ProfileAttribute,
+    key: keyof Omit<ProfileAttribute, "_id">,
     value: string,
   ) => {
     const section = profile.sections[sectionIndex]
@@ -104,7 +104,14 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
 
   const addAttribute = (sectionIndex: number) => {
     const section = profile.sections[sectionIndex]
-    const attributes = [...(section.content.attributes || []), { label: "New Skill", value: "Beginner" }]
+    const attributes = [
+      ...(section.content.attributes || []),
+      {
+        _id: uuidv4(),
+        label: "New Skill",
+        value: "Beginner",
+      },
+    ]
     handleContentChange(sectionIndex, { attributes })
   }
 
@@ -159,22 +166,49 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
     }
   }
 
-  const getDefaultContent = (type: ProfileSection["type"]) => {
+  const getDefaultContent = (type: ProfileSection["type"]): ProfileSection["content"] => {
+    const defaultContent = {
+      text: "",
+      attributes: [],
+      images: [],
+      videos: [],
+      markdown: "",
+      html: "",
+    }
+
     switch (type) {
       case "bio":
-        return { text: "Write something about yourself..." }
+        return {
+          ...defaultContent,
+          text: "Write something about yourself...",
+        }
       case "attributes":
-        return { items: [{ label: "Skill", value: "Expert" }] }
+        return {
+          ...defaultContent,
+          attributes: [
+            {
+              _id: uuidv4(),
+              label: "Skill",
+              value: "Expert",
+            },
+          ],
+        }
       case "gallery":
-        return { images: [] }
+        return defaultContent
       case "videos":
-        return { videos: [] }
+        return defaultContent
       case "markdown":
-        return { markdown: "## Hello World\n\nThis is a markdown section." }
+        return {
+          ...defaultContent,
+          markdown: "## Hello World\n\nThis is a markdown section.",
+        }
       case "custom":
-        return { html: "<div>Custom HTML content</div>" }
+        return {
+          ...defaultContent,
+          html: "<div>Custom HTML content</div>",
+        }
       default:
-        return {}
+        return defaultContent
     }
   }
 

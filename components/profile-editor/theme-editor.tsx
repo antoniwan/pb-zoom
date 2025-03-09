@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import type { Profile } from "@/lib/models"
+import type { Profile } from "@/lib/db"
 
 interface ProfileThemeEditorProps {
   profile: Profile

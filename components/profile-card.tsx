@@ -1,27 +1,63 @@
-import type React from "react"
+"use client"
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
+import type { Profile } from "@/lib/db"
 
 interface ProfileCardProps {
-  name: string
-  title: string
-  imageUrl: string
+  profile: Profile
+  onDelete: (id: string) => void
+  onToggleVisibility: (id: string, isPublic: boolean) => void
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ name, title, imageUrl }) => {
+export function ProfileCard({ profile, onDelete, onToggleVisibility }: ProfileCardProps) {
+  const primaryPicture = profile.header.pictures.find((picture) => picture.isPrimary)
+
   return (
-    <div className="bg-white rounded-md shadow-md p-4">
-      <div className="flex flex-col xs:flex-row gap-3 mb-4">
-        <div className="w-14 h-14 xs:w-16 xs:h-16 rounded-md overflow-hidden flex-shrink-0 border mx-auto xs:mx-0">
-          <img src={imageUrl || "/placeholder.svg"} alt={name} className="object-cover w-full h-full" />
+    <Card>
+      <CardHeader className="relative">
+        <div className="absolute right-4 top-4 flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => onToggleVisibility(profile._id!, profile.isPublic)}>
+            {profile.isPublic ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+          </Button>
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/profiles/${profile._id}/edit`}>
+              <Pencil className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => onDelete(profile._id!)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
-        <div className="flex-1 min-w-0 text-center xs:text-left mt-2 xs:mt-0">
-          <h3 className="text-lg font-semibold text-gray-800 truncate">{name}</h3>
-          <p className="text-sm text-gray-500 truncate">{title}</p>
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-16 overflow-hidden rounded-full">
+            <Image
+              src={primaryPicture?.url || "/placeholder.svg"}
+              alt={primaryPicture?.altText || "Profile picture"}
+              width={64}
+              height={64}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">{profile.title}</h3>
+            <p className="text-sm text-muted-foreground">{profile.header.title}</p>
+          </div>
         </div>
-      </div>
-      {/* You can add more details or actions here if needed */}
-    </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-2">
+          <Badge variant={profile.isPublic ? "default" : "secondary"}>
+            {profile.isPublic ? "Public" : "Private"}
+          </Badge>
+          <Badge variant="outline">{profile.layout}</Badge>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
-
-export default ProfileCard
 

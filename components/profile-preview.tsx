@@ -1,4 +1,4 @@
-import type { Profile, ProfileSection, ProfileAttribute, ProfileImage } from "@/lib/models"
+import type { Profile, ProfileSection, ProfileAttribute, ProfileImage } from "@/lib/db"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Facebook, Twitter, Instagram, Linkedin, Github, Youtube, Globe } from "lucide-react"
@@ -60,8 +60,8 @@ export function ProfilePreview({ profile }: ProfilePreviewProps) {
                   className="aspect-square overflow-hidden rounded-md bg-muted"
                 >
                   <Image
-                    src={image.url || "/placeholder.svg"}
-                    alt={image.caption || "Gallery image"}
+                    src={image.url || "/placeholder.svg?height=300&width=300"}
+                    alt={image.altText || "Gallery image"}
                     width={300}
                     height={300}
                     className="h-full w-full object-cover"
