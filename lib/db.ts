@@ -43,62 +43,46 @@ interface User {
 }
 
 export interface Profile {
-  _id?: string
+  _id: string
   userId: string
   title: string
   slug: string
-  description?: string
-  isPublic: boolean
-  categoryIds?: string[]
-  viewCount?: number
-  completionPercentage?: number
-  header: {
-    name: string
-    title: string
-    subtitle: string
-    shortBio: string
-    pictures: Array<{
-      url: string
-      altText?: string
-      isPrimary: boolean
-    }>
-  }
+  description: string
+  name: string
+  bio: string
+  avatar: string
+  coverImage: string
   theme: {
     primaryColor: string
-    secondaryColor: string
     backgroundColor: string
     textColor: string
-    fontFamily: string
+    headingFont: string
+    bodyFont: string
     customCSS?: string
   }
-  layout: string
-  layoutOptions?: {
-    columnCount?: number
-    sectionSpacing?: number
-    fullWidth?: boolean
-  }
+  layout: "minimal" | "standard" | "professional"
+  category: string
+  isPublic: boolean
+  isFeatured: boolean
+  socialLinks: SocialLink[]
   sections: ProfileSection[]
-  socialLinks: Array<{
-    platform: string
-    url: string
-  }>
-  seo?: {
-    title?: string
-    description?: string
-    keywords?: string
-    ogImage?: string
-    twitterCard?: boolean
-    indexed?: boolean
-  }
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SocialLink {
+  _id: string
+  platform: string
+  url: string
+  title: string
+  description: string
 }
 
 export interface ProfileSection {
   _id: string
-  type: "bio" | "attributes" | "gallery" | "videos" | "markdown" | "custom" | "links"
+  type: "gallery" | "links" | "attributes" | "markdown" | "custom"
   title: string
-  isVisible?: boolean
+  order: number
   content: {
     text: string
     attributes: ProfileAttribute[]
@@ -107,29 +91,21 @@ export interface ProfileSection {
     markdown: string
     html: string
     customCSS?: string
-    links?: LinkItem[]
+    links?: SocialLink[]
   }
-  order: number
-}
-
-export interface LinkItem {
-  id: string
-  title: string
-  url: string
-  icon?: string
 }
 
 export interface ProfileAttribute {
   _id: string
   label: string
-  value: string
+  value: number
 }
 
 export interface ProfileImage {
   _id: string
   url: string
   altText: string
-  isPrimary: boolean
+  caption: string
 }
 
 export interface ProfileVideo {
@@ -137,12 +113,7 @@ export interface ProfileVideo {
   url: string
   title: string
   description: string
-}
-
-export interface ProfileSocial {
-  platform: string
-  url: string
-  icon?: string
+  thumbnail?: string
 }
 
 // Get a profile by slug

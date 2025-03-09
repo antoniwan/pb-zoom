@@ -1,85 +1,50 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
+import { useProfile } from "@/hooks/use-profile"
 
 import { ProfileProvider } from "@/components/profile-context"
 import { ProfileEditor } from "@/components/profile-editor"
 import { ProfileNotFound } from "@/components/profile-not-found"
-import { ProfileEditLoading } from "@/components/profile-edit-loading"
-
-import type { Profile } from "@/lib/db"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 export default function EditProfilePage() {
   const { id } = useParams()
   const router = useRouter()
+  const { toast } = useToast()
   const { status } = useSession()
+  const { profile, isLoading, error, saveProfile } = useProfile(id as string)
 
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
+  // Handle authentication
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/login")
-      return
     }
+  }, [status, router])
 
-    if (status === "authenticated") {
-      const fetchProfile = async () => {
-        try {
-          setIsLoading(true)
-          const response = await fetch(`/api/profiles/${id}`)
+  // Show loading state
+  if (status === "loading" || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner className="w-8 h-8" />
+      </div>
+    )
+  }
 
-          if (!response.ok) {
-            if (response.status === 404) {
-              setError("Profile not found")
-            } else {
-              throw new Error("Failed to fetch profile")
-            }
-          } else {
-            const data = await response.json()
-            setProfile(data)
-          }
-        } catch (error) {
-          console.error("Error fetching profile:", error)
-          setError("An error occurred while fetching the profile")
-          toast({
-            title: "Error",
-            description: "Failed to load profile. Please try again.",
-            variant: "destructive",
-          })
-        } finally {
-          setIsLoading(false)
-        }
-      }
+  // Show error state
+  if (error || !profile) {
+    return <ProfileNotFound error={error} />
+  }
 
-      fetchProfile()
-    }
-  }, [status, id, router])
-
-  const handleSaveProfile = async (updates: Partial<Profile>) => {
+  // Handle profile updates
+  const handleSaveProfile = async (updates: Partial<typeof profile>) => {
     try {
-      const response = await fetch(`/api/profiles/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updates),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to update profile")
-      }
-
-      await response.json()
-      setProfile((prev) => prev ? { ...prev, ...updates } : null)
-
+      await saveProfile(updates)
       return true
     } catch (error) {
-      console.error("Error updating profile:", error)
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",
@@ -87,14 +52,6 @@ export default function EditProfilePage() {
       })
       return false
     }
-  }
-
-  if (isLoading) {
-    return <ProfileEditLoading />
-  }
-
-  if (error || !profile) {
-    return <ProfileNotFound error={error} />
   }
 
   return (
