@@ -20,6 +20,7 @@ export interface Profile {
   isPublic: boolean
   createdAt: Date
   updatedAt: Date
+  categoryId?: string // New field to reference a category
   theme: {
     primaryColor: string
     secondaryColor: string
@@ -29,7 +30,7 @@ export interface Profile {
     customCSS?: string
   }
   layout: string
-  header: ProfileHeader // New field for the complex title system
+  header: ProfileHeader
   sections: ProfileSection[]
   socialLinks: ProfileSocial[]
 }
@@ -68,5 +69,21 @@ export interface ProfileSocial {
   platform: string
   url: string
   icon?: string
+}
+
+// New interface for profile categories
+export interface ProfileCategory {
+  _id: string
+  name: string
+  description: string
+  icon?: string // For visual representation
+  color?: string // For visual styling
+  isEnabled: boolean // For moderation
+  isCorrect: boolean // For moderation/verification
+  isOfficial: boolean // To distinguish between system and user-created categories
+  createdBy: string // User ID of creator
+  createdAt: Date
+  updatedAt: Date
+  usageCount?: number // Track popularity
 }
 
