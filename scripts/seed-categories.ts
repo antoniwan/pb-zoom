@@ -17,6 +17,7 @@ const seedCategories = async () => {
         isCorrect: true,
         isOfficial: true,
         createdBy: ADMIN_USER_ID,
+        usageCount: 0,
       },
       {
         name: "Creative",
@@ -28,6 +29,7 @@ const seedCategories = async () => {
         isCorrect: true,
         isOfficial: true,
         createdBy: ADMIN_USER_ID,
+        usageCount: 0,
       },
       {
         name: "Gaming",
@@ -39,6 +41,7 @@ const seedCategories = async () => {
         isCorrect: true,
         isOfficial: true,
         createdBy: ADMIN_USER_ID,
+        usageCount: 0,
       },
       {
         name: "Academic",
@@ -50,6 +53,7 @@ const seedCategories = async () => {
         isCorrect: true,
         isOfficial: true,
         createdBy: ADMIN_USER_ID,
+        usageCount: 0,
       },
       {
         name: "Social",
@@ -61,6 +65,7 @@ const seedCategories = async () => {
         isCorrect: true,
         isOfficial: true,
         createdBy: ADMIN_USER_ID,
+        usageCount: 0,
       },
       {
         name: "Role-Playing",
@@ -72,6 +77,7 @@ const seedCategories = async () => {
         isCorrect: true,
         isOfficial: true,
         createdBy: ADMIN_USER_ID,
+        usageCount: 0,
       },
     ]
 
