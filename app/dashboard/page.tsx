@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -27,11 +27,23 @@ import {
   Heart,
   Users,
   Sparkles,
+  Layers,
+  Link2,
+  MoreHorizontal,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import type { Profile, ProfileCategory } from "@/lib/models"
 import type { Session } from "next-auth"
+
+// Add these imports for the dropdown menu
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 type SessionStatus = "authenticated" | "loading" | "unauthenticated"
 
@@ -454,104 +466,141 @@ function ProfileCard({
   categoryIcon: React.ReactNode
   hideCategoryBadge?: boolean
 }) {
+  // Get primary profile picture if available
+  const primaryPicture = profile.header?.pictures?.find((pic) => pic.isPrimary) || profile.header?.pictures?.[0]
+
+  // Calculate how complete the profile is
+  const totalPossibleSections = 5 // Bio, Header, Gallery, etc.
+  const completionPercentage = Math.min(Math.round((profile.sections.length / totalPossibleSections) * 100), 100)
+
+  // Format the date nicely
+  const updatedDate = new Date(profile.updatedAt)
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: updatedDate.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
+  }).format(updatedDate)
+
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="line-clamp-1">{profile.title}</CardTitle>
-          {profile.isPublic ? (
-            <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">
-              Public
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 hover:bg-amber-50">
-              Private
+    <Card className="overflow-hidden group hover:shadow-md transition-all duration-200 border-opacity-40">
+      {/* Card Header with gradient based on profile theme */}
+      <div
+        className="h-3 w-full"
+        style={{
+          background: `linear-gradient(to right, ${profile.theme.primaryColor}, ${profile.theme.secondaryColor})`,
+        }}
+      />
+
+      <div className="p-5">
+        {/* Status indicator and category */}
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center gap-2">
+            <div className={`w-2.5 h-2.5 rounded-full ${profile.isPublic ? "bg-green-500" : "bg-amber-500"}`} />
+            <span className="text-xs font-medium text-muted-foreground">{profile.isPublic ? "Public" : "Private"}</span>
+          </div>
+
+          {!hideCategoryBadge && profile.categoryId && (
+            <Badge variant="outline" className="flex items-center gap-1 bg-background/80">
+              {categoryIcon}
+              <span className="text-xs">{categoryName}</span>
             </Badge>
           )}
         </div>
-        <CardDescription className="flex items-center gap-2">
-          Last updated {new Date(profile.updatedAt).toLocaleDateString()}
-          {!hideCategoryBadge && profile.categoryId && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              {categoryIcon}
-              <span>{categoryName}</span>
-            </Badge>
-          )}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div
-          className="h-40 rounded-md overflow-hidden border"
-          style={{ backgroundColor: profile.theme.backgroundColor }}
-        >
+
+        {/* Profile title and preview */}
+        <div className="flex gap-4 mb-4">
+          {/* Profile image or fallback */}
           <div
-            className="h-8 w-full px-3 py-2 flex items-center"
-            style={{ backgroundColor: profile.theme.primaryColor, color: "#fff" }}
+            className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 border"
+            style={{ backgroundColor: profile.theme.backgroundColor || "#f8f9fa" }}
           >
-            <span className="text-sm font-medium truncate">{profile.title}</span>
-          </div>
-          <div className="p-3">
-            {profile.sections && profile.sections.length > 0 ? (
-              <div className="space-y-2">
-                {profile.sections.slice(0, 2).map((section, i) => (
-                  <div key={i} className="flex flex-col">
-                    <span className="text-xs font-medium" style={{ color: profile.theme.secondaryColor }}>
-                      {section.title}
-                    </span>
-                    <div
-                      className="h-2 w-full mt-1 rounded-full"
-                      style={{ backgroundColor: `${profile.theme.secondaryColor}20` }}
-                    >
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          backgroundColor: profile.theme.secondaryColor,
-                          width: `${Math.random() * 60 + 20}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-                {profile.sections.length > 2 && (
-                  <div className="text-xs text-center mt-1" style={{ color: profile.theme.textColor }}>
-                    +{profile.sections.length - 2} more sections
-                  </div>
-                )}
-              </div>
+            {primaryPicture ? (
+              <Image
+                src={primaryPicture.url || "/placeholder.svg"}
+                alt={primaryPicture.altText || profile.title}
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-                No sections added yet
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{ backgroundColor: profile.theme.primaryColor || "#4263eb" }}
+              >
+                <span className="text-white font-bold text-xl">{profile.title.charAt(0).toUpperCase()}</span>
               </div>
             )}
           </div>
+
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-base mb-1 truncate">{profile.title}</h3>
+            <div className="flex items-center text-xs text-muted-foreground gap-2">
+              <Clock className="h-3 w-3" />
+              <span>Updated {formattedDate}</span>
+            </div>
+
+            {/* Completion indicator */}
+            <div className="mt-2 flex items-center gap-2">
+              <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${completionPercentage}%`,
+                    backgroundColor: profile.theme.primaryColor,
+                  }}
+                />
+              </div>
+              <span className="text-xs font-medium">{completionPercentage}%</span>
+            </div>
+          </div>
         </div>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/dashboard/profiles/${profile._id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => onDelete(profile._id)}>
-            <Trash2 className="mr-2 h-4 w-4" /> Delete
-          </Button>
+
+        {/* Stats and metadata */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="bg-muted/50 rounded-md p-2 text-center">
+            <span className="text-xs text-muted-foreground block">Sections</span>
+            <span className="font-medium">{profile.sections.length}</span>
+          </div>
+          <div className="bg-muted/50 rounded-md p-2 text-center">
+            <span className="text-xs text-muted-foreground block">Links</span>
+            <span className="font-medium">{profile.socialLinks?.length || 0}</span>
+          </div>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/dashboard/profiles/${profile._id}/preview`}>
-              <Eye className="mr-2 h-4 w-4" /> Preview
-            </Link>
-          </Button>
-          {profile.isPublic && (
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/p/${profile.slug}`} target="_blank">
-                <ExternalLink className="mr-2 h-4 w-4" /> View
+
+        {/* Actions */}
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <Button variant="default" size="sm" asChild>
+              <Link href={`/dashboard/profiles/${profile._id}/edit`}>
+                <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
               </Link>
             </Button>
-          )}
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/dashboard/profiles/${profile._id}/preview`}>
+                <Eye className="mr-1.5 h-3.5 w-3.5" /> Preview
+              </Link>
+            </Button>
+          </div>
+
+          <div className="flex gap-2">
+            {profile.isPublic && (
+              <Button variant="outline" size="sm" className="px-2" asChild>
+                <Link href={`/p/${profile.slug}`} target="_blank">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+              onClick={() => onDelete(profile._id)}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
-      </CardFooter>
+      </div>
     </Card>
   )
 }
@@ -570,75 +619,131 @@ function ProfileListItem({
   categoryIcon: React.ReactNode
   hideCategoryBadge?: boolean
 }) {
+  // Get primary profile picture if available
+  const primaryPicture = profile.header?.pictures?.find((pic) => pic.isPrimary) || profile.header?.pictures?.[0]
+
+  // Format the date nicely
+  const updatedDate = new Date(profile.updatedAt)
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: updatedDate.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
+    hour: "numeric",
+    minute: "numeric",
+  }).format(updatedDate)
+
   return (
-    <Card>
-      <div className="flex flex-col md:flex-row md:items-center p-4 gap-4">
-        <div
-          className="w-12 h-12 rounded-md flex-shrink-0 flex items-center justify-center"
-          style={{ backgroundColor: profile.theme.primaryColor }}
-        >
-          {profile.header?.pictures && profile.header.pictures.length > 0 ? (
-            <div className="w-full h-full relative overflow-hidden rounded-md">
+    <Card className="overflow-hidden hover:shadow-md transition-all duration-200 group">
+      <div className="flex items-stretch">
+        {/* Left color bar based on profile theme */}
+        <div className="w-1.5 flex-shrink-0" style={{ backgroundColor: profile.theme.primaryColor }} />
+
+        <div className="flex flex-col md:flex-row md:items-center p-4 gap-4 flex-1">
+          {/* Profile image */}
+          <div
+            className="w-14 h-14 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden border"
+            style={{ backgroundColor: profile.theme.backgroundColor || "#f8f9fa" }}
+          >
+            {primaryPicture ? (
               <Image
-                src={profile.header.pictures[0].url || "/placeholder.svg"}
-                alt={profile.title}
-                fill
-                className="object-cover"
+                src={primaryPicture.url || "/placeholder.svg"}
+                alt={primaryPicture.altText || profile.title}
+                width={56}
+                height={56}
+                className="w-full h-full object-cover"
               />
-            </div>
-          ) : (
-            <span className="text-white font-bold text-lg">{profile.title.charAt(0).toUpperCase()}</span>
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="font-medium truncate">{profile.title}</h3>
-            {profile.isPublic ? (
-              <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">
-                Public
-              </Badge>
             ) : (
-              <Badge variant="outline" className="bg-amber-50 text-amber-700 hover:bg-amber-50">
-                Private
-              </Badge>
-            )}
-
-            {!hideCategoryBadge && profile.categoryId && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                {categoryIcon}
-                <span>{categoryName}</span>
-              </Badge>
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{ backgroundColor: profile.theme.primaryColor || "#4263eb" }}
+              >
+                <span className="text-white font-bold text-xl">{profile.title.charAt(0).toUpperCase()}</span>
+              </div>
             )}
           </div>
 
-          <div className="text-sm text-muted-foreground mt-1">
-            Last updated {new Date(profile.updatedAt).toLocaleDateString()} •{profile.sections.length}{" "}
-            {profile.sections.length === 1 ? "section" : "sections"}
-          </div>
-        </div>
+          {/* Profile info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-medium truncate">{profile.title}</h3>
 
-        <div className="flex items-center gap-2 mt-2 md:mt-0">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/dashboard/profiles/${profile._id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/dashboard/profiles/${profile._id}/preview`}>
-              <Eye className="mr-2 h-4 w-4" /> Preview
-            </Link>
-          </Button>
-          {profile.isPublic && (
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/p/${profile.slug}`} target="_blank">
-                <ExternalLink className="mr-2 h-4 w-4" /> View
+              <div
+                className={`px-1.5 py-0.5 rounded-sm text-xs font-medium ${
+                  profile.isPublic ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"
+                }`}
+              >
+                {profile.isPublic ? "Public" : "Private"}
+              </div>
+
+              {!hideCategoryBadge && profile.categoryId && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  {categoryIcon}
+                  <span>{categoryName}</span>
+                </Badge>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                <span>{formattedDate}</span>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <Layers className="h-3.5 w-3.5" />
+                <span>
+                  {profile.sections.length} {profile.sections.length === 1 ? "section" : "sections"}
+                </span>
+              </div>
+
+              {profile.socialLinks?.length > 0 && (
+                <div className="flex items-center gap-1">
+                  <Link2 className="h-3.5 w-3.5" />
+                  <span>
+                    {profile.socialLinks.length} {profile.socialLinks.length === 1 ? "link" : "links"}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 mt-2 md:mt-0 md:ml-2">
+            <Button variant="default" size="sm" asChild>
+              <Link href={`/dashboard/profiles/${profile._id}/edit`}>
+                <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
               </Link>
             </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={() => onDelete(profile._id)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <MoreHorizontal className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={`/dashboard/profiles/${profile._id}/preview`} className="cursor-pointer">
+                    <Eye className="mr-2 h-4 w-4" /> Preview
+                  </Link>
+                </DropdownMenuItem>
+
+                {profile.isPublic && (
+                  <DropdownMenuItem asChild>
+                    <Link href={`/p/${profile.slug}`} target="_blank" className="cursor-pointer">
+                      <ExternalLink className="mr-2 h-4 w-4" /> View Live
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onClick={() => onDelete(profile._id)} className="text-red-500 focus:text-red-500">
+                  <Trash2 className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
     </Card>
