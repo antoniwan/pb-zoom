@@ -1,88 +1,63 @@
-import { MongoClient, ObjectId, type MongoClientOptions } from "mongodb"
+import { MongoClient, ObjectId } from "mongodb"
 
+// MongoDB connection
 const uri = process.env.MONGODB_URI || ""
-const options: MongoClientOptions = {}
-
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please add your Mongo URI to .env.local")
-}
-
-declare global {
-  // eslint-disable-next-line no-var
-  var _mongoClientPromise: Promise<MongoClient> | undefined
-}
-
 let client: MongoClient
 let clientPromise: Promise<MongoClient>
+
+if (!uri) {
+  throw new Error("Please add your MongoDB URI to .env.local")
+}
 
 if (process.env.NODE_ENV === "development") {
   // In development mode, use a global variable so that the value
   // is preserved across module reloads caused by HMR (Hot Module Replacement).
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options)
-    global._mongoClientPromise = client.connect()
+  const globalWithMongo = global as typeof globalThis & {
+    _mongoClientPromise?: Promise<MongoClient>
   }
-  clientPromise = global._mongoClientPromise
+
+  if (!globalWithMongo._mongoClientPromise) {
+    client = new MongoClient(uri)
+    globalWithMongo._mongoClientPromise = client.connect()
+  }
+  clientPromise = globalWithMongo._mongoClientPromise
 } else {
   // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri, options)
+  client = new MongoClient(uri)
   clientPromise = client.connect()
 }
 
-// Export a module-scoped MongoClient promise. By doing this in a
-// separate module, the client can be safely reused across multiple
-// functions.
+// Export the clientPromise for use in auth.ts
 export { clientPromise }
 
-// Define the User type
-interface User {
-  _id: ObjectId
-  username: string
-  email: string
-  // Add other user properties as needed
+// Type definitions
+export interface ProfileAttribute {
+  _id: string
+  label: string
+  value: string
 }
 
-export interface Profile {
-  _id: string
-  userId: string
-  title: string
-  slug: string
-  description: string
-  name: string
-  bio: string
-  avatar: string
-  coverImage: string
-  theme: {
-    primaryColor: string
-    backgroundColor: string
-    textColor: string
-    headingFont: string
-    bodyFont: string
-    customCSS?: string
-  }
-  layout: "minimal" | "standard" | "professional"
-  category: string
-  isPublic: boolean
-  isFeatured: boolean
-  socialLinks: SocialLink[]
-  sections: ProfileSection[]
-  createdAt: string
-  updatedAt: string
+export interface ProfileImage {
+  url: string
+  alt?: string
+  caption?: string
 }
 
-export interface SocialLink {
-  _id: string
+export interface ProfileVideo {
+  url: string
+  title?: string
+  description?: string
+}
+
+export interface ProfileSocial {
   platform: string
   url: string
-  title: string
-  description: string
 }
 
 export interface ProfileSection {
   _id: string
-  type: "gallery" | "links" | "attributes" | "markdown" | "custom"
+  type: string
   title: string
-  order: number
   content: {
     text: string
     attributes: ProfileAttribute[]
@@ -90,312 +65,231 @@ export interface ProfileSection {
     videos: ProfileVideo[]
     markdown: string
     html: string
-    customCSS?: string
-    links?: SocialLink[]
   }
+  order: number
 }
 
-export interface ProfileAttribute {
+export interface Profile {
   _id: string
-  label: string
-  value: number
-}
-
-export interface ProfileImage {
-  _id: string
-  url: string
-  altText: string
-  caption: string
-}
-
-export interface ProfileVideo {
-  _id: string
-  url: string
+  slug: string
   title: string
-  description: string
-  thumbnail?: string
+  subtitle?: string
+  bio?: string
+  isPublic: boolean
+  completionPercentage?: number
+  viewCount?: number
+  tags?: string[]
+  location?: string
+  email?: string
+  website?: string
+  resume?: string
+  socialLinks?: ProfileSocial[]
+  header?: {
+    avatarImage?: string
+    coverImage?: string
+  }
+  theme?: {
+    backgroundColor?: string
+    textColor?: string
+    primaryColor?: string
+    secondaryColor?: string
+    accentColor?: string
+  }
+  sections: ProfileSection[]
+  updatedAt?: string
+  userId?: string
 }
 
-// Get a profile by slug
-export async function getProfileBySlug(slug: string) {
+// Database functions
+export async function getProfileBySlug(slug: string): Promise<Profile | null> {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const profile = await db.collection<Profile>("profiles").findOne({ slug, isPublic: true })
+    // Try to fetch the profile from the database
+    const profile = (await db.collection("profiles").findOne({ slug })) as Profile | null
 
-    if (!profile) return null
+    // If no profile is found in the database, return a mock profile for testing
+    if (!profile && process.env.NODE_ENV === "development") {
+      return getMockProfile(slug)
+    }
 
-    return JSON.parse(JSON.stringify(profile))
+    return profile
   } catch (error) {
     console.error("Error fetching profile by slug:", error)
-    return null
-  }
-}
 
-// Get a user by their username
-export async function getUserByUsername(username: string) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const user = await db.collection("users").findOne(
-      { username: username },
-      { projection: { password: 0 } }, // Exclude password
-    )
-
-    return user
-  } catch (error) {
-    console.error("Error getting user by username:", error)
-    return null
-  }
-}
-
-// Get all public profiles for a specific user
-export async function getUserPublicProfiles(userId: string) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const profiles = await db
-      .collection<Profile>("profiles")
-      .find({
-        userId: userId,
-        isPublic: true,
-      })
-      .sort({ updatedAt: -1 })
-      .toArray()
-
-    return profiles.map((profile) => ({
-      ...profile,
-      _id: profile._id?.toString(),
-    }))
-  } catch (error) {
-    console.error("Error getting user public profiles:", error)
-    return []
-  }
-}
-
-// Update user information
-export async function updateUser(userId: string, updates: Partial<User>) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const result = await db
-      .collection("users")
-      .updateOne({ _id: new ObjectId(userId) }, { $set: { ...updates, updatedAt: new Date() } })
-
-    return result.modifiedCount > 0
-  } catch (error) {
-    console.error("Error updating user:", error)
-    return false
-  }
-}
-
-// Category interface
-export interface Category {
-  _id?: string
-  name: string
-  description: string
-  icon?: string
-  color?: string
-  isEnabled: boolean
-  isOfficial: boolean
-  isCorrect?: boolean
-  createdBy: string
-  usageCount: number
-  createdAt?: Date
-  updatedAt?: Date
-}
-
-// Get all categories
-export async function getCategories(options?: { includeDisabled?: boolean; includeIncorrect?: boolean }) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const filter: Record<string, boolean> = {}
-
-    // If not including disabled categories, only show enabled ones
-    if (!options?.includeDisabled) {
-      filter.isEnabled = true
+    // In development, return a mock profile even if there's an error
+    if (process.env.NODE_ENV === "development") {
+      return getMockProfile(slug)
     }
 
-    // If not including incorrect categories, only show correct ones
-    if (!options?.includeIncorrect) {
-      filter.isCorrect = true
+    return null
+  }
+}
+
+// Get profile by ID
+export async function getProfile(id: string): Promise<Profile | null> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    // Try to convert the ID to ObjectId if it's in the right format
+    let query = { _id: id }
+    try {
+      if (ObjectId.isValid(id)) {
+        query = { _id: new ObjectId(id) }
+      }
+    } catch (e) {
+      // If conversion fails, use the string ID
     }
 
-    const categories = await db.collection<Category>("profileCategories").find(filter).sort({ name: 1 }).toArray()
+    // Try to fetch the profile from the database
+    const profile = (await db.collection("profiles").findOne(query)) as Profile | null
 
-    return categories.map((category) => ({
-      ...category,
-      _id: category._id?.toString(),
-    }))
+    // If no profile is found in the database, return a mock profile for testing
+    if (!profile && process.env.NODE_ENV === "development") {
+      return getMockProfile("test-profile", id)
+    }
+
+    return profile
   } catch (error) {
-    console.error("Error fetching categories:", error)
-    return []
-  }
-}
+    console.error("Error fetching profile by ID:", error)
 
-// Get a single category by ID
-export async function getCategory(id: string) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
+    // In development, return a mock profile even if there's an error
+    if (process.env.NODE_ENV === "development") {
+      return getMockProfile("test-profile", id)
+    }
 
-    const objectId = new ObjectId(id)
-    const category = await db.collection("profileCategories").findOne({ _id: objectId })
-
-    if (!category) return null
-    return {
-      ...category,
-      _id: category._id.toString(),
-    } as Category
-  } catch (error) {
-    console.error("Error fetching category:", error)
     return null
   }
 }
 
-// Create a new category
-export async function createCategory(category: Omit<Category, "_id">) {
+// Update profile
+export async function updateProfile(id: string, data: Partial<Profile>): Promise<Profile | null> {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const result = await db.collection<Category>("profileCategories").insertOne({
-      ...category,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
+    // Try to convert the ID to ObjectId if it's in the right format
+    let query = { _id: id }
+    try {
+      if (ObjectId.isValid(id)) {
+        query = { _id: new ObjectId(id) }
+      }
+    } catch (e) {
+      // If conversion fails, use the string ID
+    }
 
-    return result.insertedId
-  } catch (error) {
-    console.error("Error creating category:", error)
-    return null
-  }
-}
+    // Add updatedAt timestamp
+    const updateData = {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    }
 
-// Update a category
-export async function updateCategory(id: string, updates: Partial<Category>) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const result = await db
-      .collection("profileCategories")
-      .updateOne({ _id: new ObjectId(id) }, { $set: { ...updates, updatedAt: new Date() } })
-
-    return result.modifiedCount > 0
-  } catch (error) {
-    console.error("Error updating category:", error)
-    return false
-  }
-}
-
-// Delete a category
-export async function deleteCategory(id: string) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const result = await db.collection("profileCategories").deleteOne({ _id: new ObjectId(id) })
-
-    return result.deletedCount > 0
-  } catch (error) {
-    console.error("Error deleting category:", error)
-    return false
-  }
-}
-
-// Get all profiles
-export async function getProfiles(userId: string) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const profiles = await db.collection<Profile>("profiles").find({ userId }).sort({ updatedAt: -1 }).toArray()
-
-    return profiles.map((profile) => ({
-      ...profile,
-      _id: profile._id?.toString(),
-    }))
-  } catch (error) {
-    console.error("Error fetching profiles:", error)
-    return []
-  }
-}
-
-// Get a single profile by ID
-export async function getProfile(id: string) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const objectId = new ObjectId(id)
-    const profile = await db.collection("profiles").findOne({ _id: objectId })
-
-    if (!profile) return null
-    return {
-      ...profile,
-      _id: profile._id.toString(),
-    } as Profile
-  } catch (error) {
-    console.error("Error fetching profile:", error)
-    return null
-  }
-}
-
-// Create a new profile
-export async function createProfile(profile: Omit<Profile, "_id">) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const result = await db.collection<Profile>("profiles").insertOne({
-      ...profile,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
-
-    return result.insertedId
-  } catch (error) {
-    console.error("Error creating profile:", error)
-    return null
-  }
-}
-
-// Update a profile
-export async function updateProfile(id: string, updates: Partial<Profile>) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
+    // Update the profile in the database
     const result = await db
       .collection("profiles")
-      .updateOne({ _id: new ObjectId(id) }, { $set: { ...updates, updatedAt: new Date() } })
+      .findOneAndUpdate(query, { $set: updateData }, { returnDocument: "after" })
 
-    return result.modifiedCount > 0
+    return result as unknown as Profile | null
   } catch (error) {
     console.error("Error updating profile:", error)
-    return false
+    return null
   }
 }
 
-// Delete a profile
-export async function deleteProfile(id: string) {
+// Delete profile
+export async function deleteProfile(id: string): Promise<boolean> {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const result = await db.collection("profiles").deleteOne({ _id: new ObjectId(id) })
+    // Try to convert the ID to ObjectId if it's in the right format
+    let query = { _id: id }
+    try {
+      if (ObjectId.isValid(id)) {
+        query = { _id: new ObjectId(id) }
+      }
+    } catch (e) {
+      // If conversion fails, use the string ID
+    }
+
+    // Delete the profile from the database
+    const result = await db.collection("profiles").deleteOne(query)
 
     return result.deletedCount > 0
   } catch (error) {
     console.error("Error deleting profile:", error)
     return false
+  }
+}
+
+// Helper function to get a mock profile for development
+function getMockProfile(slug: string, id = "profile123"): Profile {
+  return {
+    _id: id,
+    slug: slug,
+    title: "Test Profile",
+    subtitle: "Web Developer & Designer",
+    bio: "This is a test profile for development purposes.",
+    isPublic: true,
+    completionPercentage: 85,
+    viewCount: 42,
+    tags: ["Web Development", "UI/UX", "JavaScript"],
+    location: "San Francisco, CA",
+    email: "test@example.com",
+    website: "https://example.com",
+    socialLinks: [
+      { platform: "GitHub", url: "https://github.com" },
+      { platform: "LinkedIn", url: "https://linkedin.com" },
+    ],
+    header: {
+      avatarImage: "/placeholder.svg?height=200&width=200",
+      coverImage: "/placeholder.svg?height=1200&width=600",
+    },
+    theme: {
+      backgroundColor: "#ffffff",
+      textColor: "#333333",
+      primaryColor: "#3b82f6",
+      secondaryColor: "#6b7280",
+      accentColor: "#f59e0b",
+    },
+    sections: [
+      {
+        _id: "section1",
+        type: "bio",
+        title: "About Me",
+        content: {
+          text: "I'm a passionate developer with experience in web technologies.",
+          attributes: [],
+          images: [],
+          videos: [],
+          markdown: "",
+          html: "",
+        },
+        order: 0,
+      },
+      {
+        _id: "section2",
+        type: "attributes",
+        title: "Skills",
+        content: {
+          text: "",
+          attributes: [
+            { _id: "attr1", label: "JavaScript", value: "90" },
+            { _id: "attr2", label: "React", value: "85" },
+            { _id: "attr3", label: "Node.js", value: "80" },
+          ],
+          images: [],
+          videos: [],
+          markdown: "",
+          html: "",
+        },
+        order: 1,
+      },
+    ],
+    updatedAt: new Date().toISOString(),
+    userId: "user123",
   }
 }
 

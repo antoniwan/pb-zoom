@@ -15,7 +15,9 @@ export default function ProfileEditPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`/api/profiles/${params.id}`)
+        // Use absolute URL to avoid issues
+        const baseUrl = window.location.origin
+        const response = await fetch(`${baseUrl}/api/profiles/${params.id}`)
         if (!response.ok) throw new Error("Failed to fetch profile")
         const data = await response.json()
         setProfile(data)
@@ -45,7 +47,9 @@ export default function ProfileEditPage() {
     if (!profile) return
 
     try {
-      const response = await fetch(`/api/profiles/${profile._id}`, {
+      // Use absolute URL to avoid issues
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/api/profiles/${profile._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

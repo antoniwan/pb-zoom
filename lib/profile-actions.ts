@@ -2,9 +2,14 @@
 
 export async function incrementProfileViews(profileId: string) {
   try {
-    // In a real implementation, this would directly update your database
-    // For now, we'll use the API route but with a relative path
-    await fetch(`/api/profiles/${profileId}/views`, {
+    // For server actions, we need to use an absolute URL
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : ""
+
+    await fetch(`${baseUrl}/api/profiles/${profileId}/views`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
