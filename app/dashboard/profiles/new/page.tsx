@@ -3,37 +3,57 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
+import type { ProfileCategory } from "@/lib/models"
 
 export default function NewProfilePage() {
   const { status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const categoryId = searchParams.get("category")
+
   const [title, setTitle] = useState("")
   const [slug, setSlug] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [categories, setCategories] = useState<ProfileCategory[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryId)
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true)
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/login")
     }
+
+    fetchCategories()
   }, [status, router])
 
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
+  const fetchCategories = async () => {
+    try {
+      setIsLoadingCategories(true)
+      const response = await fetch("/api/categories")
+      if (!response.ok) throw new Error("Failed to fetch categories")
+      const data = await response.json()
+      setCategories(data)
+
+      // If a category was passed in URL and exists, select it
+      if (categoryId) {
+        const categoryExists = data.some((cat: ProfileCategory) => cat._id === categoryId)
+        if (categoryExists) {
+          setSelectedCategory(categoryId)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error)
+    } finally {
+      setIsLoadingCategories(false)
+    }
   }
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,6 +104,7 @@ export default function NewProfilePage() {
           title,
           slug,
           isPublic: false,
+          categoryId: selectedCategory,
           header: {
             name: "",
             title: "",
@@ -125,6 +146,17 @@ export default function NewProfilePage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -169,6 +201,28 @@ export default function NewProfilePage() {
               </div>
               <p className="text-sm text-muted-foreground">This is the URL where your profile will be accessible.</p>
             </div>
+
+            {categories.length > 0 && (
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <select
+                  id="category"
+                  className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={selectedCategory || ""}
+                  onChange={(e) => setSelectedCategory(e.target.value || null)}
+                >
+                  <option value="">Select a category (optional)</option>
+                  {categories.map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-sm text-muted-foreground">
+                  Categorizing your profile helps others discover it and provides specialized templates.
+                </p>
+              </div>
+            )}
 
             <div className="flex justify-end">
               <Button type="submit" disabled={isLoading} className="rounded-xl">
