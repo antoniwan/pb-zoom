@@ -6,9 +6,10 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { GripVertical, Trash2, ChevronDown, ChevronUp } from "lucide-react"
+import { GripVertical, Trash2, ChevronDown, ChevronUp, Save } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useProfile } from "@/components/profile-context"
 import type { ProfileSection } from "@/lib/db"
 
 // Import section editors
@@ -26,6 +27,8 @@ interface SectionItemProps {
 
 export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
   const [isExpanded, setIsExpanded] = useState(true)
+  const [localTitle, setLocalTitle] = useState(section.title)
+  const { saveProfile, isSaving } = useProfile()
   const {
     attributes,
     listeners,
@@ -38,6 +41,26 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+  }
+
+  // Update local title when section title changes
+  useEffect(() => {
+    setLocalTitle(section.title)
+  }, [section.title])
+
+  // Handle title change with debounce
+  useEffect(() => {
+    if (localTitle === section.title) return
+    
+    const timer = setTimeout(() => {
+      onUpdate({ title: localTitle })
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [localTitle, section.title, onUpdate])
+
+  const handleSave = async () => {
+    await saveProfile()
   }
 
   const renderEditor = () => {
@@ -107,8 +130,8 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
           <div className="flex-1 space-y-2">
             <Label>Title</Label>
             <Input
-              value={section.title}
-              onChange={(e) => onUpdate({ title: e.target.value })}
+              value={localTitle}
+              onChange={(e) => setLocalTitle(e.target.value)}
               placeholder="Section Title"
             />
           </div>
@@ -136,9 +159,21 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
         </div>
 
         {isExpanded && (
-          <div className="px-4 pb-4 pt-2 border-t">
-            {renderEditor()}
-          </div>
+          <>
+            <div className="px-4 pb-4 pt-2 border-t">
+              {renderEditor()}
+            </div>
+            <div className="px-4 pb-4 flex justify-end">
+              <Button 
+                onClick={handleSave} 
+                disabled={isSaving}
+                size="sm"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Save Changes
+              </Button>
+            </div>
+          </>
         )}
       </Card>
     </div>

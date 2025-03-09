@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Bold, Italic, Link, List, ListOrdered } from "lucide-react"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
 import type { ProfileSection } from "@/lib/db"
 
 interface MarkdownEditorProps {
@@ -13,6 +15,16 @@ interface MarkdownEditorProps {
 }
 
 export function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
+  const convertToHtml = useCallback((markdown: string) => {
+    try {
+      const rawHtml = marked(markdown)
+      return DOMPurify.sanitize(rawHtml)
+    } catch (error) {
+      console.error("Error converting markdown to HTML:", error)
+      return ""
+    }
+  }, [])
+
   const insertMarkdown = useCallback((prefix: string, suffix = "") => {
     const textarea = document.querySelector("textarea") as HTMLTextAreaElement
     if (!textarea) return
@@ -25,7 +37,11 @@ export function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
     const after = text.substring(end)
 
     const newText = before + prefix + selection + suffix + after
-    const newContent = { ...content, markdown: newText }
+    const newContent = { 
+      ...content, 
+      markdown: newText,
+      html: convertToHtml(newText)
+    }
     onChange(newContent)
 
     // Reset cursor position
@@ -36,13 +52,13 @@ export function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
         end + prefix.length
       )
     })
-  }, [content, onChange])
+  }, [content, onChange, convertToHtml])
 
   const handleMarkdownChange = (markdown: string) => {
     onChange({
       ...content,
       markdown,
-      html: "", // Clear HTML when markdown changes
+      html: convertToHtml(markdown)
     })
   }
 
@@ -101,7 +117,7 @@ export function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
 
         <TabsContent value="write" className="mt-0">
           <Textarea
-            value={content.markdown}
+            value={content?.markdown || ""}
             onChange={(e) => handleMarkdownChange(e.target.value)}
             placeholder="Write your content in Markdown..."
             className="min-h-[200px] font-mono"
@@ -110,8 +126,8 @@ export function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
 
         <TabsContent value="preview" className="mt-0">
           <div
-            className="prose prose-sm max-w-none border rounded-md p-4"
-            dangerouslySetInnerHTML={{ __html: content.html }}
+            className="prose prose-sm max-w-none border rounded-md p-4 min-h-[200px]"
+            dangerouslySetInnerHTML={{ __html: content?.html || "" }}
           />
         </TabsContent>
       </Tabs>

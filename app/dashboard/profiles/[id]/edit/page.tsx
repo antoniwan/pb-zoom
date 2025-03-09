@@ -16,7 +16,7 @@ export default function EditProfilePage() {
   const router = useRouter()
   const { toast } = useToast()
   const { status } = useSession()
-  const { profile, isLoading, error, saveProfile } = useProfile(id as string)
+  const { profile, isLoading, error, saveProfile, refreshProfile } = useProfile(id as string)
 
   // Handle authentication
   useEffect(() => {
@@ -40,11 +40,16 @@ export default function EditProfilePage() {
   }
 
   // Handle profile updates
-  const handleSaveProfile = async (updates: Partial<typeof profile>) => {
+  const handleSaveProfile = async (updates: typeof profile) => {
     try {
       await saveProfile(updates)
+      // Refresh the profile to ensure we have the latest data
+      await refreshProfile()
+      // Refresh the page to update the preview
+      router.refresh()
       return true
     } catch (error) {
+      console.error("Error saving profile:", error)
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",

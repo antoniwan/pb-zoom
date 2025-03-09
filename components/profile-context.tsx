@@ -37,11 +37,18 @@ export function ProfileProvider({
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [lastSavedProfile, setLastSavedProfile] = useState(initialProfile)
 
   const updateProfile = useCallback((updates: Partial<Profile>) => {
-    setProfile((prev) => ({ ...prev, ...updates }))
-    setHasUnsavedChanges(true)
-  }, [])
+    setProfile((prev) => {
+      const updated = { ...prev, ...updates }
+      // Only mark as unsaved if there are actual changes
+      if (JSON.stringify(updated) !== JSON.stringify(lastSavedProfile)) {
+        setHasUnsavedChanges(true)
+      }
+      return updated
+    })
+  }, [lastSavedProfile])
 
   const saveProfile = useCallback(async () => {
     if (!hasUnsavedChanges) return true
@@ -51,6 +58,11 @@ export function ProfileProvider({
       const success = await onSave(profile)
       if (success) {
         setHasUnsavedChanges(false)
+        setLastSavedProfile(profile)
+        toast({
+          title: "Changes saved",
+          description: "Your profile has been updated successfully.",
+        })
       }
       return success
     } catch (error) {
@@ -71,14 +83,7 @@ export function ProfileProvider({
     if (!hasUnsavedChanges) return
 
     const timer = setTimeout(() => {
-      saveProfile().then((success) => {
-        if (success) {
-          toast({
-            title: "Changes saved",
-            description: "Your changes have been saved automatically.",
-          })
-        }
-      })
+      saveProfile()
     }, 2000) // Auto-save after 2 seconds of no changes
 
     return () => clearTimeout(timer)
@@ -98,43 +103,63 @@ export function ProfileProvider({
   }, [hasUnsavedChanges])
 
   const addSection = useCallback((section: ProfileSection) => {
-    setProfile((prev) => ({
-      ...prev,
-      sections: [...prev.sections, section],
-    }))
+    setProfile((prev) => {
+      const updated = {
+        ...prev,
+        sections: [...prev.sections, section],
+      }
+      if (JSON.stringify(updated) !== JSON.stringify(lastSavedProfile)) {
+        setHasUnsavedChanges(true)
+      }
+      return updated
+    })
     setActiveSection(section._id)
-    setHasUnsavedChanges(true)
-  }, [])
+  }, [lastSavedProfile])
 
   const removeSection = useCallback((id: string) => {
-    setProfile((prev) => ({
-      ...prev,
-      sections: prev.sections.filter((section) => section._id !== id),
-    }))
+    setProfile((prev) => {
+      const updated = {
+        ...prev,
+        sections: prev.sections.filter((section) => section._id !== id),
+      }
+      if (JSON.stringify(updated) !== JSON.stringify(lastSavedProfile)) {
+        setHasUnsavedChanges(true)
+      }
+      return updated
+    })
     setActiveSection(null)
-    setHasUnsavedChanges(true)
-  }, [])
+  }, [lastSavedProfile])
 
   const moveSection = useCallback((oldIndex: number, newIndex: number) => {
     setProfile((prev) => {
       const sections = [...prev.sections]
       const [movedSection] = sections.splice(oldIndex, 1)
       sections.splice(newIndex, 0, movedSection)
-      return {
+      const updated = {
         ...prev,
         sections,
       }
+      if (JSON.stringify(updated) !== JSON.stringify(lastSavedProfile)) {
+        setHasUnsavedChanges(true)
+      }
+      return updated
     })
-    setHasUnsavedChanges(true)
-  }, [])
+  }, [lastSavedProfile])
 
   const updateSection = useCallback((id: string, updates: Partial<ProfileSection>) => {
-    setProfile((prev) => ({
-      ...prev,
-      sections: prev.sections.map((section) => (section._id === id ? { ...section, ...updates } : section)),
-    }))
-    setHasUnsavedChanges(true)
-  }, [])
+    setProfile((prev) => {
+      const updated = {
+        ...prev,
+        sections: prev.sections.map((section) => 
+          section._id === id ? { ...section, ...updates } : section
+        ),
+      }
+      if (JSON.stringify(updated) !== JSON.stringify(lastSavedProfile)) {
+        setHasUnsavedChanges(true)
+      }
+      return updated
+    })
+  }, [lastSavedProfile])
 
   return (
     <ProfileContext.Provider
