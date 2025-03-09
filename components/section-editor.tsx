@@ -426,8 +426,13 @@ export function SectionEditor({ section }: { section: ProfileSection }) {
                 <Label htmlFor={`section-class-${section._id}`}>Custom CSS Class</Label>
                 <Input
                   id={`section-class-${section._id}`}
-                  value={section.customClass || ""}
-                  onChange={(e) => updateSection(section._id, { customClass: e.target.value })}
+                  value={section.content?.customCSS || ""}
+                  onChange={(e) => updateSection(section._id, { 
+                    content: {
+                      ...section.content,
+                      customCSS: e.target.value
+                    }
+                  })}
                   placeholder="my-custom-section"
                 />
                 <p className="text-xs text-muted-foreground">

@@ -4,12 +4,17 @@ import { useState } from "react"
 import { useProfile } from "@/components/profile-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Trash2, Plus, ExternalLink } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Trash2, Plus, ExternalLink } from "lucide-react"
+import type { Profile } from "@/lib/db"
 
-export function ProfileSocialEditor({ profile }) {
+interface SocialEditorProps {
+  profile: Profile
+}
+
+export function ProfileSocialEditor({ profile }: SocialEditorProps) {
   const { updateProfile } = useProfile()
   const [socialLinks, setSocialLinks] = useState(profile.socialLinks || [])
   const [urlError, setUrlError] = useState<string | null>(null)

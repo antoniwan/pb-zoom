@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Plus, Trash2, Check, ImageIcon, Loader2 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import Image from "next/image"
+import type { Profile } from "@/lib/db"
 
 interface ProfilePicture {
   url: string
@@ -18,7 +19,11 @@ interface ProfilePicture {
   isPrimary: boolean
 }
 
-export function ProfileHeaderEditor({ profile }) {
+interface HeaderEditorProps {
+  profile: Profile
+}
+
+export function ProfileHeaderEditor({ profile }: HeaderEditorProps) {
   const { updateProfile } = useProfile()
   const [activeTab, setActiveTab] = useState("info")
   const [isUploading, setIsUploading] = useState(false)
@@ -27,6 +32,7 @@ export function ProfileHeaderEditor({ profile }) {
     title: profile.header?.title || "",
     subtitle: profile.header?.subtitle || "",
     shortBio: profile.header?.shortBio || "",
+    pictures: profile.header?.pictures || [],
   })
 
   // Update header values with debounce
@@ -51,10 +57,19 @@ export function ProfileHeaderEditor({ profile }) {
     return () => clearTimeout(timer)
   }, [headerValues, profile.header, updateProfile])
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: string, value: string) => {
     setHeaderValues((prev) => ({
       ...prev,
       [field]: value,
+    }))
+  }
+
+  const handlePictureChange = (picture: ProfilePicture, index: number) => {
+    const pictures = [...headerValues.pictures]
+    pictures[index] = picture
+    setHeaderValues((prev) => ({
+      ...prev,
+      pictures,
     }))
   }
 
@@ -69,13 +84,13 @@ export function ProfileHeaderEditor({ profile }) {
       const newPicture: ProfilePicture = {
         url: URL.createObjectURL(file),
         altText: file.name,
-        isPrimary: !profile.header?.pictures?.length,
+        isPrimary: !headerValues.pictures?.length,
       }
 
       updateProfile({
         header: {
           ...profile.header,
-          pictures: [...(profile.header?.pictures || []), newPicture],
+          pictures: [...(headerValues.pictures || []), newPicture],
         },
       })
 
@@ -98,7 +113,7 @@ export function ProfileHeaderEditor({ profile }) {
   const handleRemovePicture = (index: number) => {
     if (!profile.header) return
 
-    const updatedPictures = [...profile.header.pictures]
+    const updatedPictures = [...headerValues.pictures]
     const removedPicture = updatedPictures.splice(index, 1)[0]
 
     // If we removed the primary picture, make the first remaining one primary
@@ -117,7 +132,7 @@ export function ProfileHeaderEditor({ profile }) {
   const handleSetPrimaryPicture = (index: number) => {
     if (!profile.header) return
 
-    const updatedPictures = profile.header.pictures.map((pic, i) => ({
+    const updatedPictures = headerValues.pictures.map((pic, i) => ({
       ...pic,
       isPrimary: i === index,
     }))
@@ -151,7 +166,7 @@ export function ProfileHeaderEditor({ profile }) {
               onChange={(e) => handleInputChange("name", e.target.value)}
               placeholder="John Doe"
             />
-            <p className="text-sm text-muted-foreground">Your full name as you'd like it to appear.</p>
+            <p className="text-sm text-muted-foreground">Your full name as you&apos;d like it to appear.</p>
           </div>
 
           <div className="space-y-2">
@@ -222,9 +237,9 @@ export function ProfileHeaderEditor({ profile }) {
             </div>
           </div>
 
-          {profile.header?.pictures && profile.header.pictures.length > 0 ? (
+          {headerValues.pictures && headerValues.pictures.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {profile.header.pictures.map((picture, index) => (
+              {headerValues.pictures.map((picture, index) => (
                 <Card key={index} className={`overflow-hidden ${picture.isPrimary ? "ring-2 ring-primary" : ""}`}>
                   <div className="aspect-square relative">
                     <Image
@@ -239,17 +254,12 @@ export function ProfileHeaderEditor({ profile }) {
                       <Input
                         value={picture.altText || ""}
                         onChange={(e) => {
-                          const updatedPictures = [...profile.header.pictures]
+                          const updatedPictures = [...headerValues.pictures]
                           updatedPictures[index] = {
                             ...updatedPictures[index],
                             altText: e.target.value,
                           }
-                          updateProfile({
-                            header: {
-                              ...profile.header,
-                              pictures: updatedPictures,
-                            },
-                          })
+                          handlePictureChange(updatedPictures[index], index)
                         }}
                         placeholder="Alt text"
                         className="text-xs"

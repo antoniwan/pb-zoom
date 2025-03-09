@@ -390,7 +390,7 @@ export function ThemeEditor({ profile }: ThemeEditorProps) {
             />
             {errors.customCSS && <p className="text-xs text-red-500">{errors.customCSS}</p>}
             <p className="text-sm text-muted-foreground">
-              Advanced: Add custom CSS to further customize your profile's appearance.
+              Advanced: Add custom CSS to further customize your profile&apos;s appearance.
             </p>
           </div>
 

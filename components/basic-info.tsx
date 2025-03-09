@@ -6,14 +6,23 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
-import { CategorySelector } from "@/components/profile-editor/category-selector"
+import { CategorySelector } from "@/components/category-selector"
 import { LayoutSelector } from "@/components/profile-editor/layout-selector"
+import type { Profile } from "@/lib/db"
+import type { ChangeEvent } from "react"
 
-export function ProfileBasicInfo({ profile }) {
+interface BasicInfoProps {
+  profile: Profile
+}
+
+interface LayoutOptions {
+  columnCount?: number
+  sectionSpacing?: number
+  fullWidth?: boolean
+}
+
+export function ProfileBasicInfo({ profile }: BasicInfoProps) {
   const { updateProfile } = useProfile()
-  const [slugError, setSlugError] = useState<string | null>(null)
   const [title, setTitle] = useState(profile.title)
   const [slug, setSlug] = useState(profile.slug)
   const [isPublic, setIsPublic] = useState(profile.isPublic)
@@ -30,50 +39,34 @@ export function ProfileBasicInfo({ profile }) {
   // Update slug with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!slugError) {
-        updateProfile({ slug })
-      }
+      updateProfile({ slug })
     }, 500)
     return () => clearTimeout(timer)
-  }, [slug, slugError, updateProfile])
+  }, [slug, updateProfile])
 
   // Update isPublic immediately
   useEffect(() => {
     updateProfile({ isPublic })
   }, [isPublic, updateProfile])
 
-  const handleTitleChange = (e) => {
-    const newTitle = e.target.value
-    setTitle(newTitle)
-
-    // Auto-generate slug if user hasn't manually edited it
-    if (!slug || slug === generateSlug(title)) {
-      setSlug(generateSlug(newTitle))
-    }
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value)
+    updateProfile({ title: e.target.value })
   }
 
-  const handleSlugChange = (e) => {
+  const handleSlugChange = (e: ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value
     const newSlug = generateSlug(rawValue)
-
-    if (newSlug !== rawValue) {
-      setSlugError("Slug can only contain lowercase letters, numbers, and hyphens")
-    } else {
-      setSlugError(null)
-    }
-
     setSlug(newSlug)
+    updateProfile({ slug: newSlug })
   }
 
-  const handleCategoryChange = (categoryId) => {
+  const handleCategoryChange = (categoryId: string | undefined) => {
     updateProfile({ categoryIds: categoryId ? [categoryId] : [] })
   }
 
-  const handleLayoutChange = (layout, options) => {
-    updateProfile({
-      layout,
-      layoutOptions: options,
-    })
+  const handleLayoutChange = (layout: string, options?: LayoutOptions) => {
+    updateProfile({ layout, layoutOptions: options || {} })
   }
 
   const generateSlug = (text: string): string => {
@@ -115,15 +108,8 @@ export function ProfileBasicInfo({ profile }) {
                 value={slug}
                 onChange={handleSlugChange}
                 placeholder="my-awesome-profile"
-                className={slugError ? "border-red-500" : ""}
               />
             </div>
-            {slugError && (
-              <Alert variant="destructive" className="mt-2">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{slugError}</AlertDescription>
-              </Alert>
-            )}
             <p className="text-sm text-muted-foreground">This is the URL where your profile will be accessible.</p>
           </div>
 
