@@ -114,7 +114,12 @@ export default function DashboardPage() {
       const response = await fetch("/api/profiles")
       if (!response.ok) throw new Error("Failed to fetch profiles")
       const data = await response.json()
-      setProfiles(data)
+
+      // Check if the response has a data property (new API format)
+      const profilesData = Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : []
+
+      console.log("Profiles data:", profilesData)
+      setProfiles(profilesData)
     } catch (error) {
       console.error("Error fetching profiles:", error)
       toast({
@@ -122,6 +127,8 @@ export default function DashboardPage() {
         description: "Failed to load your profiles. Please try again.",
         variant: "destructive",
       })
+      // Set to empty array to prevent errors
+      setProfiles([])
     } finally {
       setIsLoading(false)
     }
@@ -132,9 +139,15 @@ export default function DashboardPage() {
       const response = await fetch("/api/categories")
       if (!response.ok) throw new Error("Failed to fetch categories")
       const data = await response.json()
-      setCategories(data)
+
+      // Check if the response has a data property (new API format)
+      const categoriesData = Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : []
+
+      setCategories(categoriesData)
     } catch (error) {
       console.error("Error fetching categories:", error)
+      // Set to empty array to prevent errors
+      setCategories([])
     }
   }
 
