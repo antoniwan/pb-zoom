@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -26,15 +26,7 @@ export default function NewProfilePage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryId)
   const [isLoadingCategories, setIsLoadingCategories] = useState(true)
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login")
-    }
-
-    fetchCategories()
-  }, [status, router])
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setIsLoadingCategories(true)
       const response = await fetch("/api/categories")
@@ -54,7 +46,15 @@ export default function NewProfilePage() {
     } finally {
       setIsLoadingCategories(false)
     }
-  }
+  }, [categoryId])
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/login")
+    }
+
+    fetchCategories()
+  }, [status, router, fetchCategories])
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value
@@ -202,7 +202,7 @@ export default function NewProfilePage() {
               <p className="text-sm text-muted-foreground">This is the URL where your profile will be accessible.</p>
             </div>
 
-            {categories.length > 0 && (
+            {categories.length > 0 && !isLoadingCategories && (
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <select
