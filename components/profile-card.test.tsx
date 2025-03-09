@@ -1,5 +1,6 @@
 import { render, screen } from '@/lib/test-utils'
 import { ProfileCard } from './profile-card'
+import type { Profile } from '@/lib/db'
 
 // Define types for mocked components
 type NextImageProps = {
@@ -52,7 +53,7 @@ jest.mock('tailwind-merge', () => ({
 }))
 
 describe('ProfileCard', () => {
-  const mockProfile = {
+  const mockProfile: Profile = {
     _id: '123',
     userId: 'user123',
     title: 'Test Profile',
@@ -76,6 +77,7 @@ describe('ProfileCard', () => {
       backgroundColor: '#ffffff',
       textColor: '#000000',
       fontFamily: 'Inter',
+      customCSS: '',
     },
     layout: 'standard',
     sections: [],
@@ -85,31 +87,12 @@ describe('ProfileCard', () => {
     updatedAt: new Date(),
   }
 
-  const mockProfileWithoutPicture = {
-    _id: '123',
-    userId: 'user123',
-    title: 'Test Profile',
-    slug: 'test-profile',
+  const mockProfileWithoutPicture: Profile = {
+    ...mockProfile,
     header: {
-      name: 'John Doe',
-      title: 'Test Title',
-      subtitle: 'Test Subtitle',
-      shortBio: 'A short bio',
+      ...mockProfile.header,
       pictures: [],
     },
-    theme: {
-      primaryColor: '#1d4ed8',
-      secondaryColor: '#67e8f9',
-      backgroundColor: '#ffffff',
-      textColor: '#000000',
-      fontFamily: 'Inter',
-    },
-    layout: 'standard',
-    sections: [],
-    socialLinks: [],
-    isPublic: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
   }
 
   it('renders profile information correctly', () => {
@@ -189,5 +172,20 @@ describe('ProfileCard', () => {
 
     expect(screen.getByText('Private')).toBeInTheDocument()
     expect(screen.getByText('EyeOff Icon')).toBeInTheDocument()
+  })
+
+  it('validates required profile properties', () => {
+    const invalidProfile = { ...mockProfile }
+    delete (invalidProfile as any)._id
+    
+    expect(() => {
+      render(
+        <ProfileCard
+          profile={invalidProfile as Profile}
+          onDelete={() => {}}
+          onToggleVisibility={() => {}}
+        />
+      )
+    }).not.toThrow()
   })
 }) 

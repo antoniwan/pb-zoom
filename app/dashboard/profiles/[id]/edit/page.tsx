@@ -10,6 +10,8 @@ import { ProfileEditorTabs } from "@/components/profile-editor/tabs"
 import Link from "next/link"
 import { use } from "react"
 import { v4 as uuidv4 } from "uuid"
+import { z } from 'zod'
+import { toast } from '@/hooks/use-toast'
 
 // Add a function to ensure all sections have an _id before updating
 const ensureSectionIds = (sections: ProfileSection[] = []): ProfileSection[] => {
@@ -32,6 +34,43 @@ const ensureSectionIds = (sections: ProfileSection[] = []): ProfileSection[] => 
     return section
   })
 }
+
+// Define validation schemas
+const profilePictureSchema = z.object({
+  url: z.string().url(),
+  altText: z.string().optional(),
+  isPrimary: z.boolean(),
+})
+
+const profileHeaderSchema = z.object({
+  name: z.string(),
+  title: z.string(),
+  subtitle: z.string(),
+  shortBio: z.string(),
+  pictures: z.array(profilePictureSchema),
+})
+
+const profileSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  slug: z.string().min(1, "URL slug is required"),
+  isPublic: z.boolean(),
+  header: profileHeaderSchema,
+  theme: z.object({
+    primaryColor: z.string(),
+    secondaryColor: z.string(),
+    backgroundColor: z.string(),
+    textColor: z.string(),
+    fontFamily: z.string(),
+    customCSS: z.string().optional(),
+  }),
+  layout: z.string(),
+  sections: z.array(z.any()),
+  socialLinks: z.array(z.object({
+    platform: z.string(),
+    url: z.string().url("Please enter a valid URL"),
+    icon: z.string().optional(),
+  })),
+})
 
 export default function EditProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: profileId } = use(params)
@@ -74,10 +113,40 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
     }
   }, [status, router, profileId])
 
+  const validateProfile = (data: any): { isValid: boolean; errors: string[] } => {
+    try {
+      profileSchema.parse(data)
+      return { isValid: true, errors: [] }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors = error.errors.map(err => {
+          const field = err.path.join('.')
+          return `${field}: ${err.message}`
+        })
+        return { isValid: false, errors }
+      }
+      return { isValid: false, errors: ['Invalid profile data'] }
+    }
+  }
+
   const handleSave = async () => {
     if (!profile) return
 
     setIsSaving(true)
+    setError(null)
+
+    // Validate profile data before sending to server
+    const validation = validateProfile(profile)
+    if (!validation.isValid) {
+      setError(validation.errors.join('\n'))
+      setIsSaving(false)
+      toast({
+        title: "Validation Error",
+        description: validation.errors.join('\n'),
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
       const response = await fetch(`/api/profiles/${profileId}`, {
@@ -88,28 +157,32 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
         body: JSON.stringify(profile),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Failed to update profile")
+        throw new Error(data.message || "Failed to update profile")
       }
 
-      // Show success message or notification
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      })
     } catch (error) {
       console.error("Error updating profile:", error)
-      // Show error message or notification
+      const message = error instanceof Error ? error.message : "Failed to update profile"
+      setError(message)
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
     } finally {
       setIsSaving(false)
     }
   }
 
-  // Modify the updateProfile function to ensure all sections have IDs
   const updateProfile = (updates: Partial<Profile>) => {
     if (!profile) return
-
-    // If updates include sections, ensure all have IDs
-    if (updates.sections) {
-      updates.sections = ensureSectionIds(updates.sections)
-    }
-
     setProfile({ ...profile, ...updates })
   }
 
@@ -174,6 +247,12 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
           {isSaving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
+
+      {error && (
+        <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500">
+          <pre className="whitespace-pre-wrap">{error}</pre>
+        </div>
+      )}
 
       <ProfileEditorTabs profile={profile} updateProfile={updateProfile} />
     </div>

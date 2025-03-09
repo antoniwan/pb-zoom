@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Trash2, Upload, Check } from "lucide-react"
 import Image from "next/image"
 import type { Profile } from "@/lib/db"
+import { toast } from "@/hooks/use-toast"
 
 interface ProfilePicture {
   url: string
@@ -24,6 +25,7 @@ interface HeaderEditorProps {
 
 export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProps) {
   const [activeTab, setActiveTab] = useState("info")
+  const [urlError, setUrlError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!profile.header) {
@@ -38,6 +40,15 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
       })
     }
   }, [profile.header, updateProfile])
+
+  const validateUrl = (url: string): boolean => {
+    try {
+      new URL(url)
+      return true
+    } catch {
+      return false
+    }
+  }
 
   const handleHeaderChange = (field: keyof Profile["header"], value: string) => {
     if (!profile.header) return
@@ -56,7 +67,7 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
     const newPicture: ProfilePicture = {
       url: "/placeholder.svg?height=300&width=300",
       altText: "Profile picture",
-      isPrimary: profile.header.pictures.length === 0, // Make it primary if it's the first picture
+      isPrimary: profile.header.pictures.length === 0,
     }
 
     updateProfile({
@@ -105,6 +116,18 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
   const handleUpdatePicture = (index: number, updates: Partial<ProfilePicture>) => {
     if (!profile.header) return
 
+    // Validate URL if it's being updated
+    if (updates.url && !validateUrl(updates.url)) {
+      setUrlError("Please enter a valid URL")
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid URL for the profile picture",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setUrlError(null)
     const updatedPictures = [...profile.header.pictures]
     updatedPictures[index] = { ...updatedPictures[index], ...updates }
 
@@ -133,6 +156,7 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
               onChange={(e) => handleHeaderChange("name", e.target.value)}
               placeholder="John Doe"
               className="rounded-xl"
+              required
             />
             <p className="text-sm text-muted-foreground">Your full name as you&apos;d like it to appear.</p>
           </div>
@@ -145,6 +169,7 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
               onChange={(e) => handleHeaderChange("title", e.target.value)}
               placeholder="Software Engineer"
               className="rounded-xl"
+              required
             />
             <p className="text-sm text-muted-foreground">Your job title or professional role.</p>
           </div>
@@ -157,6 +182,7 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
               onChange={(e) => handleHeaderChange("subtitle", e.target.value)}
               placeholder="Specializing in React & Next.js"
               className="rounded-xl"
+              required
             />
             <p className="text-sm text-muted-foreground">A brief tagline or specialization.</p>
           </div>
@@ -170,6 +196,7 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
               placeholder="A brief introduction about yourself..."
               className="rounded-xl"
               rows={4}
+              required
             />
             <p className="text-sm text-muted-foreground">
               A concise bio that appears at the top of your profile (1-2 sentences).
@@ -205,8 +232,10 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
                           value={picture.url}
                           onChange={(e) => handleUpdatePicture(index, { url: e.target.value })}
                           placeholder="Image URL"
-                          className="text-xs"
+                          className={`text-xs ${urlError ? "border-red-500" : ""}`}
+                          required
                         />
+                        {urlError && <p className="text-xs text-red-500">{urlError}</p>}
                         <Button
                           variant="ghost"
                           size="icon"
@@ -221,6 +250,7 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
                         onChange={(e) => handleUpdatePicture(index, { altText: e.target.value })}
                         placeholder="Alt text"
                         className="text-xs"
+                        required
                       />
                       <Button
                         variant={picture.isPrimary ? "default" : "outline"}
