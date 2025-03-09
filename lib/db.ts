@@ -236,7 +236,7 @@ export async function getCategories(options?: { includeDisabled?: boolean; inclu
     }
 
     const categories = await db
-      .collection<Category>("categories")
+      .collection<Category>("profileCategories")
       .find(filter)
       .sort({ name: 1 })
       .toArray()
@@ -259,7 +259,7 @@ export async function getCategory(id: string) {
 
     const objectId = new ObjectId(id)
     const category = await db
-      .collection("categories")
+      .collection("profileCategories")
       .findOne({ _id: objectId })
 
     if (!category) return null
@@ -279,7 +279,7 @@ export async function createCategory(category: Omit<Category, '_id'>) {
     const client = await clientPromise
     const db = client.db()
 
-    const result = await db.collection<Category>("categories").insertOne({
+    const result = await db.collection<Category>("profileCategories").insertOne({
       ...category,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -299,7 +299,7 @@ export async function updateCategory(id: string, updates: Partial<Category>) {
     const db = client.db()
 
     const result = await db
-      .collection("categories")
+      .collection("profileCategories")
       .updateOne(
         { _id: new ObjectId(id) },
         { $set: { ...updates, updatedAt: new Date() } }
@@ -319,7 +319,7 @@ export async function deleteCategory(id: string) {
     const db = client.db()
 
     const result = await db
-      .collection("categories")
+      .collection("profileCategories")
       .deleteOne({ _id: new ObjectId(id) })
 
     return result.deletedCount > 0

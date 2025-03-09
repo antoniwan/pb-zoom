@@ -105,7 +105,7 @@ export async function POST() {
       }
     }))
 
-    const result = await db.collection("categories").bulkWrite(operations)
+    const result = await db.collection("profileCategories").bulkWrite(operations)
 
     return NextResponse.json({
       success: true,
