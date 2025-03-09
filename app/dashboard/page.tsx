@@ -17,9 +17,7 @@ import {
   Eye,
   ExternalLink,
   Search,
-  LayoutDashboard,
   Clock,
-  Filter,
   Briefcase,
   Gamepad,
   Palette,
@@ -35,11 +33,7 @@ import Link from "next/link"
 import Image from "next/image"
 import type { Profile, Category } from "@/lib/db"
 import type { Session } from "next-auth"
-
-// Add the import for the debounce hook at the top
 import { useDebounce } from "@/hooks/use-debounce"
-
-// Add these imports for the dropdown menu
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,7 +50,6 @@ export default function DashboardPage() {
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  // Find the searchQuery state and add a new debouncedSearchQuery state
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -115,14 +108,12 @@ export default function DashboardPage() {
     }
   }
 
-  // Get category name by ID
   const getCategoryName = (categoryId: string | undefined) => {
     if (!categoryId) return "Uncategorized"
     const category = categories.find((cat) => cat._id?.toString() === categoryId)
     return category ? category.name : "Uncategorized"
   }
 
-  // Get category icon by ID or name
   const getCategoryIcon = (categoryId: string | undefined) => {
     if (!categoryId) return <Sparkles className="h-5 w-5" />
 
@@ -148,7 +139,6 @@ export default function DashboardPage() {
     }
   }
 
-  // Filter profiles based on search query and selected category
   const filteredProfiles = profiles.filter((profile) => {
     const matchesSearch =
       debouncedSearchQuery === "" ||
@@ -160,7 +150,6 @@ export default function DashboardPage() {
     return matchesSearch && matchesCategory
   })
 
-  // Group profiles by category
   const profilesByCategory = filteredProfiles.reduce(
     (acc, profile) => {
       const categoryId = profile.categoryId || "uncategorized"
@@ -173,13 +162,13 @@ export default function DashboardPage() {
     {} as Record<string, Profile[]>,
   )
 
-  // Get stats
-  const totalProfiles = profiles.length
-  const publicProfiles = profiles.filter((p) => p.isPublic).length
-  const privateProfiles = profiles.filter((p) => !p.isPublic).length
-  const categorizedProfiles = profiles.filter((p) => p.categoryId).length
+  const stats = {
+    total: profiles.length,
+    public: profiles.filter((p) => p.isPublic).length,
+    private: profiles.filter((p) => !p.isPublic).length,
+    categorized: profiles.filter((p) => p.categoryId).length
+  }
 
-  // Get recently updated profiles
   const recentProfiles = [...profiles]
     .sort((a, b) => {
       const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0
@@ -205,7 +194,6 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
-      {/* Improved header section with better spacing and alignment */}
       <div className="flex flex-col space-y-8">
         <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:gap-4">
           <div>
@@ -219,7 +207,6 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        {/* Improved tabs and controls layout */}
         <div className="space-y-6">
           <Tabs defaultValue="all" className="w-full">
             <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:gap-4 mb-4 sm:mb-6">
@@ -421,7 +408,6 @@ export default function DashboardPage() {
   )
 }
 
-// Empty state component
 function EmptyProfilesState() {
   return (
     <Card>
@@ -441,7 +427,6 @@ function EmptyProfilesState() {
   )
 }
 
-// Profile card component
 function ProfileCard({
   profile,
   onDelete,
@@ -455,14 +440,11 @@ function ProfileCard({
   categoryIcon: React.ReactNode
   hideCategoryBadge?: boolean
 }) {
-  // Get primary profile picture if available
   const primaryPicture = profile.header?.pictures?.find((pic) => pic.isPrimary) || profile.header?.pictures?.[0]
 
-  // Calculate how complete the profile is
-  const totalPossibleSections = 5 // Bio, Header, Gallery, etc.
+  const totalPossibleSections = 5
   const completionPercentage = Math.min(Math.round((profile.sections.length / totalPossibleSections) * 100), 100)
 
-  // Format the date nicely
   const updatedDate = new Date(profile.updatedAt)
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -472,7 +454,6 @@ function ProfileCard({
 
   return (
     <Card className="overflow-hidden group hover:shadow-md transition-all duration-200 border-opacity-40">
-      {/* Card Header with gradient based on profile theme */}
       <div
         className="h-3 w-full"
         style={{
@@ -481,7 +462,6 @@ function ProfileCard({
       />
 
       <div className="p-5">
-        {/* Status indicator and category */}
         <div className="flex justify-between items-start mb-3">
           <div className="flex items-center gap-2">
             <div className={`w-2.5 h-2.5 rounded-full ${profile.isPublic ? "bg-green-500" : "bg-amber-500"}`} />
@@ -496,9 +476,7 @@ function ProfileCard({
           )}
         </div>
 
-        {/* Profile title and preview */}
         <div className="flex gap-4 mb-4">
-          {/* Profile image or fallback */}
           <div
             className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 border"
             style={{ backgroundColor: profile.theme.backgroundColor || "#f8f9fa" }}
@@ -530,7 +508,6 @@ function ProfileCard({
               <span>Updated {formattedDate}</span>
             </div>
 
-            {/* Completion indicator */}
             <div className="mt-2 flex items-center gap-2">
               <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
                 <div
@@ -546,7 +523,6 @@ function ProfileCard({
           </div>
         </div>
 
-        {/* Stats and metadata */}
         <div className="grid grid-cols-2 gap-2 mb-4">
           <div className="bg-muted/50 rounded-md p-2 text-center">
             <span className="text-xs text-muted-foreground block">Sections</span>
@@ -558,7 +534,6 @@ function ProfileCard({
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
             <Button variant="default" size="sm" asChild>
@@ -596,7 +571,6 @@ function ProfileCard({
   )
 }
 
-// Profile list item component
 function ProfileListItem({
   profile,
   onDelete,
@@ -610,10 +584,8 @@ function ProfileListItem({
   categoryIcon: React.ReactNode
   hideCategoryBadge?: boolean
 }) {
-  // Get primary profile picture if available
   const primaryPicture = profile.header?.pictures?.find((pic) => pic.isPrimary) || profile.header?.pictures?.[0]
 
-  // Format the date nicely
   const updatedDate = new Date(profile.updatedAt)
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -626,11 +598,9 @@ function ProfileListItem({
   return (
     <Card className="overflow-hidden hover:shadow-md transition-all duration-200 group">
       <div className="flex items-stretch">
-        {/* Left color bar based on profile theme */}
         <div className="w-1.5 flex-shrink-0" style={{ backgroundColor: profile.theme.primaryColor }} />
 
         <div className="flex flex-col md:flex-row md:items-center p-4 gap-4 flex-1">
-          {/* Profile image */}
           <div
             className="w-14 h-14 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden border"
             style={{ backgroundColor: profile.theme.backgroundColor || "#f8f9fa" }}
@@ -653,7 +623,6 @@ function ProfileListItem({
             )}
           </div>
 
-          {/* Profile info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-medium truncate">{profile.title}</h3>
@@ -698,7 +667,6 @@ function ProfileListItem({
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-2 mt-2 md:mt-0 md:ml-2">
             <Button variant="default" size="sm" asChild>
               <Link href={`/dashboard/profiles/${profile._id?.toString()}/edit`}>
@@ -741,7 +709,6 @@ function ProfileListItem({
   )
 }
 
-// Missing icons
 function Lock(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -808,7 +775,6 @@ function LayoutList(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-// Stats card component
 function StatsCard({
   title,
   value,
