@@ -17,24 +17,27 @@ export function GeneralSettings() {
   const [isCheckingSlug, setIsCheckingSlug] = useState(false)
   const [isSlugAvailable, setIsSlugAvailable] = useState(true)
 
-  const checkSlugAvailability = useCallback(async (slug: string) => {
-    if (!slug) return
+  const checkSlugAvailability = useCallback(
+    async (slug: string) => {
+      if (!slug) return
 
-    setIsCheckingSlug(true)
-    try {
-      const response = await fetch(`/api/profiles/check-slug?slug=${slug}&id=${profile._id}`)
-      const data = await response.json()
-      setIsSlugAvailable(data.available)
+      setIsCheckingSlug(true)
+      try {
+        const response = await fetch(`/api/profiles/check-slug?slug=${slug}&id=${profile._id}`)
+        const data = await response.json()
+        setIsSlugAvailable(data.available)
 
-      if (data.available) {
-        updateProfile({ slug })
+        if (data.available) {
+          updateProfile({ slug })
+        }
+      } catch (error) {
+        console.error("Error checking slug:", error)
+      } finally {
+        setIsCheckingSlug(false)
       }
-    } catch (error) {
-      console.error("Error checking slug:", error)
-    } finally {
-      setIsCheckingSlug(false)
-    }
-  }, [profile._id, updateProfile])
+    },
+    [profile._id, updateProfile],
+  )
 
   // Check slug availability with debounce
   useEffect(() => {

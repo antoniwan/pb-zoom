@@ -15,7 +15,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
+  type DragEndEvent,
 } from "@dnd-kit/core"
 import {
   arrayMove,
@@ -46,14 +46,7 @@ interface SortableGalleryItemProps {
 }
 
 function SortableGalleryItem({ item, onRemove, onChange, onUpload, isUploading }: SortableGalleryItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -61,11 +54,7 @@ function SortableGalleryItem({ item, onRemove, onChange, onUpload, isUploading }
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`border rounded-md p-4 ${isDragging ? "bg-accent" : ""}`}
-    >
+    <div ref={setNodeRef} style={style} className={`border rounded-md p-4 ${isDragging ? "bg-accent" : ""}`}>
       <div className="flex justify-between items-center mb-4">
         <div {...attributes} {...listeners} className="cursor-grab">
           <GripVertical className="h-5 w-5 text-muted-foreground" />
@@ -168,13 +157,13 @@ function SortableGalleryItem({ item, onRemove, onChange, onUpload, isUploading }
 
 export function GallerySection({ section }: { section: ProfileSection }) {
   const { updateSection } = useProfile()
-  const [items, setItems] = useState<GalleryItem[]>(() => 
-    (section.content?.images || []).map(img => ({
+  const [items, setItems] = useState<GalleryItem[]>(() =>
+    (section.content?.images || []).map((img) => ({
       id: uuidv4(), // Generate a unique ID for each image
       url: img.url,
       altText: img.altText || "",
       caption: "",
-    }))
+    })),
   )
   const [isUploading, setIsUploading] = useState(false)
 
@@ -182,14 +171,14 @@ export function GallerySection({ section }: { section: ProfileSection }) {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   )
 
   useEffect(() => {
     updateSection(section._id, {
       content: {
         ...section.content,
-        images: items.map(item => ({
+        images: items.map((item) => ({
           _id: item.id,
           url: item.url,
           altText: item.altText || "",
@@ -261,15 +250,8 @@ export function GallerySection({ section }: { section: ProfileSection }) {
         <CardDescription>Add and arrange images for this section</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={items.map(item => item.id)}
-            strategy={verticalListSortingStrategy}
-          >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-4">
               {items.map((item) => (
                 <SortableGalleryItem

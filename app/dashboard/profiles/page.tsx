@@ -96,7 +96,7 @@ export default function ProfilesPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {profiles.map((profile) => (
-            <Card key={profile._id || ''}>
+            <Card key={profile._id || ""}>
               <CardHeader>
                 <CardTitle>{profile.title}</CardTitle>
                 <CardDescription>
@@ -154,17 +154,17 @@ export default function ProfilesPage() {
               <CardFooter className="flex justify-between">
                 <div className="flex space-x-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/profiles/${profile._id || ''}/edit`}>
+                    <Link href={`/dashboard/profiles/${profile._id || ""}/edit`}>
                       <Edit className="mr-2 h-4 w-4" /> Edit
                     </Link>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDeleteProfile(profile._id || '')}>
+                  <Button variant="outline" size="sm" onClick={() => handleDeleteProfile(profile._id || "")}>
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
                 </div>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/profiles/${profile._id || ''}/preview`}>
+                    <Link href={`/dashboard/profiles/${profile._id || ""}/preview`}>
                       <Eye className="mr-2 h-4 w-4" /> Preview
                     </Link>
                   </Button>

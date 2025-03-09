@@ -1,51 +1,79 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useProfile } from "@/components/profile-context"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 import { CategorySelector } from "@/components/profile-editor/category-selector"
-import type { Profile } from "@/lib/db"
+import { LayoutSelector } from "@/components/profile-editor/layout-selector"
 
-interface ProfileBasicInfoProps {
-  profile: Profile
-  updateProfile: (updates: Partial<Profile>) => void
-}
-
-export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoProps) {
+export function ProfileBasicInfo({ profile }) {
+  const { updateProfile } = useProfile()
   const [slugError, setSlugError] = useState<string | null>(null)
+  const [title, setTitle] = useState(profile.title)
+  const [slug, setSlug] = useState(profile.slug)
+  const [isPublic, setIsPublic] = useState(profile.isPublic)
   const [activeTab, setActiveTab] = useState("general")
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateProfile({ title: e.target.value })
+  // Update title with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      updateProfile({ title })
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [title, updateProfile])
 
-    // Auto-generate slug if user hasn't manually edited the slug
-    if (!profile.slug || profile.slug === generateSlug(profile.title)) {
-      const newSlug = generateSlug(e.target.value)
-      updateProfile({ slug: newSlug })
+  // Update slug with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!slugError) {
+        updateProfile({ slug })
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [slug, slugError, updateProfile])
+
+  // Update isPublic immediately
+  useEffect(() => {
+    updateProfile({ isPublic })
+  }, [isPublic, updateProfile])
+
+  const handleTitleChange = (e) => {
+    const newTitle = e.target.value
+    setTitle(newTitle)
+
+    // Auto-generate slug if user hasn't manually edited it
+    if (!slug || slug === generateSlug(title)) {
+      setSlug(generateSlug(newTitle))
     }
   }
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSlug = generateSlug(e.target.value)
+  const handleSlugChange = (e) => {
+    const rawValue = e.target.value
+    const newSlug = generateSlug(rawValue)
 
-    if (newSlug !== e.target.value) {
+    if (newSlug !== rawValue) {
       setSlugError("Slug can only contain lowercase letters, numbers, and hyphens")
     } else {
       setSlugError(null)
     }
 
-    updateProfile({ slug: newSlug })
+    setSlug(newSlug)
   }
 
-  const handlePublicChange = (checked: boolean) => {
-    updateProfile({ isPublic: checked })
-  }
-
-  const handleCategoryChange = (categoryId: string | undefined) => {
+  const handleCategoryChange = (categoryId) => {
     updateProfile({ categoryIds: categoryId ? [categoryId] : [] })
+  }
+
+  const handleLayoutChange = (layout, options) => {
+    updateProfile({
+      layout,
+      layoutOptions: options,
+    })
   }
 
   const generateSlug = (text: string): string => {
@@ -59,63 +87,57 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="category">Category</TabsTrigger>
+        <TabsList className="w-full">
+          <TabsTrigger value="general" className="flex-1">
+            General
+          </TabsTrigger>
+          <TabsTrigger value="layout" className="flex-1">
+            Layout
+          </TabsTrigger>
+          <TabsTrigger value="category" className="flex-1">
+            Category
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="general" className="space-y-6">
+        <TabsContent value="general" className="space-y-6 pt-4">
           <div className="space-y-2">
             <Label htmlFor="title">Profile Title</Label>
-            <Input
-              id="title"
-              value={profile.title}
-              onChange={handleTitleChange}
-              placeholder="My Awesome Profile"
-              className="rounded-xl"
-            />
+            <Input id="title" value={title} onChange={handleTitleChange} placeholder="My Awesome Profile" />
             <p className="text-sm text-muted-foreground">Give your profile a name that describes its purpose.</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="slug">Profile URL</Label>
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">enye.social/p/</span>
+              <div className="flex-shrink-0 text-sm text-muted-foreground">enye.social/p/</div>
               <Input
                 id="slug"
-                value={profile.slug}
+                value={slug}
                 onChange={handleSlugChange}
                 placeholder="my-awesome-profile"
-                className={slugError ? "border-red-500 rounded-xl" : "rounded-xl"}
+                className={slugError ? "border-red-500" : ""}
               />
             </div>
-            {slugError && <p className="text-sm text-red-500">{slugError}</p>}
+            {slugError && (
+              <Alert variant="destructive" className="mt-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{slugError}</AlertDescription>
+              </Alert>
+            )}
             <p className="text-sm text-muted-foreground">This is the URL where your profile will be accessible.</p>
           </div>
 
           <div className="flex items-center space-x-2">
-            <Switch id="public" checked={profile.isPublic} onCheckedChange={handlePublicChange} />
+            <Switch id="public" checked={isPublic} onCheckedChange={setIsPublic} />
             <Label htmlFor="public">Make profile public</Label>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="layout">Layout</Label>
-            <select
-              id="layout"
-              value={profile.layout}
-              onChange={(e) => updateProfile({ layout: e.target.value })}
-              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="standard">Standard</option>
-              <option value="grid">Grid</option>
-              <option value="magazine">Magazine</option>
-              <option value="custom">Custom</option>
-            </select>
-            <p className="text-sm text-muted-foreground">Choose how your profile content will be arranged.</p>
           </div>
         </TabsContent>
 
-        <TabsContent value="category">
+        <TabsContent value="layout" className="pt-4">
+          <LayoutSelector value={profile.layout} customOptions={profile.layoutOptions} onChange={handleLayoutChange} />
+        </TabsContent>
+
+        <TabsContent value="category" className="pt-4">
           <CategorySelector selectedCategoryId={profile.categoryIds?.[0]} onSelect={handleCategoryChange} />
         </TabsContent>
       </Tabs>

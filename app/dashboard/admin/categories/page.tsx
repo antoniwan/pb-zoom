@@ -328,7 +328,7 @@ export default function AdminCategoriesPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => handleDeleteCategory(category._id?.toString() || '')}
+                    onClick={() => handleDeleteCategory(category._id?.toString() || "")}
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
@@ -370,7 +370,7 @@ export default function AdminCategoriesPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleToggleEnabled(category._id?.toString() || '', category.isEnabled)}
+                onClick={() => handleToggleEnabled(category._id?.toString() || "", category.isEnabled)}
               >
                 {category.isEnabled ? (
                   <>
@@ -387,7 +387,7 @@ export default function AdminCategoriesPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleToggleCorrect(category._id?.toString() || '', category.isCorrect || false)}
+                onClick={() => handleToggleCorrect(category._id?.toString() || "", category.isCorrect || false)}
               >
                 {category.isCorrect ? (
                   <>
@@ -414,7 +414,7 @@ export default function AdminCategoriesPage() {
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => handleDeleteCategory(category._id?.toString() || '')}
+                onClick={() => handleDeleteCategory(category._id?.toString() || "")}
               >
                 <Trash2 className="h-4 w-4 text-red-500" />
               </Button>

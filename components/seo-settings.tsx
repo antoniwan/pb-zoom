@@ -23,14 +23,17 @@ export function SeoSettings() {
   const [seoDescription, setSeoDescription] = useState(profile.seo?.description || "")
   const [seoKeywords, setSeoKeywords] = useState(profile.seo?.keywords || "")
 
-  const handleSeoChange = useCallback((key: keyof SeoSettings, value: string | boolean) => {
-    updateProfile({
-      seo: {
-        ...profile.seo,
-        [key]: value,
-      },
-    })
-  }, [profile.seo, updateProfile])
+  const handleSeoChange = useCallback(
+    (key: keyof SeoSettings, value: string | boolean) => {
+      updateProfile({
+        seo: {
+          ...profile.seo,
+          [key]: value,
+        },
+      })
+    },
+    [profile.seo, updateProfile],
+  )
 
   useEffect(() => {
     const timer = setTimeout(() => {

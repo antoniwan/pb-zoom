@@ -99,7 +99,8 @@ export default async function UserProfilesPage({ params }: PageProps) {
 
 function ProfileCard({ profile }: { profile: Profile }) {
   // Get primary profile picture if available
-  const primaryPicture = profile.header?.pictures?.find((pic: { isPrimary: boolean }) => pic.isPrimary) || profile.header?.pictures?.[0]
+  const primaryPicture =
+    profile.header?.pictures?.find((pic: { isPrimary: boolean }) => pic.isPrimary) || profile.header?.pictures?.[0]
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-all duration-200">

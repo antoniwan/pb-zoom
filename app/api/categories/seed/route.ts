@@ -81,7 +81,7 @@ const predefinedCategories = [
     isCorrect: true,
     createdBy: "system",
     usageCount: 0,
-  }
+  },
 ]
 
 export async function POST() {
@@ -89,20 +89,20 @@ export async function POST() {
     const client = await clientPromise
     const db = client.db()
 
-    const operations = predefinedCategories.map(category => ({
+    const operations = predefinedCategories.map((category) => ({
       updateOne: {
         filter: { name: category.name },
         update: {
           $setOnInsert: {
             ...category,
-            createdAt: new Date()
+            createdAt: new Date(),
           },
           $set: {
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         },
-        upsert: true
-      }
+        upsert: true,
+      },
     }))
 
     const result = await db.collection("profileCategories").bulkWrite(operations)
@@ -111,13 +111,11 @@ export async function POST() {
       success: true,
       upsertedCount: result.upsertedCount,
       modifiedCount: result.modifiedCount,
-      matchedCount: result.matchedCount
+      matchedCount: result.matchedCount,
     })
   } catch (error) {
     console.error("Error seeding categories:", error)
-    return NextResponse.json(
-      { error: "Failed to seed categories" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to seed categories" }, { status: 500 })
   }
-} 
+}
+

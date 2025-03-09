@@ -6,9 +6,9 @@ import { useSession } from "next-auth/react"
 import { toast } from "@/hooks/use-toast"
 
 import { ProfileProvider } from "@/components/profile-context"
-import { ProfileHeaderEditor } from "@/components/profile-editor/header-editor"
-import { ProfileEditorTabs } from "@/components/profile-editor/tabs"
+import { ProfileEditor } from "@/components/profile-editor"
 import { ProfileNotFound } from "@/components/profile-not-found"
+import { ProfileEditLoading } from "@/components/profile-edit-loading"
 
 import type { Profile } from "@/lib/db"
 
@@ -63,24 +63,19 @@ export default function EditProfilePage() {
   const handleSaveProfile = async (updates: Partial<Profile>) => {
     try {
       const response = await fetch(`/api/profiles/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...profile, ...updates }),
+        body: JSON.stringify(updates),
       })
 
       if (!response.ok) {
         throw new Error("Failed to update profile")
       }
 
-      const data = await response.json()
-      setProfile(data)
-
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      })
+      await response.json()
+      setProfile((prev) => prev ? { ...prev, ...updates } : null)
 
       return true
     } catch (error) {
@@ -95,7 +90,7 @@ export default function EditProfilePage() {
   }
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return <ProfileEditLoading />
   }
 
   if (error || !profile) {
@@ -104,14 +99,7 @@ export default function EditProfilePage() {
 
   return (
     <ProfileProvider initialProfile={profile} onSave={handleSaveProfile}>
-      <div className="flex flex-col min-h-screen">
-        <ProfileHeaderEditor profile={profile} updateProfile={handleSaveProfile} />
-        <div className="flex flex-1 overflow-hidden">
-          <div className="flex-1 p-6">
-            <ProfileEditorTabs profile={profile} updateProfile={handleSaveProfile} />
-          </div>
-        </div>
-      </div>
+      <ProfileEditor />
     </ProfileProvider>
   )
 }

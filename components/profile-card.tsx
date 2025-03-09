@@ -51,9 +51,7 @@ export function ProfileCard({ profile, onDelete, onToggleVisibility }: ProfileCa
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-2">
-          <Badge variant={profile.isPublic ? "default" : "secondary"}>
-            {profile.isPublic ? "Public" : "Private"}
-          </Badge>
+          <Badge variant={profile.isPublic ? "default" : "secondary"}>{profile.isPublic ? "Public" : "Private"}</Badge>
           <Badge variant="outline">{profile.layout}</Badge>
         </div>
       </CardContent>

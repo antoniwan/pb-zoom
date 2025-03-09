@@ -242,16 +242,16 @@ export default async function ProfilePage({ params }: PageProps) {
             profile.layout === "grid"
               ? "grid gap-8 md:grid-cols-2"
               : profile.layout === "magazine"
-              ? "grid gap-8 md:grid-cols-3"
-              : profile.layout === "masonry"
-              ? "columns-1 md:columns-3 gap-8"
-              : profile.layout === "portfolio"
-              ? "flex flex-col md:flex-row gap-8"
-              : profile.layout === "custom" && profile.layoutOptions
-              ? `grid gap-${profile.layoutOptions.sectionSpacing || 8} md:grid-cols-${
-                  profile.layoutOptions.columnCount || 2
-                }`
-              : "space-y-8"
+                ? "grid gap-8 md:grid-cols-3"
+                : profile.layout === "masonry"
+                  ? "columns-1 md:columns-3 gap-8"
+                  : profile.layout === "portfolio"
+                    ? "flex flex-col md:flex-row gap-8"
+                    : profile.layout === "custom" && profile.layoutOptions
+                      ? `grid gap-${profile.layoutOptions.sectionSpacing || 8} md:grid-cols-${
+                          profile.layoutOptions.columnCount || 2
+                        }`
+                      : "space-y-8",
           )}
         >
           {profile.sections
@@ -263,7 +263,7 @@ export default async function ProfilePage({ params }: PageProps) {
                   "space-y-4",
                   profile.layout === "portfolio" && index === 0 ? "md:w-2/3" : "",
                   profile.layout === "portfolio" && index > 0 ? "md:w-1/3" : "",
-                  profile.layout === "masonry" ? "break-inside-avoid" : ""
+                  profile.layout === "masonry" ? "break-inside-avoid" : "",
                 )}
               >
                 <h2 className="text-2xl font-bold" style={{ color: profile.theme.secondaryColor }}>

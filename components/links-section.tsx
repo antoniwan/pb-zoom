@@ -15,7 +15,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
+  type DragEndEvent,
 } from "@dnd-kit/core"
 import {
   arrayMove,
@@ -36,14 +36,7 @@ interface SortableLinkItemProps {
 }
 
 function SortableLinkItem({ link, onRemove, onChange }: SortableLinkItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: link.id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: link.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -67,11 +60,7 @@ function SortableLinkItem({ link, onRemove, onChange }: SortableLinkItemProps) {
   ]
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`border rounded-md p-4 ${isDragging ? "bg-accent" : ""}`}
-    >
+    <div ref={setNodeRef} style={style} className={`border rounded-md p-4 ${isDragging ? "bg-accent" : ""}`}>
       <div className="flex justify-between items-center mb-4">
         <div {...attributes} {...listeners} className="cursor-grab">
           <GripVertical className="h-5 w-5 text-muted-foreground" />
@@ -95,10 +84,7 @@ function SortableLinkItem({ link, onRemove, onChange }: SortableLinkItemProps) {
 
           <div className="space-y-2">
             <Label htmlFor={`link-platform-${link.id}`}>Platform</Label>
-            <Select
-              value={link.icon || "link"}
-              onValueChange={(value) => onChange(link.id, "icon", value)}
-            >
+            <Select value={link.icon || "link"} onValueChange={(value) => onChange(link.id, "icon", value)}>
               <SelectTrigger id={`link-platform-${link.id}`}>
                 <SelectValue placeholder="Select platform" />
               </SelectTrigger>
@@ -148,7 +134,7 @@ export function LinksSection({ section }: { section: ProfileSection }) {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   )
 
   useEffect(() => {
@@ -196,23 +182,11 @@ export function LinksSection({ section }: { section: ProfileSection }) {
         <CardDescription>Add links to your social media profiles or other websites</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={links.map(link => link.id)}
-            strategy={verticalListSortingStrategy}
-          >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={links.map((link) => link.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-4">
               {links.map((link) => (
-                <SortableLinkItem
-                  key={link.id}
-                  link={link}
-                  onRemove={handleRemoveLink}
-                  onChange={handleLinkChange}
-                />
+                <SortableLinkItem key={link.id} link={link} onRemove={handleRemoveLink} onChange={handleLinkChange} />
               ))}
             </div>
           </SortableContext>

@@ -248,11 +248,7 @@ export function CategorySelector({ selectedCategoryId, onSelect }: CategorySelec
         >
           {categories.map((category) => (
             <div key={category._id} className="relative">
-              <RadioGroupItem
-                value={category._id || ""}
-                id={category._id || ""}
-                className="peer sr-only"
-              />
+              <RadioGroupItem value={category._id || ""} id={category._id || ""} className="peer sr-only" />
               <Label
                 htmlFor={category._id || ""}
                 className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"

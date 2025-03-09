@@ -39,8 +39,8 @@ export function CustomSection({ section }: { section: ProfileSection }) {
         <Alert className="mb-4">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            Custom HTML and CSS gives you more flexibility but may affect your profile&apos;s security and appearance. Use
-            with caution.
+            Custom HTML and CSS gives you more flexibility but may affect your profile&apos;s security and appearance.
+            Use with caution.
           </AlertDescription>
         </Alert>
 

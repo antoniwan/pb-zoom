@@ -28,8 +28,8 @@ export function ThemeSettings() {
     updateProfile({
       theme: {
         ...theme,
-        primaryColor: color
-      }
+        primaryColor: color,
+      },
     })
   }
 
@@ -37,8 +37,8 @@ export function ThemeSettings() {
     updateProfile({
       theme: {
         ...theme,
-        secondaryColor: color
-      }
+        secondaryColor: color,
+      },
     })
   }
 
@@ -46,8 +46,8 @@ export function ThemeSettings() {
     updateProfile({
       theme: {
         ...theme,
-        backgroundColor: color
-      }
+        backgroundColor: color,
+      },
     })
   }
 
@@ -55,8 +55,8 @@ export function ThemeSettings() {
     updateProfile({
       theme: {
         ...theme,
-        textColor: color
-      }
+        textColor: color,
+      },
     })
   }
 
@@ -84,34 +84,22 @@ export function ThemeSettings() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label>Primary Color</Label>
-              <ColorPicker
-                color={theme.primaryColor}
-                onChange={(color) => handlePrimaryColorChange(color)}
-              />
+              <ColorPicker color={theme.primaryColor} onChange={(color) => handlePrimaryColorChange(color)} />
             </div>
 
             <div className="space-y-2">
               <Label>Secondary Color</Label>
-              <ColorPicker
-                color={theme.secondaryColor}
-                onChange={(color) => handleSecondaryColorChange(color)}
-              />
+              <ColorPicker color={theme.secondaryColor} onChange={(color) => handleSecondaryColorChange(color)} />
             </div>
 
             <div className="space-y-2">
               <Label>Background Color</Label>
-              <ColorPicker
-                color={theme.backgroundColor}
-                onChange={(color) => handleBackgroundColorChange(color)}
-              />
+              <ColorPicker color={theme.backgroundColor} onChange={(color) => handleBackgroundColorChange(color)} />
             </div>
 
             <div className="space-y-2">
               <Label>Text Color</Label>
-              <ColorPicker
-                color={theme.textColor}
-                onChange={(color) => handleTextColorChange(color)}
-              />
+              <ColorPicker color={theme.textColor} onChange={(color) => handleTextColorChange(color)} />
             </div>
           </div>
 

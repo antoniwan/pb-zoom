@@ -84,9 +84,7 @@ export function ProfileProvider({
   const updateSection = useCallback((id: string, updates: Partial<ProfileSection>) => {
     setProfile((prev) => ({
       ...prev,
-      sections: prev.sections.map((section) =>
-        section._id === id ? { ...section, ...updates } : section
-      ),
+      sections: prev.sections.map((section) => (section._id === id ? { ...section, ...updates } : section)),
     }))
   }, [])
 

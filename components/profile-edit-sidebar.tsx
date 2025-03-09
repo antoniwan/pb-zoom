@@ -13,7 +13,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
+  type DragEndEvent,
 } from "@dnd-kit/core"
 import {
   SortableContext,
@@ -33,14 +33,7 @@ interface SortableItemProps {
 }
 
 function SortableItem({ section, isActive, onSelect, onRemove }: SortableItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section._id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section._id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -99,7 +92,7 @@ export function ProfileEditSidebar() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   )
 
   // Fetch categories if needed
@@ -165,13 +158,9 @@ export function ProfileEditSidebar() {
       </div>
 
       <ScrollArea className="flex-1">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
-            items={profile.sections.map(section => section._id)}
+            items={profile.sections.map((section) => section._id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="p-2 space-y-1">
