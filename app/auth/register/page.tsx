@@ -14,6 +14,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 
+// Define the error type for Zod validation errors
+interface ZodValidationError {
+  path: (string | number)[]
+  message: string
+}
+
 const registerSchema = z
   .object({
     name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -75,7 +81,7 @@ export default function RegisterPage() {
         // More detailed error handling
         if (result.errors && Array.isArray(result.errors)) {
           // Handle Zod validation errors
-          const errorMessage = result.errors.map((err: any) => `${err.path.join(".")}: ${err.message}`).join(", ")
+          const errorMessage = result.errors.map((err: ZodValidationError) => `${err.path.join(".")}: ${err.message}`).join(", ")
           setError(errorMessage || result.message || "Registration failed")
         } else {
           setError(result.message || "Registration failed")
@@ -85,9 +91,8 @@ export default function RegisterPage() {
       }
 
       // Show success message before redirecting
-      toast({
-        title: "Account created successfully!",
-        description: "You can now sign in with your credentials.",
+      toast.success("Account created successfully!", {
+        description: "You can now sign in with your credentials."
       })
 
       // Redirect with a slight delay to show the toast

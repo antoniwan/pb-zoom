@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = profile.header?.shortBio || `View ${title}'s profile on Ñ`
 
   // Get primary image for OpenGraph
-  const primaryPicture = profile.header?.pictures?.find((pic) => pic.isPrimary) || profile.header?.pictures?.[0]
+  const primaryPicture = profile.header?.pictures?.find((pic: { isPrimary: boolean }) => pic.isPrimary) || profile.header?.pictures?.[0]
   const imageUrl = primaryPicture?.url
 
   return {
