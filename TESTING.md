@@ -66,9 +66,18 @@ The project includes several pre-configured mocks:
 
 1. **Next.js Image**:
 ```typescript
+// Define proper types for Image props
+type ImageProps = {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+}
+
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, width, height, className }: any) => (
+  default: ({ src, alt, width, height, className }: ImageProps) => (
     <img src={src} alt={alt} width={width} height={height} className={className} />
   ),
 }))
@@ -76,9 +85,15 @@ jest.mock('next/image', () => ({
 
 2. **Next.js Link**:
 ```typescript
+// Define proper types for Link props
+type LinkProps = {
+  href: string;
+  children: React.ReactNode;
+}
+
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children }: any) => (
+  default: ({ href, children }: LinkProps) => (
     <a href={href}>{children}</a>
   ),
 }))
@@ -249,4 +264,68 @@ it.skip('should skip this test', () => {
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [React Testing Library Documentation](https://testing-library.com/docs/react-testing-library/intro/)
 - [Testing Library Queries](https://testing-library.com/docs/queries/about)
-- [Common Testing Library Mistakes](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library) 
+- [Common Testing Library Mistakes](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
+
+## ESLint Configuration
+
+When writing tests, you might encounter ESLint warnings or errors. Here's how to handle them:
+
+### Disabling ESLint Rules for Tests
+
+Create or update `.eslintrc.json` to include specific rules for test files:
+
+```json
+{
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@next/next/no-img-element": "off"
+      }
+    }
+  ]
+}
+```
+
+### Common ESLint Issues and Solutions
+
+1. **TypeScript `any` Type**:
+   - Prefer defining proper types over using `any`
+   - For mocks, create interfaces/types that match the actual components
+   - Example:
+   ```typescript
+   interface MockComponentProps {
+     prop1: string;
+     prop2: number;
+     // ... other props
+   }
+   
+   jest.mock('./MyComponent', () => ({
+     default: ({ prop1, prop2 }: MockComponentProps) => (
+       <div>{prop1} {prop2}</div>
+     )
+   }))
+   ```
+
+2. **Next.js Image Warning**:
+   - The warning about using `<img>` instead of `next/image` can be safely ignored in tests
+   - We mock `next/image` to avoid complexity in tests
+   - If needed, disable the rule for test files as shown above
+
+3. **Module Mocks**:
+   - When mocking modules, define proper return types
+   - Example:
+   ```typescript
+   type ApiResponse = {
+     data: string;
+     status: number;
+   }
+   
+   jest.mock('@/lib/api', () => ({
+     fetchData: jest.fn().mockResolvedValue<ApiResponse>({
+       data: 'mocked',
+       status: 200
+     })
+   }))
+   ``` 

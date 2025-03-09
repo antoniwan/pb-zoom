@@ -1,10 +1,24 @@
 import { render, screen } from '@/lib/test-utils'
 import { ProfileCard } from './profile-card'
 
+// Define types for mocked components
+type NextImageProps = {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+}
+
+type NextLinkProps = {
+  href: string;
+  children: React.ReactNode;
+}
+
 // Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, width, height, className }: any) => (
+  default: ({ src, alt, width, height, className }: NextImageProps) => (
     <img src={src} alt={alt} width={width} height={height} className={className} />
   ),
 }))
@@ -12,7 +26,7 @@ jest.mock('next/image', () => ({
 // Mock next/link
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children }: any) => (
+  default: ({ href, children }: NextLinkProps) => (
     <a href={href}>{children}</a>
   ),
 }))
@@ -28,13 +42,13 @@ jest.mock('lucide-react', () => ({
 // Mock clsx
 jest.mock('clsx', () => ({
   __esModule: true,
-  clsx: (...args: any[]) => args.join(' '),
+  clsx: (...classes: string[]) => classes.join(' '),
 }))
 
 // Mock tailwind-merge
 jest.mock('tailwind-merge', () => ({
   __esModule: true,
-  twMerge: (...args: any[]) => args.join(' '),
+  twMerge: (...classes: string[]) => classes.join(' '),
 }))
 
 describe('ProfileCard', () => {
