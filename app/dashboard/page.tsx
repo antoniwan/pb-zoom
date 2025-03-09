@@ -219,26 +219,6 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        {/* Improved stats cards with better visual hierarchy */}
-        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <StatsCard
-            title="Total Profiles"
-            value={totalProfiles}
-            icon={<LayoutDashboard className="h-4 w-4 text-primary" />}
-          />
-          <StatsCard title="Public Profiles" value={publicProfiles} icon={<Eye className="h-4 w-4 text-green-500" />} />
-          <StatsCard
-            title="Private Profiles"
-            value={privateProfiles}
-            icon={<Lock className="h-4 w-4 text-amber-500" />}
-          />
-          <StatsCard
-            title="Categorized"
-            value={categorizedProfiles}
-            icon={<Filter className="h-4 w-4 text-indigo-500" />}
-          />
-        </div>
-
         {/* Improved tabs and controls layout */}
         <div className="space-y-6">
           <Tabs defaultValue="all" className="w-full">
