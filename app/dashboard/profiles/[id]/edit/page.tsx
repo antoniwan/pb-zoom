@@ -242,10 +242,19 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
           </Button>
           <h1 className="text-2xl font-bold">Edit Profile: {profile.title}</h1>
         </div>
-        <Button onClick={handleSave} disabled={isSaving}>
-          <Save className="mr-2 h-4 w-4" />
-          {isSaving ? "Saving..." : "Save Changes"}
-        </Button>
+        <div className="flex gap-2">
+          {profile.isPublic && (
+            <Button variant="outline" asChild>
+              <Link href={`/p/${profile.slug}`} target="_blank">
+                View Profile
+              </Link>
+            </Button>
+          )}
+          <Button onClick={handleSave} disabled={isSaving}>
+            <Save className="mr-2 h-4 w-4" />
+            {isSaving ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
       </div>
 
       {error && (
