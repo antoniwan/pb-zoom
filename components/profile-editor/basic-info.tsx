@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CategorySelector } from "@/components/profile-editor/category-selector"
+import { LayoutSelector } from "@/components/profile-editor/layout-selector"
 import type { Profile } from "@/lib/db"
 
 interface ProfileBasicInfoProps {
@@ -48,6 +49,13 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
     updateProfile({ categoryId })
   }
 
+  const handleLayoutChange = (layout: string, options?: any) => {
+    updateProfile({
+      layout,
+      layoutOptions: options,
+    })
+  }
+
   const generateSlug = (text: string): string => {
     return text
       .toLowerCase()
@@ -59,8 +67,9 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="layout">Layout</TabsTrigger>
           <TabsTrigger value="category">Category</TabsTrigger>
         </TabsList>
 
@@ -97,22 +106,14 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
             <Switch id="public" checked={profile.isPublic} onCheckedChange={handlePublicChange} />
             <Label htmlFor="public">Make profile public</Label>
           </div>
+        </TabsContent>
 
-          <div className="space-y-2">
-            <Label htmlFor="layout">Layout</Label>
-            <select
-              id="layout"
-              value={profile.layout}
-              onChange={(e) => updateProfile({ layout: e.target.value })}
-              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="standard">Standard</option>
-              <option value="grid">Grid</option>
-              <option value="magazine">Magazine</option>
-              <option value="custom">Custom</option>
-            </select>
-            <p className="text-sm text-muted-foreground">Choose how your profile content will be arranged.</p>
-          </div>
+        <TabsContent value="layout">
+          <LayoutSelector
+            value={profile.layout}
+            customOptions={profile.layoutOptions}
+            onChange={handleLayoutChange}
+          />
         </TabsContent>
 
         <TabsContent value="category">

@@ -69,6 +69,11 @@ export interface Profile {
     customCSS?: string
   }
   layout: string
+  layoutOptions?: {
+    columnCount?: number
+    sectionSpacing?: number
+    fullWidth?: boolean
+  }
   sections: ProfileSection[]
   socialLinks: Array<{
     platform: string
