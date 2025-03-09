@@ -45,7 +45,7 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
   }
 
   const handleCategoryChange = (categoryId: string | undefined) => {
-    updateProfile({ categoryId })
+    updateProfile({ categoryIds: categoryId ? [categoryId] : [] })
   }
 
   const generateSlug = (text: string): string => {
@@ -116,7 +116,7 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
         </TabsContent>
 
         <TabsContent value="category">
-          <CategorySelector selectedCategoryId={profile.categoryId} onSelect={handleCategoryChange} />
+          <CategorySelector selectedCategoryId={profile.categoryIds?.[0]} onSelect={handleCategoryChange} />
         </TabsContent>
       </Tabs>
     </div>

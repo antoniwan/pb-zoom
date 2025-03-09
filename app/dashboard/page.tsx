@@ -267,8 +267,6 @@ export default function DashboardPage() {
                       key={profile._id?.toString()}
                       profile={profile}
                       onDelete={handleDeleteProfile}
-                      categoryName={getCategoryName(profile.categoryIds?.[0])}
-                      categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
                       getCategoryName={getCategoryName}
                       getCategoryIcon={getCategoryIcon}
                     />
@@ -281,8 +279,6 @@ export default function DashboardPage() {
                       key={profile._id?.toString()}
                       profile={profile}
                       onDelete={handleDeleteProfile}
-                      categoryName={getCategoryName(profile.categoryIds?.[0])}
-                      categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
                       getCategoryName={getCategoryName}
                       getCategoryIcon={getCategoryIcon}
                     />
@@ -315,8 +311,6 @@ export default function DashboardPage() {
                               key={profile._id?.toString()}
                               profile={profile}
                               onDelete={handleDeleteProfile}
-                              categoryName={getCategoryName(profile.categoryIds?.[0])}
-                              categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
                               getCategoryName={getCategoryName}
                               getCategoryIcon={getCategoryIcon}
                               hideCategoryBadge
@@ -330,8 +324,6 @@ export default function DashboardPage() {
                               key={profile._id?.toString()}
                               profile={profile}
                               onDelete={handleDeleteProfile}
-                              categoryName={getCategoryName(profile.categoryIds?.[0])}
-                              categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
                               getCategoryName={getCategoryName}
                               getCategoryIcon={getCategoryIcon}
                               hideCategoryBadge
@@ -361,8 +353,6 @@ export default function DashboardPage() {
                         key={profile._id?.toString()}
                         profile={profile}
                         onDelete={handleDeleteProfile}
-                        categoryName={getCategoryName(profile.categoryIds?.[0])}
-                        categoryIcon={getCategoryIcon(profile.categoryIds?.[0])}
                         getCategoryName={getCategoryName}
                         getCategoryIcon={getCategoryIcon}
                       />
@@ -441,16 +431,12 @@ function EmptyProfilesState() {
 function ProfileCard({
   profile,
   onDelete,
-  categoryName,
-  categoryIcon,
   hideCategoryBadge = false,
   getCategoryName,
   getCategoryIcon,
 }: {
   profile: Profile
   onDelete: (id: string) => void
-  categoryName: string
-  categoryIcon: React.ReactNode
   hideCategoryBadge?: boolean
   getCategoryName: (id: string | undefined) => string
   getCategoryIcon: (id: string | undefined) => React.ReactNode
@@ -598,16 +584,12 @@ function ProfileCard({
 function ProfileListItem({
   profile,
   onDelete,
-  categoryName,
-  categoryIcon,
   hideCategoryBadge = false,
   getCategoryName,
   getCategoryIcon,
 }: {
   profile: Profile
   onDelete: (id: string) => void
-  categoryName: string
-  categoryIcon: React.ReactNode
   hideCategoryBadge?: boolean
   getCategoryName: (id: string | undefined) => string
   getCategoryIcon: (id: string | undefined) => React.ReactNode
