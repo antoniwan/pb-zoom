@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId, MongoClientOptions } from "mongodb"
+import { MongoClient, ObjectId, type MongoClientOptions } from "mongodb"
 
 const uri = process.env.MONGODB_URI || ""
 const options: MongoClientOptions = {}
@@ -166,9 +166,9 @@ export async function getUserPublicProfiles(userId: string) {
       .sort({ updatedAt: -1 })
       .toArray()
 
-    return profiles.map(profile => ({
+    return profiles.map((profile) => ({
       ...profile,
-      _id: profile._id?.toString()
+      _id: profile._id?.toString(),
     }))
   } catch (error) {
     console.error("Error getting user public profiles:", error)
@@ -216,26 +216,22 @@ export async function getCategories(options?: { includeDisabled?: boolean; inclu
     const db = client.db()
 
     const filter: Record<string, boolean> = {}
-    
+
     // If not including disabled categories, only show enabled ones
     if (!options?.includeDisabled) {
       filter.isEnabled = true
     }
-    
+
     // If not including incorrect categories, only show correct ones
     if (!options?.includeIncorrect) {
       filter.isCorrect = true
     }
 
-    const categories = await db
-      .collection<Category>("profileCategories")
-      .find(filter)
-      .sort({ name: 1 })
-      .toArray()
+    const categories = await db.collection<Category>("profileCategories").find(filter).sort({ name: 1 }).toArray()
 
-    return categories.map(category => ({
+    return categories.map((category) => ({
       ...category,
-      _id: category._id?.toString()
+      _id: category._id?.toString(),
     }))
   } catch (error) {
     console.error("Error fetching categories:", error)
@@ -250,14 +246,12 @@ export async function getCategory(id: string) {
     const db = client.db()
 
     const objectId = new ObjectId(id)
-    const category = await db
-      .collection("profileCategories")
-      .findOne({ _id: objectId })
+    const category = await db.collection("profileCategories").findOne({ _id: objectId })
 
     if (!category) return null
     return {
       ...category,
-      _id: category._id.toString()
+      _id: category._id.toString(),
     } as Category
   } catch (error) {
     console.error("Error fetching category:", error)
@@ -266,7 +260,7 @@ export async function getCategory(id: string) {
 }
 
 // Create a new category
-export async function createCategory(category: Omit<Category, '_id'>) {
+export async function createCategory(category: Omit<Category, "_id">) {
   try {
     const client = await clientPromise
     const db = client.db()
@@ -274,7 +268,7 @@ export async function createCategory(category: Omit<Category, '_id'>) {
     const result = await db.collection<Category>("profileCategories").insertOne({
       ...category,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     })
 
     return result.insertedId
@@ -292,10 +286,7 @@ export async function updateCategory(id: string, updates: Partial<Category>) {
 
     const result = await db
       .collection("profileCategories")
-      .updateOne(
-        { _id: new ObjectId(id) },
-        { $set: { ...updates, updatedAt: new Date() } }
-      )
+      .updateOne({ _id: new ObjectId(id) }, { $set: { ...updates, updatedAt: new Date() } })
 
     return result.modifiedCount > 0
   } catch (error) {
@@ -310,9 +301,7 @@ export async function deleteCategory(id: string) {
     const client = await clientPromise
     const db = client.db()
 
-    const result = await db
-      .collection("profileCategories")
-      .deleteOne({ _id: new ObjectId(id) })
+    const result = await db.collection("profileCategories").deleteOne({ _id: new ObjectId(id) })
 
     return result.deletedCount > 0
   } catch (error) {
@@ -327,15 +316,11 @@ export async function getProfiles(userId: string) {
     const client = await clientPromise
     const db = client.db()
 
-    const profiles = await db
-      .collection<Profile>("profiles")
-      .find({ userId })
-      .sort({ updatedAt: -1 })
-      .toArray()
+    const profiles = await db.collection<Profile>("profiles").find({ userId }).sort({ updatedAt: -1 }).toArray()
 
-    return profiles.map(profile => ({
+    return profiles.map((profile) => ({
       ...profile,
-      _id: profile._id?.toString()
+      _id: profile._id?.toString(),
     }))
   } catch (error) {
     console.error("Error fetching profiles:", error)
@@ -350,14 +335,12 @@ export async function getProfile(id: string) {
     const db = client.db()
 
     const objectId = new ObjectId(id)
-    const profile = await db
-      .collection("profiles")
-      .findOne({ _id: objectId })
+    const profile = await db.collection("profiles").findOne({ _id: objectId })
 
     if (!profile) return null
     return {
       ...profile,
-      _id: profile._id.toString()
+      _id: profile._id.toString(),
     } as Profile
   } catch (error) {
     console.error("Error fetching profile:", error)
@@ -366,7 +349,7 @@ export async function getProfile(id: string) {
 }
 
 // Create a new profile
-export async function createProfile(profile: Omit<Profile, '_id'>) {
+export async function createProfile(profile: Omit<Profile, "_id">) {
   try {
     const client = await clientPromise
     const db = client.db()
@@ -374,7 +357,7 @@ export async function createProfile(profile: Omit<Profile, '_id'>) {
     const result = await db.collection<Profile>("profiles").insertOne({
       ...profile,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     })
 
     return result.insertedId
@@ -392,10 +375,7 @@ export async function updateProfile(id: string, updates: Partial<Profile>) {
 
     const result = await db
       .collection("profiles")
-      .updateOne(
-        { _id: new ObjectId(id) },
-        { $set: { ...updates, updatedAt: new Date() } }
-      )
+      .updateOne({ _id: new ObjectId(id) }, { $set: { ...updates, updatedAt: new Date() } })
 
     return result.modifiedCount > 0
   } catch (error) {
@@ -410,9 +390,7 @@ export async function deleteProfile(id: string) {
     const client = await clientPromise
     const db = client.db()
 
-    const result = await db
-      .collection("profiles")
-      .deleteOne({ _id: new ObjectId(id) })
+    const result = await db.collection("profiles").deleteOne({ _id: new ObjectId(id) })
 
     return result.deletedCount > 0
   } catch (error) {

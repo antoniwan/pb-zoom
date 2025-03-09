@@ -1,12 +1,14 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { useProfile } from "@/components/profile-context"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { Settings2, Layout, Palette, Link2, User2, Menu } from "lucide-react"
 
 import { BasicInfoEditor } from "@/components/editors/basic-info-editor"
@@ -30,7 +32,7 @@ function NavItem({ icon, label, value, isActive, onClick }: NavItemProps) {
       className={cn(
         "flex items-center gap-3 w-full p-3 text-sm font-medium rounded-lg transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
-        isActive && "bg-accent text-accent-foreground"
+        isActive && "bg-accent text-accent-foreground",
       )}
     >
       {icon}
@@ -92,10 +94,7 @@ export function ProfileEditor() {
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-2xl font-semibold">Edit Profile</h1>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => window.open(`/p/${profile?.slug}`, "_blank")}
-              >
+              <Button variant="outline" onClick={() => window.open(`/p/${profile?.slug}`, "_blank")}>
                 Preview
               </Button>
               <Button>Publish</Button>

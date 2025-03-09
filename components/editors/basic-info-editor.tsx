@@ -19,9 +19,7 @@ export function BasicInfoEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Profile Details</CardTitle>
-          <CardDescription>
-            Basic information about your profile page
-          </CardDescription>
+          <CardDescription>Basic information about your profile page</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -57,24 +55,16 @@ export function BasicInfoEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
-          <CardDescription>
-            Choose how your profile looks and feels
-          </CardDescription>
+          <CardDescription>Choose how your profile looks and feels</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>Layout</Label>
-            <LayoutSelector
-              value={profile.layout}
-              onChange={(layout) => updateProfile({ layout })}
-            />
+            <LayoutSelector value={profile.layout} onChange={(layout) => updateProfile({ layout })} />
           </div>
           <div className="space-y-2">
             <Label>Category</Label>
-            <CategorySelector
-              value={profile.category}
-              onChange={(category) => updateProfile({ category })}
-            />
+            <CategorySelector value={profile.category} onChange={(category) => updateProfile({ category })} />
           </div>
         </CardContent>
       </Card>
@@ -82,37 +72,26 @@ export function BasicInfoEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Visibility</CardTitle>
-          <CardDescription>
-            Control who can see your profile
-          </CardDescription>
+          <CardDescription>Control who can see your profile</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Public Profile</Label>
-              <p className="text-sm text-muted-foreground">
-                Make your profile visible to everyone
-              </p>
+              <p className="text-sm text-muted-foreground">Make your profile visible to everyone</p>
             </div>
-            <Switch
-              checked={profile.isPublic}
-              onCheckedChange={(isPublic) => updateProfile({ isPublic })}
-            />
+            <Switch checked={profile.isPublic} onCheckedChange={(isPublic) => updateProfile({ isPublic })} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Featured Profile</Label>
-              <p className="text-sm text-muted-foreground">
-                Show your profile on the featured page
-              </p>
+              <p className="text-sm text-muted-foreground">Show your profile on the featured page</p>
             </div>
-            <Switch
-              checked={profile.isFeatured}
-              onCheckedChange={(isFeatured) => updateProfile({ isFeatured })}
-            />
+            <Switch checked={profile.isFeatured} onCheckedChange={(isFeatured) => updateProfile({ isFeatured })} />
           </div>
         </CardContent>
       </Card>
     </div>
   )
-} 
+}
+

@@ -67,4 +67,5 @@ export function CustomEditor({ content, onChange }: CustomEditorProps) {
       </Tabs>
     </div>
   )
-} 
+}
+

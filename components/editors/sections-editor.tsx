@@ -2,25 +2,8 @@
 
 import { useProfile } from "@/components/profile-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Plus } from "lucide-react"
-import { cn } from "@/lib/utils"
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core"
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 
 import { SectionItem } from "@/components/section-item"
 import { AddSectionDialog } from "@/components/add-section-dialog"
@@ -37,7 +20,7 @@ export function SectionsEditor() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   )
 
   const handleDragEnd = (event: any) => {
@@ -54,7 +37,7 @@ export function SectionsEditor() {
 
   const handleUpdateSection = (sectionId: string, updates: Partial<ProfileSection>) => {
     const updatedSections = sections.map((section) =>
-      section._id === sectionId ? { ...section, ...updates } : section
+      section._id === sectionId ? { ...section, ...updates } : section,
     )
     updateProfile({ sections: updatedSections })
   }
@@ -71,23 +54,14 @@ export function SectionsEditor() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Profile Sections</CardTitle>
-              <CardDescription>
-                Add and arrange sections for your profile
-              </CardDescription>
+              <CardDescription>Add and arrange sections for your profile</CardDescription>
             </div>
             <AddSectionDialog />
           </div>
         </CardHeader>
         <CardContent>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={sections.map((s) => s._id)}
-              strategy={verticalListSortingStrategy}
-            >
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={sections.map((s) => s._id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-4">
                 {sections.map((section) => (
                   <SectionItem
@@ -104,4 +78,5 @@ export function SectionsEditor() {
       </Card>
     </div>
   )
-} 
+}
+

@@ -16,11 +16,14 @@ interface LayoutSelectorProps {
     sectionSpacing?: number
     fullWidth?: boolean
   }
-  onChange: (layout: string, options?: {
-    columnCount?: number
-    sectionSpacing?: number
-    fullWidth?: boolean
-  }) => void
+  onChange: (
+    layout: string,
+    options?: {
+      columnCount?: number
+      sectionSpacing?: number
+      fullWidth?: boolean
+    },
+  ) => void
 }
 
 const layouts = [
@@ -109,11 +112,15 @@ const layouts = [
   },
 ]
 
-export function LayoutSelector({ value, customOptions = {
-  columnCount: 2,
-  sectionSpacing: 8,
-  fullWidth: false
-}, onChange }: LayoutSelectorProps) {
+export function LayoutSelector({
+  value,
+  customOptions = {
+    columnCount: 2,
+    sectionSpacing: 8,
+    fullWidth: false,
+  },
+  onChange,
+}: LayoutSelectorProps) {
   const [activeTab, setActiveTab] = useState(value === "custom" ? "custom" : "preset")
   const [columns, setColumns] = useState(customOptions.columnCount)
   const [spacing, setSpacing] = useState(customOptions.sectionSpacing)
@@ -147,24 +154,17 @@ export function LayoutSelector({ value, customOptions = {
           >
             {layouts.map((layout) => (
               <div key={layout.id}>
-                <RadioGroupItem
-                  value={layout.id}
-                  id={layout.id}
-                  className="peer sr-only"
-                  aria-label={layout.name}
-                />
+                <RadioGroupItem value={layout.id} id={layout.id} className="peer sr-only" aria-label={layout.name} />
                 <Label
                   htmlFor={layout.id}
                   className={cn(
                     "flex flex-col gap-2 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer",
-                    value === layout.id && "border-primary"
+                    value === layout.id && "border-primary",
                   )}
                 >
                   <div className="font-semibold">{layout.name}</div>
                   <div className="text-sm text-muted-foreground">{layout.description}</div>
-                  <div className="mt-2 aspect-video rounded-lg border bg-background p-2">
-                    {layout.preview}
-                  </div>
+                  <div className="mt-2 aspect-video rounded-lg border bg-background p-2">{layout.preview}</div>
                 </Label>
               </div>
             ))}
@@ -227,4 +227,5 @@ export function LayoutSelector({ value, customOptions = {
       </Tabs>
     </div>
   )
-} 
+}
+

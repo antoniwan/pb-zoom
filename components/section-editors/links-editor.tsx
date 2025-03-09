@@ -22,14 +22,7 @@ interface LinkItemProps {
 }
 
 function LinkItemEditor({ link, onUpdate, onRemove }: LinkItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: link._id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: link._id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -40,10 +33,7 @@ function LinkItemEditor({ link, onUpdate, onRemove }: LinkItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "relative p-4 border rounded-lg",
-        isDragging && "opacity-50 bg-muted"
-      )}
+      className={cn("relative p-4 border rounded-lg", isDragging && "opacity-50 bg-muted")}
     >
       <div className="flex items-start gap-4">
         <button
@@ -57,27 +47,15 @@ function LinkItemEditor({ link, onUpdate, onRemove }: LinkItemProps) {
         <div className="flex-1 space-y-4">
           <div className="space-y-2">
             <Label>Title</Label>
-            <Input
-              value={link.title}
-              onChange={(e) => onUpdate({ title: e.target.value })}
-              placeholder="Link Title"
-            />
+            <Input value={link.title} onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Link Title" />
           </div>
 
           <div className="space-y-2">
             <Label>URL</Label>
             <div className="flex gap-2">
-              <Input
-                value={link.url}
-                onChange={(e) => onUpdate({ url: e.target.value })}
-                placeholder="https://"
-              />
+              <Input value={link.url} onChange={(e) => onUpdate({ url: e.target.value })} placeholder="https://" />
               {link.url && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => window.open(link.url, "_blank")}
-                >
+                <Button variant="outline" size="icon" onClick={() => window.open(link.url, "_blank")}>
                   <ExternalLink className="h-4 w-4" />
                 </Button>
               )}
@@ -94,12 +72,7 @@ function LinkItemEditor({ link, onUpdate, onRemove }: LinkItemProps) {
           </div>
         </div>
 
-        <Button
-          variant="destructive"
-          size="icon"
-          onClick={onRemove}
-          className="-mt-2 -mr-2"
-        >
+        <Button variant="destructive" size="icon" onClick={onRemove} className="-mt-2 -mr-2">
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
@@ -112,7 +85,7 @@ export function LinksEditor({ content, onChange }: LinksEditorProps) {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   )
 
   const handleDragEnd = (event: any) => {
@@ -142,9 +115,7 @@ export function LinksEditor({ content, onChange }: LinksEditorProps) {
   }
 
   const handleUpdateLink = (id: string, updates: Partial<LinkItem>) => {
-    const newLinks = content.links.map((link) =>
-      link._id === id ? { ...link, ...updates } : link
-    )
+    const newLinks = content.links.map((link) => (link._id === id ? { ...link, ...updates } : link))
     onChange({ ...content, links: newLinks })
   }
 
@@ -155,11 +126,7 @@ export function LinksEditor({ content, onChange }: LinksEditorProps) {
 
   return (
     <div className="space-y-4">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={content.links?.map((link) => link._id) || []}>
           <div className="space-y-4">
             {content.links?.map((link) => (
@@ -180,4 +147,5 @@ export function LinksEditor({ content, onChange }: LinksEditorProps) {
       </Button>
     </div>
   )
-} 
+}
+

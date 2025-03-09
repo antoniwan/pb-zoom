@@ -96,13 +96,11 @@ export function AddSectionDialog() {
 
   if (!profile) return null
 
-  const handleAddSection = (type: typeof sectionTypes[number]["id"]) => {
+  const handleAddSection = (type: (typeof sectionTypes)[number]["id"]) => {
     const sections = profile.sections || []
-    const maxOrder = sections.length > 0
-      ? Math.max(...sections.map(s => s.order))
-      : -1
+    const maxOrder = sections.length > 0 ? Math.max(...sections.map((s) => s.order)) : -1
 
-    const sectionType = sectionTypes.find(t => t.id === type)
+    const sectionType = sectionTypes.find((t) => t.id === type)
     if (!sectionType) return
 
     const newSection: ProfileSection = {
@@ -129,9 +127,7 @@ export function AddSectionDialog() {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Section</DialogTitle>
-          <DialogDescription>
-            Choose a section type to add to your profile
-          </DialogDescription>
+          <DialogDescription>Choose a section type to add to your profile</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           {sectionTypes.map((type) => (
@@ -140,16 +136,14 @@ export function AddSectionDialog() {
               className={cn(
                 "flex items-start gap-4 p-4 rounded-lg text-left",
                 "hover:bg-accent hover:text-accent-foreground",
-                "transition-colors"
+                "transition-colors",
               )}
               onClick={() => handleAddSection(type.id)}
             >
               <div className="text-2xl">{type.icon}</div>
               <div>
                 <h3 className="font-medium">{type.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {type.description}
-                </p>
+                <p className="text-sm text-muted-foreground">{type.description}</p>
               </div>
             </button>
           ))}
@@ -157,4 +151,5 @@ export function AddSectionDialog() {
       </DialogContent>
     </Dialog>
   )
-} 
+}
+

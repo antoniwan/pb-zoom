@@ -25,40 +25,40 @@ export function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
     }
   }, [])
 
-  const insertMarkdown = useCallback((prefix: string, suffix = "") => {
-    const textarea = document.querySelector("textarea") as HTMLTextAreaElement
-    if (!textarea) return
+  const insertMarkdown = useCallback(
+    (prefix: string, suffix = "") => {
+      const textarea = document.querySelector("textarea") as HTMLTextAreaElement
+      if (!textarea) return
 
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const text = textarea.value
-    const before = text.substring(0, start)
-    const selection = text.substring(start, end)
-    const after = text.substring(end)
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const text = textarea.value
+      const before = text.substring(0, start)
+      const selection = text.substring(start, end)
+      const after = text.substring(end)
 
-    const newText = before + prefix + selection + suffix + after
-    const newContent = { 
-      ...content, 
-      markdown: newText,
-      html: convertToHtml(newText)
-    }
-    onChange(newContent)
+      const newText = before + prefix + selection + suffix + after
+      const newContent = {
+        ...content,
+        markdown: newText,
+        html: convertToHtml(newText),
+      }
+      onChange(newContent)
 
-    // Reset cursor position
-    requestAnimationFrame(() => {
-      textarea.focus()
-      textarea.setSelectionRange(
-        start + prefix.length,
-        end + prefix.length
-      )
-    })
-  }, [content, onChange, convertToHtml])
+      // Reset cursor position
+      requestAnimationFrame(() => {
+        textarea.focus()
+        textarea.setSelectionRange(start + prefix.length, end + prefix.length)
+      })
+    },
+    [content, onChange, convertToHtml],
+  )
 
   const handleMarkdownChange = (markdown: string) => {
     onChange({
       ...content,
       markdown,
-      html: convertToHtml(markdown)
+      html: convertToHtml(markdown),
     })
   }
 
@@ -72,44 +72,19 @@ export function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
           </TabsList>
 
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => insertMarkdown("**", "**")}
-              title="Bold"
-            >
+            <Button variant="ghost" size="icon" onClick={() => insertMarkdown("**", "**")} title="Bold">
               <Bold className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => insertMarkdown("*", "*")}
-              title="Italic"
-            >
+            <Button variant="ghost" size="icon" onClick={() => insertMarkdown("*", "*")} title="Italic">
               <Italic className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => insertMarkdown("[", "](url)")}
-              title="Link"
-            >
+            <Button variant="ghost" size="icon" onClick={() => insertMarkdown("[", "](url)")} title="Link">
               <Link className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => insertMarkdown("\n- ")}
-              title="Bullet List"
-            >
+            <Button variant="ghost" size="icon" onClick={() => insertMarkdown("\n- ")} title="Bullet List">
               <List className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => insertMarkdown("\n1. ")}
-              title="Numbered List"
-            >
+            <Button variant="ghost" size="icon" onClick={() => insertMarkdown("\n1. ")} title="Numbered List">
               <ListOrdered className="h-4 w-4" />
             </Button>
           </div>
@@ -133,4 +108,5 @@ export function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
       </Tabs>
     </div>
   )
-} 
+}
+

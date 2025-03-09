@@ -57,7 +57,7 @@ export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
   const [selectedFontCategory, setSelectedFontCategory] = useState(() => {
     // Determine initial category based on current font
     for (const [category, fonts] of Object.entries(fontOptions)) {
-      if (fonts.some(font => font.value === profile.theme.fontFamily)) {
+      if (fonts.some((font) => font.value === profile.theme.fontFamily)) {
         return category
       }
     }
@@ -68,7 +68,7 @@ export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
   useEffect(() => {
     const loadGoogleFont = async (fontFamily: string) => {
       // Skip system fonts
-      if (fontOptions.system.some(font => font.value === fontFamily)) {
+      if (fontOptions.system.some((font) => font.value === fontFamily)) {
         return
       }
 
@@ -86,11 +86,11 @@ export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
   }, [profile.theme.fontFamily])
 
   const validateThemeUpdate = (field: string, value: string): boolean => {
-    setErrors(prev => ({ ...prev, [field]: "" }))
+    setErrors((prev) => ({ ...prev, [field]: "" }))
 
     if (field.includes("Color")) {
       if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value)) {
-        setErrors(prev => ({ ...prev, [field]: "Please enter a valid hex color (e.g., #FF0000)" }))
+        setErrors((prev) => ({ ...prev, [field]: "Please enter a valid hex color (e.g., #FF0000)" }))
         return false
       }
     }
@@ -103,7 +103,7 @@ export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
         document.head.removeChild(style)
       } catch (err) {
         console.error("Error validating CSS:", err)
-        setErrors(prev => ({ ...prev, [field]: "Please enter valid CSS" }))
+        setErrors((prev) => ({ ...prev, [field]: "Please enter valid CSS" }))
         return false
       }
     }
@@ -134,7 +134,7 @@ export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-4 space-y-4">
           <h3 className="font-medium">Colors</h3>
-          
+
           <div className="space-y-2">
             <Label htmlFor="primaryColor">Primary Color</Label>
             <div className="flex gap-2">
@@ -222,7 +222,7 @@ export function ThemeEditor({ profile, updateProfile }: ThemeEditorProps) {
 
         <Card className="p-4 space-y-4">
           <h3 className="font-medium">Typography & Custom CSS</h3>
-          
+
           <div className="space-y-2">
             <Label htmlFor="fontCategory">Font Category</Label>
             <select

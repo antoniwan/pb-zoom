@@ -17,9 +17,7 @@ export function HeaderEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Profile Header</CardTitle>
-          <CardDescription>
-            Your name, title, and bio
-          </CardDescription>
+          <CardDescription>Your name, title, and bio</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -55,9 +53,7 @@ export function HeaderEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Profile Images</CardTitle>
-          <CardDescription>
-            Your profile picture and cover image
-          </CardDescription>
+          <CardDescription>Your profile picture and cover image</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
@@ -84,4 +80,5 @@ export function HeaderEditor() {
       </Card>
     </div>
   )
-} 
+}
+

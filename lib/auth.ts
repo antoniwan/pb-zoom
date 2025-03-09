@@ -1,5 +1,5 @@
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
-import { AuthOptions } from "next-auth"
+import type { AuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { clientPromise } from "@/lib/db"
 import bcrypt from "bcrypt"

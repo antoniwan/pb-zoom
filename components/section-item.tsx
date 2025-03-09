@@ -29,14 +29,7 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
   const [isExpanded, setIsExpanded] = useState(true)
   const [localTitle, setLocalTitle] = useState(section.title)
   const { saveProfile, isSaving } = useProfile()
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section._id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section._id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -51,7 +44,7 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
   // Handle title change with debounce
   useEffect(() => {
     if (localTitle === section.title) return
-    
+
     const timer = setTimeout(() => {
       onUpdate({ title: localTitle })
     }, 500)
@@ -66,58 +59,23 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
   const renderEditor = () => {
     switch (section.type) {
       case "markdown":
-        return (
-          <MarkdownEditor
-            content={section.content}
-            onChange={(content) => onUpdate({ content })}
-          />
-        )
+        return <MarkdownEditor content={section.content} onChange={(content) => onUpdate({ content })} />
       case "gallery":
-        return (
-          <GalleryEditor
-            content={section.content}
-            onChange={(content) => onUpdate({ content })}
-          />
-        )
+        return <GalleryEditor content={section.content} onChange={(content) => onUpdate({ content })} />
       case "links":
-        return (
-          <LinksEditor
-            content={section.content}
-            onChange={(content) => onUpdate({ content })}
-          />
-        )
+        return <LinksEditor content={section.content} onChange={(content) => onUpdate({ content })} />
       case "attributes":
-        return (
-          <AttributesEditor
-            content={section.content}
-            onChange={(content) => onUpdate({ content })}
-          />
-        )
+        return <AttributesEditor content={section.content} onChange={(content) => onUpdate({ content })} />
       case "custom":
-        return (
-          <CustomEditor
-            content={section.content}
-            onChange={(content) => onUpdate({ content })}
-          />
-        )
+        return <CustomEditor content={section.content} onChange={(content) => onUpdate({ content })} />
       default:
         return null
     }
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cn(
-        "relative",
-        isDragging && "z-50"
-      )}
-    >
-      <Card className={cn(
-        "flex flex-col",
-        isDragging && "opacity-50 bg-muted"
-      )}>
+    <div ref={setNodeRef} style={style} className={cn("relative", isDragging && "z-50")}>
+      <Card className={cn("flex flex-col", isDragging && "opacity-50 bg-muted")}>
         <div className="p-4 flex items-start gap-4">
           <button
             {...attributes}
@@ -129,30 +87,14 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
 
           <div className="flex-1 space-y-2">
             <Label>Title</Label>
-            <Input
-              value={localTitle}
-              onChange={(e) => setLocalTitle(e.target.value)}
-              placeholder="Section Title"
-            />
+            <Input value={localTitle} onChange={(e) => setLocalTitle(e.target.value)} placeholder="Section Title" />
           </div>
 
           <div className="flex items-start gap-2 -mt-2 -mr-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
+            <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={onRemove}
-            >
+            <Button variant="destructive" size="icon" onClick={onRemove}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -160,15 +102,9 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
 
         {isExpanded && (
           <>
-            <div className="px-4 pb-4 pt-2 border-t">
-              {renderEditor()}
-            </div>
+            <div className="px-4 pb-4 pt-2 border-t">{renderEditor()}</div>
             <div className="px-4 pb-4 flex justify-end">
-              <Button 
-                onClick={handleSave} 
-                disabled={isSaving}
-                size="sm"
-              >
+              <Button onClick={handleSave} disabled={isSaving} size="sm">
                 <Save className="mr-2 h-4 w-4" />
                 Save Changes
               </Button>
@@ -178,4 +114,5 @@ export function SectionItem({ section, onUpdate, onRemove }: SectionItemProps) {
       </Card>
     </div>
   )
-} 
+}
+

@@ -23,14 +23,7 @@ interface GalleryItemProps {
 }
 
 function GalleryItem({ image, onUpdate, onRemove }: GalleryItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: image.id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: image.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -41,10 +34,7 @@ function GalleryItem({ image, onUpdate, onRemove }: GalleryItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "relative p-4 border rounded-lg",
-        isDragging && "opacity-50 bg-muted"
-      )}
+      className={cn("relative p-4 border rounded-lg", isDragging && "opacity-50 bg-muted")}
     >
       <div className="flex items-start gap-4">
         <button
@@ -56,12 +46,7 @@ function GalleryItem({ image, onUpdate, onRemove }: GalleryItemProps) {
         </button>
 
         <div className="flex-1 space-y-4">
-          <ImageUploader
-            value={image.url}
-            onChange={(url) => onUpdate({ url })}
-            aspectRatio="square"
-            maxSize={2}
-          />
+          <ImageUploader value={image.url} onChange={(url) => onUpdate({ url })} aspectRatio="square" maxSize={2} />
 
           <div className="space-y-2">
             <Label>Alt Text</Label>
@@ -82,12 +67,7 @@ function GalleryItem({ image, onUpdate, onRemove }: GalleryItemProps) {
           </div>
         </div>
 
-        <Button
-          variant="destructive"
-          size="icon"
-          onClick={onRemove}
-          className="-mt-2 -mr-2"
-        >
+        <Button variant="destructive" size="icon" onClick={onRemove} className="-mt-2 -mr-2">
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
@@ -100,7 +80,7 @@ export function GalleryEditor({ content, onChange }: GalleryEditorProps) {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   )
 
   const handleDragEnd = (event: any) => {
@@ -130,9 +110,7 @@ export function GalleryEditor({ content, onChange }: GalleryEditorProps) {
   }
 
   const handleUpdateImage = (id: string, updates: Partial<ProfileImage>) => {
-    const newImages = content.images.map((img) =>
-      img.id === id ? { ...img, ...updates } : img
-    )
+    const newImages = content.images.map((img) => (img.id === id ? { ...img, ...updates } : img))
     onChange({ ...content, images: newImages })
   }
 
@@ -143,11 +121,7 @@ export function GalleryEditor({ content, onChange }: GalleryEditorProps) {
 
   return (
     <div className="space-y-4">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={content.images.map((img) => img.id)}>
           <div className="space-y-4">
             {content.images.map((image) => (
@@ -168,4 +142,5 @@ export function GalleryEditor({ content, onChange }: GalleryEditorProps) {
       </Button>
     </div>
   )
-} 
+}
+

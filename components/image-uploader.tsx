@@ -31,21 +31,21 @@ export function ImageUploader({
       try {
         setIsUploading(true)
         const file = acceptedFiles[0]
-        
+
         // Create FormData
         const formData = new FormData()
         formData.append("file", file)
-        
+
         // Upload to your API
         const response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
         })
-        
+
         if (!response.ok) {
           throw new Error("Upload failed")
         }
-        
+
         const data = await response.json()
         onChange(data.url)
       } catch (error) {
@@ -54,7 +54,7 @@ export function ImageUploader({
         setIsUploading(false)
       }
     },
-    [onChange]
+    [onChange],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -75,19 +75,15 @@ export function ImageUploader({
           "hover:bg-muted/50 cursor-pointer",
           aspectRatio === "square" ? "aspect-square" : "aspect-video",
           isDragActive && "border-primary bg-muted/50",
-          value && "border-none"
+          value && "border-none",
         )}
       >
         <input {...getInputProps()} />
-        
+
         {value ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={value}
-              alt="Uploaded image"
-              className="w-full h-full object-cover rounded-lg"
-            />
+            <img src={value} alt="Uploaded image" className="w-full h-full object-cover rounded-lg" />
             <Button
               variant="destructive"
               size="icon"
@@ -117,9 +113,7 @@ export function ImageUploader({
                   <p className="text-sm font-medium">
                     {isDragActive ? "Drop the image here" : "Click or drag image to upload"}
                   </p>
-                  {description && (
-                    <p className="text-xs text-muted-foreground mt-1">{description}</p>
-                  )}
+                  {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
                 </div>
               </>
             )}
@@ -128,4 +122,5 @@ export function ImageUploader({
       </div>
     </div>
   )
-} 
+}
+

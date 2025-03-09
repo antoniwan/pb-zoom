@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface FontSelectorProps {
   value: string
@@ -34,15 +28,12 @@ export function FontSelector({ value, onChange }: FontSelectorProps) {
       </SelectTrigger>
       <SelectContent>
         {fonts.map((font) => (
-          <SelectItem
-            key={font.value}
-            value={font.value}
-            className={`font-${font.value}`}
-          >
+          <SelectItem key={font.value} value={font.value} className={`font-${font.value}`}>
             {font.name}
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
   )
-} 
+}
+

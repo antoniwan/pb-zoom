@@ -1,0 +1,45 @@
+:root {
+  --profile-bg: #ffffff;
+  --profile-text: #000000;
+  --profile-primary: #3b82f6;
+  --profile-secondary: #6b7280;
+  --profile-accent: #f59e0b;
+}
+
+.dark {
+  --profile-bg: #1f2937;
+  --profile-text: #f9fafb;
+  --profile-primary: #60a5fa;
+  --profile-secondary: #9ca3af;
+  --profile-accent: #fbbf24;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+

@@ -103,12 +103,7 @@ export function ProfileBasicInfo({ profile }: BasicInfoProps) {
             <Label htmlFor="slug">Profile URL</Label>
             <div className="flex items-center space-x-2">
               <div className="flex-shrink-0 text-sm text-muted-foreground">enye.social/p/</div>
-              <Input
-                id="slug"
-                value={slug}
-                onChange={handleSlugChange}
-                placeholder="my-awesome-profile"
-              />
+              <Input id="slug" value={slug} onChange={handleSlugChange} placeholder="my-awesome-profile" />
             </div>
             <p className="text-sm text-muted-foreground">This is the URL where your profile will be accessible.</p>
           </div>

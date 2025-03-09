@@ -1,66 +1,71 @@
 "use client"
 
-import { useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { useToast } from "@/hooks/use-toast"
-import { useProfile } from "@/hooks/use-profile"
-
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import { ProfileEditor } from "@/components/profile-editor/profile-editor"
 import { ProfileProvider } from "@/components/profile-context"
-import { ProfileEditor } from "@/components/profile-editor"
-import { ProfileNotFound } from "@/components/profile-not-found"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { toast } from "@/hooks/use-toast"
+import type { Profile } from "@/lib/db"
 
-export default function EditProfilePage() {
-  const { id } = useParams()
-  const router = useRouter()
-  const { toast } = useToast()
-  const { status } = useSession()
-  const { profile, isLoading, error, saveProfile, refreshProfile } = useProfile(id as string)
+export default function ProfileEditPage() {
+  const params = useParams()
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Handle authentication
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login")
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`/api/profiles/${params.id}`)
+        if (!response.ok) throw new Error("Failed to fetch profile")
+        const data = await response.json()
+        setProfile(data)
+      } catch (error) {
+        console.error("Error fetching profile:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load profile. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [status, router])
 
-  // Show loading state
-  if (status === "loading" || isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner className="w-8 h-8" />
-      </div>
-    )
+    if (params.id) {
+      fetchProfile()
+    }
+  }, [params.id])
+
+  const updateProfile = (updates: Partial<Profile>) => {
+    if (!profile) return
+    setProfile({ ...profile, ...updates })
   }
 
-  // Show error state
-  if (error || !profile) {
-    return <ProfileNotFound error={error} />
-  }
+  const saveProfile = async () => {
+    if (!profile) return
 
-  // Handle profile updates
-  const handleSaveProfile = async (updates: typeof profile) => {
     try {
-      await saveProfile(updates)
-      // Refresh the profile to ensure we have the latest data
-      await refreshProfile()
-      // Refresh the page to update the preview
-      router.refresh()
-      return true
+      const response = await fetch(`/api/profiles/${profile._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(profile),
+      })
+
+      if (!response.ok) throw new Error("Failed to save profile")
+
+      const updatedProfile = await response.json()
+      setProfile(updatedProfile)
+      return updatedProfile
     } catch (error) {
       console.error("Error saving profile:", error)
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      })
-      return false
+      throw error
     }
   }
 
   return (
-    <ProfileProvider initialProfile={profile} onSave={handleSaveProfile}>
+    <ProfileProvider profile={profile} updateProfile={updateProfile} saveProfile={saveProfile} isLoading={isLoading}>
       <ProfileEditor />
     </ProfileProvider>
   )

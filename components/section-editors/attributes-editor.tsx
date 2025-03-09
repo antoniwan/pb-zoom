@@ -23,14 +23,7 @@ interface AttributeItemProps {
 }
 
 function AttributeItem({ attribute, onUpdate, onRemove }: AttributeItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: attribute._id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: attribute._id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -41,10 +34,7 @@ function AttributeItem({ attribute, onUpdate, onRemove }: AttributeItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "relative p-4 border rounded-lg",
-        isDragging && "opacity-50 bg-muted"
-      )}
+      className={cn("relative p-4 border rounded-lg", isDragging && "opacity-50 bg-muted")}
     >
       <div className="flex items-start gap-4">
         <button
@@ -68,9 +58,7 @@ function AttributeItem({ attribute, onUpdate, onRemove }: AttributeItemProps) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Rating</Label>
-              <span className="text-sm text-muted-foreground">
-                {attribute.value}%
-              </span>
+              <span className="text-sm text-muted-foreground">{attribute.value}%</span>
             </div>
             <Slider
               value={[attribute.value]}
@@ -82,12 +70,7 @@ function AttributeItem({ attribute, onUpdate, onRemove }: AttributeItemProps) {
           </div>
         </div>
 
-        <Button
-          variant="destructive"
-          size="icon"
-          onClick={onRemove}
-          className="-mt-2 -mr-2"
-        >
+        <Button variant="destructive" size="icon" onClick={onRemove} className="-mt-2 -mr-2">
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
@@ -100,7 +83,7 @@ export function AttributesEditor({ content, onChange }: AttributesEditorProps) {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   )
 
   const handleDragEnd = (event: any) => {
@@ -129,9 +112,7 @@ export function AttributesEditor({ content, onChange }: AttributesEditorProps) {
   }
 
   const handleUpdateAttribute = (id: string, updates: Partial<ProfileAttribute>) => {
-    const newAttributes = content.attributes.map((attr) =>
-      attr._id === id ? { ...attr, ...updates } : attr
-    )
+    const newAttributes = content.attributes.map((attr) => (attr._id === id ? { ...attr, ...updates } : attr))
     onChange({ ...content, attributes: newAttributes })
   }
 
@@ -142,11 +123,7 @@ export function AttributesEditor({ content, onChange }: AttributesEditorProps) {
 
   return (
     <div className="space-y-4">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={content.attributes?.map((attr) => attr._id) || []}>
           <div className="space-y-4">
             {content.attributes?.map((attribute) => (
@@ -167,4 +144,5 @@ export function AttributesEditor({ content, onChange }: AttributesEditorProps) {
       </Button>
     </div>
   )
-} 
+}
+

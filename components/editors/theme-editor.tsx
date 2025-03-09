@@ -3,7 +3,6 @@
 import { useProfile } from "@/components/profile-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ColorPicker } from "@/components/color-picker"
 import { FontSelector } from "@/components/font-selector"
@@ -20,9 +19,7 @@ export function ThemeEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Colors</CardTitle>
-          <CardDescription>
-            Choose your profile's color scheme
-          </CardDescription>
+          <CardDescription>Choose your profile's color scheme</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -64,9 +61,7 @@ export function ThemeEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Typography</CardTitle>
-          <CardDescription>
-            Select fonts and text styles
-          </CardDescription>
+          <CardDescription>Select fonts and text styles</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -97,9 +92,7 @@ export function ThemeEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Custom CSS</CardTitle>
-          <CardDescription>
-            Add custom CSS to further customize your profile
-          </CardDescription>
+          <CardDescription>Add custom CSS to further customize your profile</CardDescription>
         </CardHeader>
         <CardContent>
           <Textarea
@@ -117,4 +110,5 @@ export function ThemeEditor() {
       </Card>
     </div>
   )
-} 
+}
+

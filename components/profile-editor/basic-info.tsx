@@ -49,11 +49,14 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
     updateProfile({ categoryIds: categoryId ? [categoryId] : [] })
   }
 
-  const handleLayoutChange = (layout: string, options?: {
-    columnCount?: number;
-    sectionSpacing?: number;
-    fullWidth?: boolean;
-  }) => {
+  const handleLayoutChange = (
+    layout: string,
+    options?: {
+      columnCount?: number
+      sectionSpacing?: number
+      fullWidth?: boolean
+    },
+  ) => {
     updateProfile({
       layout,
       layoutOptions: options,
@@ -113,11 +116,7 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
         </TabsContent>
 
         <TabsContent value="layout">
-          <LayoutSelector
-            value={profile.layout}
-            customOptions={profile.layoutOptions}
-            onChange={handleLayoutChange}
-          />
+          <LayoutSelector value={profile.layout} customOptions={profile.layoutOptions} onChange={handleLayoutChange} />
         </TabsContent>
 
         <TabsContent value="category">
