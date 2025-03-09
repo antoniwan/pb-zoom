@@ -184,224 +184,205 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {session.user?.name}</p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/profiles/new">
-            <Plus className="mr-2 h-4 w-4" /> Create New Profile
-          </Link>
-        </Button>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-4 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Profiles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{totalProfiles}</div>
-              <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Public Profiles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{publicProfiles}</div>
-              <Eye className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Private Profiles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{privateProfiles}</div>
-              <Lock className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Categorized</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{categorizedProfiles}</div>
-              <Filter className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="all" className="mb-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <TabsList>
-            <TabsTrigger value="all">All Profiles</TabsTrigger>
-            <TabsTrigger value="by-category">By Category</TabsTrigger>
-            <TabsTrigger value="recent">Recently Updated</TabsTrigger>
-          </TabsList>
-
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search profiles..."
-                className="w-full md:w-[200px] pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            {categories.length > 0 && (
-              <select
-                className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                value={selectedCategory || ""}
-                onChange={(e) => setSelectedCategory(e.target.value === "" ? null : e.target.value)}
-              >
-                <option value="">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-              title={viewMode === "grid" ? "Switch to list view" : "Switch to grid view"}
-            >
-              {viewMode === "grid" ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-            </Button>
+      {/* Improved header section with better spacing and alignment */}
+      <div className="flex flex-col space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Welcome back, {session.user?.name}</p>
           </div>
+          <Button size="sm" className="sm:self-start" asChild>
+            <Link href="/dashboard/profiles/new">
+              <Plus className="mr-2 h-4 w-4" /> Create New Profile
+            </Link>
+          </Button>
         </div>
 
-        <TabsContent value="all">
-          {filteredProfiles.length === 0 ? (
-            <EmptyProfilesState />
-          ) : viewMode === "grid" ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredProfiles.map((profile) => (
-                <ProfileCard
-                  key={profile._id}
-                  profile={profile}
-                  onDelete={handleDeleteProfile}
-                  categoryName={getCategoryName(profile.categoryId)}
-                  categoryIcon={getCategoryIcon(profile.categoryId)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredProfiles.map((profile) => (
-                <ProfileListItem
-                  key={profile._id}
-                  profile={profile}
-                  onDelete={handleDeleteProfile}
-                  categoryName={getCategoryName(profile.categoryId)}
-                  categoryIcon={getCategoryIcon(profile.categoryId)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
+        {/* Improved stats cards with better visual hierarchy */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatsCard
+            title="Total Profiles"
+            value={totalProfiles}
+            icon={<LayoutDashboard className="h-4 w-4 text-primary" />}
+          />
+          <StatsCard title="Public Profiles" value={publicProfiles} icon={<Eye className="h-4 w-4 text-green-500" />} />
+          <StatsCard
+            title="Private Profiles"
+            value={privateProfiles}
+            icon={<Lock className="h-4 w-4 text-amber-500" />}
+          />
+          <StatsCard
+            title="Categorized"
+            value={categorizedProfiles}
+            icon={<Filter className="h-4 w-4 text-indigo-500" />}
+          />
+        </div>
 
-        <TabsContent value="by-category">
-          {Object.keys(profilesByCategory).length === 0 ? (
-            <EmptyProfilesState />
-          ) : (
-            <div className="space-y-8">
-              {Object.entries(profilesByCategory).map(([categoryId, categoryProfiles]) => (
-                <div key={categoryId} className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-full bg-muted">
-                      {getCategoryIcon(categoryId === "uncategorized" ? undefined : categoryId)}
-                    </div>
-                    <h2 className="text-xl font-semibold">
-                      {categoryId === "uncategorized" ? "Uncategorized" : getCategoryName(categoryId)}
-                    </h2>
-                    <Badge variant="outline">{categoryProfiles.length}</Badge>
-                  </div>
-
-                  {viewMode === "grid" ? (
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                      {categoryProfiles.map((profile) => (
-                        <ProfileCard
-                          key={profile._id}
-                          profile={profile}
-                          onDelete={handleDeleteProfile}
-                          categoryName={getCategoryName(profile.categoryId)}
-                          categoryIcon={getCategoryIcon(profile.categoryId)}
-                          hideCategoryBadge
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {categoryProfiles.map((profile) => (
-                        <ProfileListItem
-                          key={profile._id}
-                          profile={profile}
-                          onDelete={handleDeleteProfile}
-                          categoryName={getCategoryName(profile.categoryId)}
-                          categoryIcon={getCategoryIcon(profile.categoryId)}
-                          hideCategoryBadge
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="recent">
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Recently Updated
-            </h2>
-
-            {recentProfiles.length === 0 ? (
-              <EmptyProfilesState />
-            ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {recentProfiles.map((profile) => (
-                  <ProfileCard
-                    key={profile._id}
-                    profile={profile}
-                    onDelete={handleDeleteProfile}
-                    categoryName={getCategoryName(profile.categoryId)}
-                    categoryIcon={getCategoryIcon(profile.categoryId)}
-                  />
-                ))}
+        {/* Improved tabs and controls layout */}
+        <div className="space-y-6">
+          <Tabs defaultValue="all" className="w-full">
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="flex-1">
+                <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
+                  <TabsTrigger value="all">All Profiles</TabsTrigger>
+                  <TabsTrigger value="by-category">By Category</TabsTrigger>
+                  <TabsTrigger value="recent">Recently Updated</TabsTrigger>
+                </TabsList>
               </div>
-            )}
 
-            {profiles.length > 3 && (
-              <div className="flex justify-center mt-4">
-                <Button variant="outline" asChild>
-                  <Link href="/dashboard/profiles">View All Profiles</Link>
+              <div className="flex items-center gap-2 self-end">
+                <div className="relative flex-1 sm:flex-none">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search profiles..."
+                    className="w-full sm:w-[200px] pl-8"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+
+                {categories.length > 0 && (
+                  <select
+                    className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    value={selectedCategory || ""}
+                    onChange={(e) => setSelectedCategory(e.target.value === "" ? null : e.target.value)}
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+                  title={viewMode === "grid" ? "Switch to list view" : "Switch to grid view"}
+                >
+                  {viewMode === "grid" ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
                 </Button>
               </div>
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
+            </div>
+
+            <TabsContent value="all">
+              {filteredProfiles.length === 0 ? (
+                <EmptyProfilesState />
+              ) : viewMode === "grid" ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {filteredProfiles.map((profile) => (
+                    <ProfileCard
+                      key={profile._id}
+                      profile={profile}
+                      onDelete={handleDeleteProfile}
+                      categoryName={getCategoryName(profile.categoryId)}
+                      categoryIcon={getCategoryIcon(profile.categoryId)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredProfiles.map((profile) => (
+                    <ProfileListItem
+                      key={profile._id}
+                      profile={profile}
+                      onDelete={handleDeleteProfile}
+                      categoryName={getCategoryName(profile.categoryId)}
+                      categoryIcon={getCategoryIcon(profile.categoryId)}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="by-category">
+              {Object.keys(profilesByCategory).length === 0 ? (
+                <EmptyProfilesState />
+              ) : (
+                <div className="space-y-8">
+                  {Object.entries(profilesByCategory).map(([categoryId, categoryProfiles]) => (
+                    <div key={categoryId} className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-muted">
+                          {getCategoryIcon(categoryId === "uncategorized" ? undefined : categoryId)}
+                        </div>
+                        <h2 className="text-xl font-semibold">
+                          {categoryId === "uncategorized" ? "Uncategorized" : getCategoryName(categoryId)}
+                        </h2>
+                        <Badge variant="outline">{categoryProfiles.length}</Badge>
+                      </div>
+
+                      {viewMode === "grid" ? (
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                          {categoryProfiles.map((profile) => (
+                            <ProfileCard
+                              key={profile._id}
+                              profile={profile}
+                              onDelete={handleDeleteProfile}
+                              categoryName={getCategoryName(profile.categoryId)}
+                              categoryIcon={getCategoryIcon(profile.categoryId)}
+                              hideCategoryBadge
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {categoryProfiles.map((profile) => (
+                            <ProfileListItem
+                              key={profile._id}
+                              profile={profile}
+                              onDelete={handleDeleteProfile}
+                              categoryName={getCategoryName(profile.categoryId)}
+                              categoryIcon={getCategoryIcon(profile.categoryId)}
+                              hideCategoryBadge
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="recent">
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Recently Updated
+                </h2>
+
+                {recentProfiles.length === 0 ? (
+                  <EmptyProfilesState />
+                ) : (
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {recentProfiles.map((profile) => (
+                      <ProfileCard
+                        key={profile._id}
+                        profile={profile}
+                        onDelete={handleDeleteProfile}
+                        categoryName={getCategoryName(profile.categoryId)}
+                        categoryIcon={getCategoryIcon(profile.categoryId)}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {profiles.length > 3 && (
+                  <div className="flex justify-center mt-4">
+                    <Button variant="outline" asChild>
+                      <Link href="/dashboard/profiles">View All Profiles</Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
 
       {categories.length > 0 && (
         <div className="mt-12">
@@ -728,6 +709,31 @@ function LayoutList(props: React.SVGProps<SVGSVGElement>) {
       <path d="M14 15h7" />
       <path d="M14 20h7" />
     </svg>
+  )
+}
+
+// Stats card component
+function StatsCard({
+  title,
+  value,
+  icon,
+}: {
+  title: string
+  value: number
+  icon: React.ReactNode
+}) {
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold mt-1">{value}</p>
+          </div>
+          <div className="rounded-full p-2 bg-muted">{icon}</div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
