@@ -29,7 +29,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
 
   const handleAddSection = (type: ProfileSection["type"]) => {
     const newSection: ProfileSection = {
-      _id: uuidv4(),
+      _id: uuidv4(), // Ensure this is always set
       type,
       title: getDefaultTitle(type),
       content: getDefaultContent(type),
@@ -39,6 +39,18 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
     const updatedSections = [...profile.sections, newSection]
     updateProfile({ sections: updatedSections })
     setExpandedSection(newSection._id)
+  }
+
+  const ensureSectionIds = (sections: ProfileSection[]): ProfileSection[] => {
+    return sections.map((section) => {
+      if (!section._id) {
+        return {
+          ...section,
+          _id: uuidv4(),
+        }
+      }
+      return section
+    })
   }
 
   const handleRemoveSection = (id: string) => {
@@ -52,7 +64,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
       ...updatedSections[sectionIndex],
       [key]: value,
     }
-    updateProfile({ sections: updatedSections })
+    updateProfile({ sections: ensureSectionIds(updatedSections) })
   }
 
   const handleTextChange = (sectionIndex: number, text: string) => {
@@ -72,7 +84,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
         ...content,
       },
     }
-    updateProfile({ sections: updatedSections })
+    updateProfile({ sections: ensureSectionIds(updatedSections) })
   }
 
   const handleAttributeChange = (
@@ -125,7 +137,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
       section.order = index
     })
 
-    updateProfile({ sections: updatedSections })
+    updateProfile({ sections: ensureSectionIds(updatedSections) })
   }
 
   const getDefaultTitle = (type: ProfileSection["type"]): string => {

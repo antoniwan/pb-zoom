@@ -1,3 +1,4 @@
+// Update the PATCH method to handle the new header fields
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
