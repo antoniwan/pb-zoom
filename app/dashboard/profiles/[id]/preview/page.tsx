@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import React from "react"
 import { ProfilePreview } from "@/components/profile-preview"
-import type { Profile } from "@/lib/models"
+import type { Profile } from "@/lib/db"
 import { use } from "react"
 
 type SessionStatus = "authenticated" | "loading" | "unauthenticated"

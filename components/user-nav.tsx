@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { LayoutDashboard, Settings, LogOut } from "lucide-react"
+import { LayoutDashboard, Settings, LogOut, ExternalLink } from "lucide-react"
 
 export function UserNav() {
   const { data: session } = useSession()
@@ -55,6 +55,12 @@ export function UserNav() {
             <Link href="/dashboard/settings">
               <Settings className="mr-2 h-4 w-4" />
               Settings
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/u/${session?.user?.username}`} target="_blank">
+              <ExternalLink className="mr-2 h-4 w-4" />
+              View Public Profile
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

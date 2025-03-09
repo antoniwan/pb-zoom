@@ -32,16 +32,16 @@ import {
   Users,
   Sparkles,
 } from "lucide-react"
-import type { ProfileCategory } from "@/lib/models"
+import type { Category } from "@/lib/db"
 
 export default function AdminCategoriesPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [categories, setCategories] = useState<ProfileCategory[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
-  const [editingCategory, setEditingCategory] = useState<ProfileCategory | null>(null)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -82,12 +82,12 @@ export default function AdminCategoriesPage() {
   }
 
   const handleUpdateCategory = async () => {
-    if (!editingCategory) return
+    if (!editingCategory || !editingCategory._id) return
 
     try {
       setIsSubmitting(true)
 
-      const response = await fetch(`/api/categories/${editingCategory._id}`, {
+      const response = await fetch(`/api/categories/${editingCategory._id.toString()}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -235,7 +235,7 @@ export default function AdminCategoriesPage() {
   }
 
   // Helper function to get icon component based on category name or icon field
-  const getCategoryIcon = (category: ProfileCategory) => {
+  const getCategoryIcon = (category: Category) => {
     const name = category.name.toLowerCase()
 
     if (name.includes("professional") || name.includes("work") || name.includes("business")) {
@@ -302,7 +302,7 @@ export default function AdminCategoriesPage() {
 
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((category) => (
-          <Card key={category._id} className={`${!category.isEnabled ? "border-muted bg-muted/50" : ""}`}>
+          <Card key={category._id?.toString()} className={`${!category.isEnabled ? "border-muted bg-muted/50" : ""}`}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ export default function AdminCategoriesPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="icon"
                     onClick={() => {
                       setEditingCategory(category)
@@ -325,7 +325,11 @@ export default function AdminCategoriesPage() {
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDeleteCategory(category._id)}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleDeleteCategory(category._id?.toString() || '')}
+                  >
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
                 </div>
@@ -362,11 +366,11 @@ export default function AdminCategoriesPage() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between pt-0">
+            <CardFooter className="flex justify-end gap-2">
               <Button
-                variant={category.isEnabled ? "destructive" : "outline"}
+                variant="outline"
                 size="sm"
-                onClick={() => handleToggleEnabled(category._id, category.isEnabled)}
+                onClick={() => handleToggleEnabled(category._id?.toString() || '', category.isEnabled)}
               >
                 {category.isEnabled ? (
                   <>
@@ -381,9 +385,9 @@ export default function AdminCategoriesPage() {
                 )}
               </Button>
               <Button
-                variant={category.isCorrect ? "destructive" : "outline"}
+                variant="outline"
                 size="sm"
-                onClick={() => handleToggleCorrect(category._id, category.isCorrect)}
+                onClick={() => handleToggleCorrect(category._id?.toString() || '', category.isCorrect || false)}
               >
                 {category.isCorrect ? (
                   <>
@@ -396,6 +400,23 @@ export default function AdminCategoriesPage() {
                     Mark Correct
                   </>
                 )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setEditingCategory(category)
+                  setIsDialogOpen(true)
+                }}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDeleteCategory(category._id?.toString() || '')}
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
               </Button>
             </CardFooter>
           </Card>

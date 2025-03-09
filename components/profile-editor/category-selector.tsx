@@ -18,15 +18,15 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { toast } from "@/hooks/use-toast"
 import { Plus, Check, Briefcase, Gamepad, Palette, GraduationCap, Heart, Users, Sparkles } from "lucide-react"
-import type { ProfileCategory } from "@/lib/models"
+import type { Category } from "@/lib/db"
 
 interface CategorySelectorProps {
   selectedCategoryId: string | undefined
-  onSelectCategory: (categoryId: string) => void
+  onSelect: (categoryId: string | undefined) => void
 }
 
-export function CategorySelector({ selectedCategoryId, onSelectCategory }: CategorySelectorProps) {
-  const [categories, setCategories] = useState<ProfileCategory[]>([])
+export function CategorySelector({ selectedCategoryId, onSelect }: CategorySelectorProps) {
+  const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -128,7 +128,7 @@ export function CategorySelector({ selectedCategoryId, onSelectCategory }: Categ
   }
 
   // Helper function to get icon component based on category name or icon field
-  const getCategoryIcon = (category: ProfileCategory) => {
+  const getCategoryIcon = (category: Category) => {
     const name = category.name.toLowerCase()
 
     if (name.includes("professional") || name.includes("work") || name.includes("business")) {
@@ -242,16 +242,20 @@ export function CategorySelector({ selectedCategoryId, onSelectCategory }: Categ
         </Card>
       ) : (
         <RadioGroup
-          value={selectedCategoryId}
-          onValueChange={onSelectCategory}
+          value={selectedCategoryId || ""}
+          onValueChange={onSelect}
           className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {categories.map((category) => (
             <div key={category._id} className="relative">
-              <RadioGroupItem value={category._id} id={`category-${category._id}`} className="peer sr-only" />
+              <RadioGroupItem
+                value={category._id || ""}
+                id={category._id || ""}
+                className="peer sr-only"
+              />
               <Label
-                htmlFor={`category-${category._id}`}
-                className="flex flex-col p-4 border rounded-xl cursor-pointer hover:bg-muted peer-data-[state=checked]:border-primary peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary"
+                htmlFor={category._id || ""}
+                className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
               >
                 <div className="flex items-center gap-3">
                   <div

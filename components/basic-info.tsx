@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CategorySelector } from "@/components/profile-editor/category-selector"
-import type { Profile } from "@/lib/models"
+import type { Profile } from "@/lib/db"
 
 interface ProfileBasicInfoProps {
   profile: Profile
@@ -44,7 +44,7 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
     updateProfile({ isPublic: checked })
   }
 
-  const handleCategoryChange = (categoryId: string) => {
+  const handleCategoryChange = (categoryId: string | undefined) => {
     updateProfile({ categoryId })
   }
 
@@ -116,7 +116,7 @@ export function ProfileBasicInfo({ profile, updateProfile }: ProfileBasicInfoPro
         </TabsContent>
 
         <TabsContent value="category">
-          <CategorySelector selectedCategoryId={profile.categoryId} onSelectCategory={handleCategoryChange} />
+          <CategorySelector selectedCategoryId={profile.categoryId} onSelect={handleCategoryChange} />
         </TabsContent>
       </Tabs>
     </div>

@@ -6,18 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import type { Profile, ProfileSection, ProfileAttribute, ProfileImage, ProfileVideo } from "@/lib/models"
+import type { Profile, ProfileSection, ProfileAttribute } from "@/lib/db"
 import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
-
-interface SectionContent {
-  text?: string
-  attributes?: ProfileAttribute[]
-  images?: ProfileImage[]
-  videos?: ProfileVideo[]
-  markdown?: string
-  html?: string
-}
 
 interface ProfileSectionsEditorProps {
   profile: Profile
@@ -27,172 +18,158 @@ interface ProfileSectionsEditorProps {
 export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSectionsEditorProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
 
-  const handleAddSection = (type: ProfileSection["type"]) => {
-    const newSection: ProfileSection = {
-      _id: uuidv4(), // Ensure this is always set
-      type,
-      title: getDefaultTitle(type),
-      content: getDefaultContent(type),
-      order: profile.sections.length,
-    }
+  const handleTextChange = (sectionId: string, text: string) => {
+    const section = profile.sections.find(s => s._id === sectionId) as ProfileSection | undefined
+    if (!section) return
 
-    const updatedSections = [...profile.sections, newSection]
-    updateProfile({ sections: updatedSections })
+    updateProfile({
+      sections: profile.sections.map((section) =>
+        section._id === sectionId ? { ...section, content: { ...section.content, text } } : section
+      ),
+    })
+  }
+
+  const handleMarkdownChange = (sectionId: string, markdown: string) => {
+    const section = profile.sections.find(s => s._id === sectionId) as ProfileSection | undefined
+    if (!section) return
+
+    updateProfile({
+      sections: profile.sections.map((section) =>
+        section._id === sectionId ? { ...section, content: { ...section.content, markdown } } : section
+      ),
+    })
+  }
+
+  const handleAddSection = (type: "bio" | "attributes" | "gallery" | "videos" | "markdown" | "custom") => {
+    const newSection: ProfileSection = {
+      _id: uuidv4(),
+      type,
+      title: "New Section",
+      content: {
+        text: "",
+        attributes: [],
+        images: [],
+        videos: [],
+        markdown: "",
+        html: ""
+      },
+      order: profile.sections.length
+    }
+    updateProfile({
+      sections: [...profile.sections, newSection],
+    })
     setExpandedSection(newSection._id)
   }
 
-  const ensureSectionIds = (sections: ProfileSection[]): ProfileSection[] => {
-    return sections.map((section) => {
-      if (!section._id) {
-        return {
-          ...section,
-          _id: uuidv4(),
-        }
-      }
-      return section
+  const handleDeleteSection = (sectionId: string) => {
+    updateProfile({
+      sections: profile.sections.filter((section) => section._id !== sectionId),
     })
   }
 
-  const handleRemoveSection = (id: string) => {
-    const updatedSections = profile.sections.filter((section) => section._id !== id)
-    updateProfile({ sections: updatedSections })
+  const handleSectionChange = (sectionId: string, updates: Partial<ProfileSection>) => {
+    updateProfile({
+      sections: profile.sections.map((section) =>
+        section._id === sectionId ? { ...section, ...updates } : section,
+      ),
+    })
   }
 
-  const handleSectionChange = (sectionIndex: number, key: keyof ProfileSection, value: string | SectionContent) => {
-    const updatedSections = [...profile.sections]
-    updatedSections[sectionIndex] = {
-      ...updatedSections[sectionIndex],
-      [key]: value,
+  const handleMoveSection = (sectionId: string, direction: "up" | "down") => {
+    const sectionIndex = profile.sections.findIndex((section) => section._id === sectionId)
+    if (sectionIndex === -1) return
+    if (direction === "up" && sectionIndex === 0) return
+    if (direction === "down" && sectionIndex === profile.sections.length - 1) return
+
+    const newSections = [...profile.sections]
+    const targetIndex = direction === "up" ? sectionIndex - 1 : sectionIndex + 1
+    const temp = newSections[targetIndex]
+    newSections[targetIndex] = { ...newSections[sectionIndex], order: targetIndex }
+    newSections[sectionIndex] = { ...temp, order: sectionIndex }
+
+    // Update order values
+    const updatedSections = newSections.map((section, index) => ({
+      ...section,
+      order: index,
+    }))
+
+    updateProfile({
+      sections: updatedSections,
+    })
+  }
+
+  const handleAddAttribute = (sectionId: string) => {
+    const section = profile.sections.find((section) => section._id === sectionId) as ProfileSection | undefined
+    if (!section) return
+
+    const newAttribute: ProfileAttribute = {
+      _id: uuidv4(),
+      label: "",
+      value: ""
     }
-    updateProfile({ sections: ensureSectionIds(updatedSections) })
-  }
 
-  const handleTextChange = (sectionIndex: number, text: string) => {
-    handleContentChange(sectionIndex, { text })
-  }
-
-  const handleMarkdownChange = (sectionIndex: number, markdown: string) => {
-    handleContentChange(sectionIndex, { markdown })
-  }
-
-  const handleContentChange = (sectionIndex: number, content: Partial<SectionContent>) => {
-    const updatedSections = [...profile.sections]
-    updatedSections[sectionIndex] = {
-      ...updatedSections[sectionIndex],
+    handleSectionChange(sectionId, {
       content: {
-        ...updatedSections[sectionIndex].content,
-        ...content,
-      },
-    }
-    updateProfile({ sections: ensureSectionIds(updatedSections) })
-  }
-
-  const handleAttributeChange = (
-    sectionIndex: number,
-    attributeIndex: number,
-    key: keyof ProfileAttribute,
-    value: string,
-  ) => {
-    const section = profile.sections[sectionIndex]
-    const attributes = [...(section.content.attributes || [])]
-    attributes[attributeIndex] = {
-      ...attributes[attributeIndex],
-      [key]: value,
-    }
-    handleContentChange(sectionIndex, { attributes })
-  }
-
-  const addAttribute = (sectionIndex: number) => {
-    const section = profile.sections[sectionIndex]
-    const attributes = [...(section.content.attributes || []), { label: "New Skill", value: "Beginner" }]
-    handleContentChange(sectionIndex, { attributes })
-  }
-
-  const removeAttribute = (sectionIndex: number, attributeIndex: number) => {
-    const section = profile.sections[sectionIndex]
-    const attributes = (section.content.attributes || []).filter((_, i) => i !== attributeIndex)
-    handleContentChange(sectionIndex, { attributes })
-  }
-
-  const handleMoveSection = (id: string, direction: "up" | "down") => {
-    const sectionIndex = profile.sections.findIndex((section) => section._id === id)
-
-    if (
-      (direction === "up" && sectionIndex === 0) ||
-      (direction === "down" && sectionIndex === profile.sections.length - 1)
-    ) {
-      return
-    }
-
-    const newIndex = direction === "up" ? sectionIndex - 1 : sectionIndex + 1
-    const updatedSections = [...profile.sections]
-
-    // Swap the sections
-    const temp = updatedSections[sectionIndex]
-    updatedSections[sectionIndex] = updatedSections[newIndex]
-    updatedSections[newIndex] = temp
-
-    // Update order property
-    updatedSections.forEach((section, index) => {
-      section.order = index
+        ...section.content,
+        text: section.content.text,
+        attributes: [...section.content.attributes, newAttribute],
+        images: section.content.images,
+        videos: section.content.videos,
+        markdown: section.content.markdown,
+        html: section.content.html
+      }
     })
-
-    updateProfile({ sections: ensureSectionIds(updatedSections) })
   }
 
-  const getDefaultTitle = (type: ProfileSection["type"]): string => {
-    switch (type) {
-      case "bio":
-        return "About Me"
-      case "attributes":
-        return "Skills & Attributes"
-      case "gallery":
-        return "Gallery"
-      case "videos":
-        return "Videos"
-      case "markdown":
-        return "Custom Content"
-      case "custom":
-        return "Custom Section"
-      default:
-        return "New Section"
-    }
+  const handleDeleteAttribute = (sectionId: string, attributeIndex: number) => {
+    const section = profile.sections.find((section) => section._id === sectionId) as ProfileSection | undefined
+    if (!section) return
+
+    handleSectionChange(sectionId, {
+      content: {
+        ...section.content,
+        text: section.content.text,
+        attributes: section.content.attributes.filter((_, index) => index !== attributeIndex),
+        images: section.content.images,
+        videos: section.content.videos,
+        markdown: section.content.markdown,
+        html: section.content.html
+      }
+    })
   }
 
-  const getDefaultContent = (type: ProfileSection["type"]) => {
-    switch (type) {
-      case "bio":
-        return { text: "Write something about yourself..." }
-      case "attributes":
-        return { items: [{ label: "Skill", value: "Expert" }] }
-      case "gallery":
-        return { images: [] }
-      case "videos":
-        return { videos: [] }
-      case "markdown":
-        return { markdown: "## Hello World\n\nThis is a markdown section." }
-      case "custom":
-        return { html: "<div>Custom HTML content</div>" }
-      default:
-        return {}
-    }
+  const handleAttributeChange = (sectionId: string, attributeIndex: number, updates: Partial<ProfileAttribute>) => {
+    const section = profile.sections.find((section) => section._id === sectionId) as ProfileSection | undefined
+    if (!section) return
+
+    handleSectionChange(sectionId, {
+      content: {
+        ...section.content,
+        text: section.content.text,
+        attributes: section.content.attributes.map((attr, index) => 
+          index === attributeIndex ? { ...attr, ...updates } : attr
+        ),
+        images: section.content.images,
+        videos: section.content.videos,
+        markdown: section.content.markdown,
+        html: section.content.html
+      }
+    })
   }
 
   const renderSectionEditor = (section: ProfileSection) => {
     switch (section.type) {
       case "bio":
         return (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor={`section-${section._id}-content`}>Bio Text</Label>
-              <Textarea
-                id={`section-${section._id}-content`}
-                value={section.content.text || ""}
-                onChange={(e) => handleTextChange(profile.sections.indexOf(section), e.target.value)}
-                rows={6}
-                placeholder="Enter your bio..."
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor={`section-${section._id}-content`}>Bio Content</Label>
+            <Textarea
+              id={`section-${section._id}-content`}
+              value={section.content.text || ""}
+              onChange={(e) => handleTextChange(section._id, e.target.value)}
+              rows={6}
+              placeholder="Enter your bio..."
+            />
           </div>
         )
 
@@ -203,28 +180,24 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
               <div key={index} className="flex items-center gap-2">
                 <Input
                   value={attribute.label}
-                  onChange={(e) =>
-                    handleAttributeChange(profile.sections.indexOf(section), index, "label", e.target.value)
-                  }
+                  onChange={(e) => handleAttributeChange(section._id, index, { label: e.target.value })}
                   placeholder="Skill/Attribute"
                 />
                 <Input
                   value={attribute.value}
-                  onChange={(e) =>
-                    handleAttributeChange(profile.sections.indexOf(section), index, "value", e.target.value)
-                  }
+                  onChange={(e) => handleAttributeChange(section._id, index, { value: e.target.value })}
                   placeholder="Value/Level"
                 />
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => removeAttribute(profile.sections.indexOf(section), index)}
+                  onClick={() => handleDeleteAttribute(section._id, index)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={() => addAttribute(profile.sections.indexOf(section))}>
+            <Button variant="outline" size="sm" onClick={() => handleAddAttribute(section._id)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Attribute
             </Button>
@@ -238,7 +211,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
             <Textarea
               id={`section-${section._id}-markdown`}
               value={section.content.markdown || ""}
-              onChange={(e) => handleMarkdownChange(profile.sections.indexOf(section), e.target.value)}
+              onChange={(e) => handleMarkdownChange(section._id, e.target.value)}
               className="font-mono"
               rows={10}
               placeholder="Enter markdown content..."
@@ -248,8 +221,6 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
             </p>
           </div>
         )
-
-      // Add more section type editors as needed
 
       default:
         return <div className="p-4 text-center text-muted-foreground">Editor not available for this section type.</div>
@@ -268,7 +239,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
                   <CardTitle className="text-base">
                     <Input
                       value={section.title}
-                      onChange={(e) => handleSectionChange(profile.sections.indexOf(section), "title", e.target.value)}
+                      onChange={(e) => handleSectionChange(section._id, { title: e.target.value })}
                       className="h-7 px-2 py-1"
                     />
                   </CardTitle>
@@ -300,7 +271,7 @@ export function ProfileSectionsEditor({ profile, updateProfile }: ProfileSection
                       className={`h-4 w-4 transition-transform ${expandedSection === section._id ? "rotate-180" : ""}`}
                     />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleRemoveSection(section._id)}>
+                  <Button variant="ghost" size="icon" onClick={() => handleDeleteSection(section._id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

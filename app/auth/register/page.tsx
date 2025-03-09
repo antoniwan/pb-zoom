@@ -23,6 +23,10 @@ interface ZodValidationError {
 const registerSchema = z
   .object({
     name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+    username: z
+      .string()
+      .min(3, { message: "Username must be at least 3 characters" })
+      .regex(/^[a-zA-Z0-9_-]+$/, { message: "Username can only contain letters, numbers, underscores and hyphens" }),
     email: z.string().email({ message: "Please enter a valid email address" }),
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
     confirmPassword: z.string(),
@@ -70,6 +74,7 @@ export default function RegisterPage() {
         },
         body: JSON.stringify({
           name: data.name,
+          username: data.username,
           email: data.email,
           password: data.password,
         }),
@@ -144,6 +149,27 @@ export default function RegisterPage() {
                 <Label htmlFor="name">Name</Label>
                 <Input id="name" type="text" placeholder="John Doe" {...register("name")} />
                 {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="johnsmith"
+                  {...register("username", {
+                    required: "Username is required",
+                    pattern: {
+                      value: /^[a-zA-Z0-9_-]+$/,
+                      message: "Username can only contain letters, numbers, underscores and hyphens",
+                    },
+                    minLength: {
+                      value: 3,
+                      message: "Username must be at least 3 characters",
+                    },
+                  })}
+                />
+                {errors.username && <p className="text-sm text-red-500">{errors.username.message}</p>}
+                <p className="text-sm text-muted-foreground">This will be your public URL: enye.social/u/username</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

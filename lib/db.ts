@@ -1,52 +1,54 @@
-import { MongoClient, ObjectId } from "mongodb"
+import { MongoClient, ObjectId, MongoClientOptions } from "mongodb"
 
-const uri = process.env.MONGODB_URI
-const options = {}
+const uri = process.env.MONGODB_URI || ""
+const options: MongoClientOptions = {}
 
-let client: MongoClient
-let clientPromise: Promise<MongoClient>
+if (!process.env.MONGODB_URI) {
+  throw new Error("Please add your Mongo URI to .env.local")
+}
 
 declare global {
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined
 }
 
-if (!uri) {
-  throw new Error("Please add your Mongo URI to .env.local")
-}
+let client: MongoClient
+let clientPromise: Promise<MongoClient>
 
 if (process.env.NODE_ENV === "development") {
+  // In development mode, use a global variable so that the value
+  // is preserved across module reloads caused by HMR (Hot Module Replacement).
   if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options)
     global._mongoClientPromise = client.connect()
   }
   clientPromise = global._mongoClientPromise
 } else {
+  // In production mode, it's best to not use a global variable.
   client = new MongoClient(uri, options)
   clientPromise = client.connect()
 }
 
+// Export a module-scoped MongoClient promise. By doing this in a
+// separate module, the client can be safely reused across multiple
+// functions.
 export { clientPromise }
 
-export interface ProfileCategory {
-  _id?: ObjectId
-  name: string
-  description: string
-  isEnabled: boolean
-  isCorrect: boolean
-  isOfficial: boolean
-  usageCount: number
-  createdBy: string
-  createdAt?: Date
-  updatedAt?: Date
+// Define the User type
+interface User {
+  _id: ObjectId
+  username: string
+  email: string
+  // Add other user properties as needed
 }
 
 export interface Profile {
-  _id?: ObjectId
+  _id?: string
   userId: string
   title: string
   slug: string
   isPublic: boolean
+  categoryId?: string
   header: {
     name: string
     title: string
@@ -67,48 +69,180 @@ export interface Profile {
     customCSS?: string
   }
   layout: string
-  sections: Array<{
-    _id: string
-    type: string
-    title: string
-    content: Record<string, unknown>
-    order: number
-  }>
+  sections: ProfileSection[]
   socialLinks: Array<{
     platform: string
     url: string
   }>
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ProfileSection {
+  _id: string
+  type: "bio" | "attributes" | "gallery" | "videos" | "markdown" | "custom"
+  title: string
+  content: {
+    text: string
+    attributes: ProfileAttribute[]
+    images: ProfileImage[]
+    videos: ProfileVideo[]
+    markdown: string
+    html: string
+  }
+  order: number
+}
+
+export interface ProfileAttribute {
+  _id: string
+  label: string
+  value: string
+}
+
+export interface ProfileImage {
+  _id: string
+  url: string
+  altText: string
+  isPrimary: boolean
+}
+
+export interface ProfileVideo {
+  _id: string
+  url: string
+  title: string
+  description: string
+}
+
+export interface ProfileSocial {
+  platform: string
+  url: string
+  icon?: string
+}
+
+// Get a profile by slug
+export async function getProfileBySlug(slug: string) {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const profile = await db.collection<Profile>("profiles").findOne({ slug, isPublic: true })
+
+    if (!profile) return null
+
+    return JSON.parse(JSON.stringify(profile))
+  } catch (error) {
+    console.error("Error fetching profile by slug:", error)
+    return null
+  }
+}
+
+// Get a user by their username
+export async function getUserByUsername(username: string) {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const user = await db.collection("users").findOne(
+      { username: username },
+      { projection: { password: 0 } }, // Exclude password
+    )
+
+    return user
+  } catch (error) {
+    console.error("Error getting user by username:", error)
+    return null
+  }
+}
+
+// Get all public profiles for a specific user
+export async function getUserPublicProfiles(userId: string) {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const profiles = await db
+      .collection<Profile>("profiles")
+      .find({
+        userId: userId,
+        isPublic: true,
+      })
+      .sort({ updatedAt: -1 })
+      .toArray()
+
+    return profiles.map(profile => ({
+      ...profile,
+      _id: profile._id?.toString()
+    }))
+  } catch (error) {
+    console.error("Error getting user public profiles:", error)
+    return []
+  }
+}
+
+// Update user information
+export async function updateUser(userId: string, updates: Partial<User>) {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const result = await db
+      .collection("users")
+      .updateOne({ _id: new ObjectId(userId) }, { $set: { ...updates, updatedAt: new Date() } })
+
+    return result.modifiedCount > 0
+  } catch (error) {
+    console.error("Error updating user:", error)
+    return false
+  }
+}
+
+// Category interface
+export interface Category {
+  _id?: string
+  name: string
+  description: string
+  icon?: string
+  color?: string
+  isEnabled: boolean
+  isOfficial: boolean
+  isCorrect?: boolean
+  createdBy: string
+  usageCount: number
   createdAt?: Date
   updatedAt?: Date
 }
 
 // Get all categories
-export async function getCategories(
-  options: {
-    includeDisabled?: boolean
-    includeIncorrect?: boolean
-  } = {},
-) {
-  const { includeDisabled = false, includeIncorrect = false } = options
-
+export async function getCategories(options?: { includeDisabled?: boolean; includeIncorrect?: boolean }) {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const query: Partial<ProfileCategory> = {}
-
-    if (!includeDisabled) {
-      query.isEnabled = true
+    const filter: Record<string, boolean> = {}
+    
+    // If not including disabled categories, only show enabled ones
+    if (!options?.includeDisabled) {
+      filter.isEnabled = true
+    }
+    
+    // If not including incorrect categories, only show correct ones
+    if (!options?.includeIncorrect) {
+      filter.isCorrect = true
     }
 
-    if (!includeIncorrect) {
-      query.isCorrect = true
-    }
+    const categories = await db
+      .collection<Category>("categories")
+      .find(filter)
+      .sort({ name: 1 })
+      .toArray()
 
-    return await db.collection<ProfileCategory>("categories").find(query).toArray()
+    return categories.map(category => ({
+      ...category,
+      _id: category._id?.toString()
+    }))
   } catch (error) {
-    console.error("Error getting categories:", error)
-    throw error
+    console.error("Error fetching categories:", error)
+    return []
   }
 }
 
@@ -118,11 +252,16 @@ export async function getCategory(id: string) {
     const client = await clientPromise
     const db = client.db()
 
-    const category = await db.collection("profileCategories").findOne({ _id: new ObjectId(id) })
+    const objectId = new ObjectId(id)
+    const category = await db
+      .collection("categories")
+      .findOne({ _id: objectId })
 
     if (!category) return null
-
-    return JSON.parse(JSON.stringify(category))
+    return {
+      ...category,
+      _id: category._id.toString()
+    } as Category
   } catch (error) {
     console.error("Error fetching category:", error)
     return null
@@ -130,20 +269,18 @@ export async function getCategory(id: string) {
 }
 
 // Create a new category
-export async function createCategory(data: Omit<ProfileCategory, "_id" | "createdAt" | "updatedAt">) {
+export async function createCategory(category: Omit<Category, '_id'>) {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const now = new Date()
-    const result = await db.collection("profileCategories").insertOne({
-      ...data,
-      createdAt: now,
-      updatedAt: now,
-      usageCount: 0,
+    const result = await db.collection<Category>("categories").insertOne({
+      ...category,
+      createdAt: new Date(),
+      updatedAt: new Date()
     })
 
-    return result.insertedId.toString()
+    return result.insertedId
   } catch (error) {
     console.error("Error creating category:", error)
     return null
@@ -151,20 +288,17 @@ export async function createCategory(data: Omit<ProfileCategory, "_id" | "create
 }
 
 // Update a category
-export async function updateCategory(id: string, data: Partial<ProfileCategory>) {
+export async function updateCategory(id: string, updates: Partial<Category>) {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const result = await db.collection("profileCategories").updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...data,
-          updatedAt: new Date(),
-        },
-      },
-    )
+    const result = await db
+      .collection("categories")
+      .updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { ...updates, updatedAt: new Date() } }
+      )
 
     return result.modifiedCount > 0
   } catch (error) {
@@ -179,9 +313,9 @@ export async function deleteCategory(id: string) {
     const client = await clientPromise
     const db = client.db()
 
-    const result = await db.collection("profileCategories").deleteOne({
-      _id: new ObjectId(id),
-    })
+    const result = await db
+      .collection("categories")
+      .deleteOne({ _id: new ObjectId(id) })
 
     return result.deletedCount > 0
   } catch (error) {
@@ -190,51 +324,22 @@ export async function deleteCategory(id: string) {
   }
 }
 
-// Increment usage count when a profile uses this category
-export async function incrementCategoryUsage(id: string) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const result = await db
-      .collection("profileCategories")
-      .updateOne({ _id: new ObjectId(id) }, { $inc: { usageCount: 1 } })
-
-    return result.modifiedCount > 0
-  } catch (error) {
-    console.error("Error incrementing category usage:", error)
-    return false
-  }
-}
-
-// Decrement usage count when a profile stops using this category
-export async function decrementCategoryUsage(id: string) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const result = await db
-      .collection("profileCategories")
-      .updateOne({ _id: new ObjectId(id) }, { $inc: { usageCount: -1 } })
-
-    return result.modifiedCount > 0
-  } catch (error) {
-    console.error("Error decrementing category usage:", error)
-    return false
-  }
-}
-
-// Add these profile-related functions back to the file
-
-// Get all profiles for a user
+// Get all profiles
 export async function getProfiles(userId: string) {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const profiles = await db.collection("profiles").find({ userId }).sort({ updatedAt: -1 }).toArray()
+    const profiles = await db
+      .collection<Profile>("profiles")
+      .find({ userId })
+      .sort({ updatedAt: -1 })
+      .toArray()
 
-    return JSON.parse(JSON.stringify(profiles))
+    return profiles.map(profile => ({
+      ...profile,
+      _id: profile._id?.toString()
+    }))
   } catch (error) {
     console.error("Error fetching profiles:", error)
     return []
@@ -247,74 +352,58 @@ export async function getProfile(id: string) {
     const client = await clientPromise
     const db = client.db()
 
-    const profile = await db.collection("profiles").findOne({ _id: new ObjectId(id) })
+    const objectId = new ObjectId(id)
+    const profile = await db
+      .collection("profiles")
+      .findOne({ _id: objectId })
 
     if (!profile) return null
-
-    return JSON.parse(JSON.stringify(profile))
+    return {
+      ...profile,
+      _id: profile._id.toString()
+    } as Profile
   } catch (error) {
     console.error("Error fetching profile:", error)
     return null
   }
 }
 
-// Get a profile by slug
-export async function getProfileBySlug(slug: string) {
+// Create a new profile
+export async function createProfile(profile: Omit<Profile, '_id'>) {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const profile = await db.collection("profiles").findOne({ slug, isPublic: true })
+    const result = await db.collection<Profile>("profiles").insertOne({
+      ...profile,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
 
-    if (!profile) return null
-
-    return JSON.parse(JSON.stringify(profile))
+    return result.insertedId
   } catch (error) {
-    console.error("Error fetching profile by slug:", error)
+    console.error("Error creating profile:", error)
     return null
   }
 }
 
-// Create a new profile
-export async function createProfile(data: Omit<Profile, "_id" | "createdAt" | "updatedAt">) {
-  try {
-    const client = await clientPromise
-    const db = client.db()
-
-    const now = new Date()
-    const result = await db.collection<Profile>("profiles").insertOne({
-      ...data,
-      createdAt: now,
-      updatedAt: now,
-    })
-
-    return result.insertedId.toString()
-  } catch (error) {
-    console.error("Error creating profile:", error)
-    throw error
-  }
-}
-
 // Update a profile
-export async function updateProfile(id: string, data: Partial<Omit<Profile, "_id" | "createdAt" | "updatedAt">>) {
+export async function updateProfile(id: string, updates: Partial<Profile>) {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    const result = await db.collection<Profile>("profiles").updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...data,
-          updatedAt: new Date(),
-        },
-      },
-    )
+    const result = await db
+      .collection("profiles")
+      .updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { ...updates, updatedAt: new Date() } }
+      )
 
     return result.modifiedCount > 0
   } catch (error) {
     console.error("Error updating profile:", error)
-    throw error
+    return false
   }
 }
 
@@ -324,18 +413,9 @@ export async function deleteProfile(id: string) {
     const client = await clientPromise
     const db = client.db()
 
-    // Get the profile to check if it has a categoryId
-    const profile = await getProfile(id)
-    const categoryId = profile?.categoryId
-
-    // Decrement category usage count if needed
-    if (categoryId) {
-      await decrementCategoryUsage(categoryId)
-    }
-
-    const result = await db.collection("profiles").deleteOne({
-      _id: new ObjectId(id),
-    })
+    const result = await db
+      .collection("profiles")
+      .deleteOne({ _id: new ObjectId(id) })
 
     return result.deletedCount > 0
   } catch (error) {

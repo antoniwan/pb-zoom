@@ -33,7 +33,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import type { Profile, ProfileCategory } from "@/lib/models"
+import type { Profile, Category } from "@/lib/db"
 import type { Session } from "next-auth"
 
 // Add the import for the debounce hook at the top
@@ -54,7 +54,7 @@ export default function DashboardPage() {
   const { data: session, status }: { data: Session | null; status: SessionStatus } = useSession()
   const router = useRouter()
   const [profiles, setProfiles] = useState<Profile[]>([])
-  const [categories, setCategories] = useState<ProfileCategory[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   // Find the searchQuery state and add a new debouncedSearchQuery state
   const [searchQuery, setSearchQuery] = useState("")
@@ -118,7 +118,7 @@ export default function DashboardPage() {
   // Get category name by ID
   const getCategoryName = (categoryId: string | undefined) => {
     if (!categoryId) return "Uncategorized"
-    const category = categories.find((cat) => cat._id === categoryId)
+    const category = categories.find((cat) => cat._id?.toString() === categoryId)
     return category ? category.name : "Uncategorized"
   }
 
@@ -126,7 +126,7 @@ export default function DashboardPage() {
   const getCategoryIcon = (categoryId: string | undefined) => {
     if (!categoryId) return <Sparkles className="h-5 w-5" />
 
-    const category = categories.find((cat) => cat._id === categoryId)
+    const category = categories.find((cat) => cat._id?.toString() === categoryId)
     if (!category) return <Sparkles className="h-5 w-5" />
 
     const name = category.name.toLowerCase()
@@ -181,7 +181,11 @@ export default function DashboardPage() {
 
   // Get recently updated profiles
   const recentProfiles = [...profiles]
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .sort((a, b) => {
+      const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0
+      const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0
+      return dateB - dateA
+    })
     .slice(0, 3)
 
   if (!session) {
@@ -292,7 +296,7 @@ export default function DashboardPage() {
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredProfiles.map((profile) => (
                     <ProfileCard
-                      key={profile._id}
+                      key={profile._id?.toString()}
                       profile={profile}
                       onDelete={handleDeleteProfile}
                       categoryName={getCategoryName(profile.categoryId)}
@@ -304,7 +308,7 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   {filteredProfiles.map((profile) => (
                     <ProfileListItem
-                      key={profile._id}
+                      key={profile._id?.toString()}
                       profile={profile}
                       onDelete={handleDeleteProfile}
                       categoryName={getCategoryName(profile.categoryId)}
@@ -336,7 +340,7 @@ export default function DashboardPage() {
                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                           {categoryProfiles.map((profile) => (
                             <ProfileCard
-                              key={profile._id}
+                              key={profile._id?.toString()}
                               profile={profile}
                               onDelete={handleDeleteProfile}
                               categoryName={getCategoryName(profile.categoryId)}
@@ -349,7 +353,7 @@ export default function DashboardPage() {
                         <div className="space-y-4">
                           {categoryProfiles.map((profile) => (
                             <ProfileListItem
-                              key={profile._id}
+                              key={profile._id?.toString()}
                               profile={profile}
                               onDelete={handleDeleteProfile}
                               categoryName={getCategoryName(profile.categoryId)}
@@ -378,7 +382,7 @@ export default function DashboardPage() {
                   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {recentProfiles.map((profile) => (
                       <ProfileCard
-                        key={profile._id}
+                        key={profile._id?.toString()}
                         profile={profile}
                         onDelete={handleDeleteProfile}
                         categoryName={getCategoryName(profile.categoryId)}
@@ -578,12 +582,12 @@ function ProfileCard({
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
             <Button variant="default" size="sm" asChild>
-              <Link href={`/dashboard/profiles/${profile._id}/edit`}>
+              <Link href={`/dashboard/profiles/${profile._id?.toString()}/edit`}>
                 <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
               </Link>
             </Button>
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/dashboard/profiles/${profile._id}/preview`}>
+              <Link href={`/dashboard/profiles/${profile._id?.toString()}/preview`}>
                 <Eye className="mr-1.5 h-3.5 w-3.5" /> Preview
               </Link>
             </Button>
@@ -601,7 +605,7 @@ function ProfileCard({
               variant="outline"
               size="sm"
               className="px-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-              onClick={() => onDelete(profile._id)}
+              onClick={() => onDelete(profile._id?.toString() || "")}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
@@ -717,7 +721,7 @@ function ProfileListItem({
           {/* Actions */}
           <div className="flex items-center gap-2 mt-2 md:mt-0 md:ml-2">
             <Button variant="default" size="sm" asChild>
-              <Link href={`/dashboard/profiles/${profile._id}/edit`}>
+              <Link href={`/dashboard/profiles/${profile._id?.toString()}/edit`}>
                 <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
               </Link>
             </Button>
@@ -730,7 +734,7 @@ function ProfileListItem({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href={`/dashboard/profiles/${profile._id}/preview`} className="cursor-pointer">
+                  <Link href={`/dashboard/profiles/${profile._id?.toString()}/preview`} className="cursor-pointer">
                     <Eye className="mr-2 h-4 w-4" /> Preview
                   </Link>
                 </DropdownMenuItem>
@@ -745,7 +749,7 @@ function ProfileListItem({
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem onClick={() => onDelete(profile._id)} className="text-red-500 focus:text-red-500">
+                <DropdownMenuItem onClick={() => onDelete(profile._id?.toString() || "")} className="text-red-500 focus:text-red-500">
                   <Trash2 className="mr-2 h-4 w-4" /> Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

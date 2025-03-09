@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
-import type { ProfileCategory } from "@/lib/models"
+import type { Category } from "@/lib/db"
 
 export default function NewProfilePage() {
   const { status } = useSession()
@@ -22,7 +22,7 @@ export default function NewProfilePage() {
   const [slug, setSlug] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [categories, setCategories] = useState<ProfileCategory[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryId)
   const [isLoadingCategories, setIsLoadingCategories] = useState(true)
 
@@ -36,7 +36,7 @@ export default function NewProfilePage() {
 
       // If a category was passed in URL and exists, select it
       if (categoryId) {
-        const categoryExists = data.some((cat: ProfileCategory) => cat._id === categoryId)
+        const categoryExists = data.some((cat: Category) => cat._id === categoryId)
         if (categoryExists) {
           setSelectedCategory(categoryId)
         }

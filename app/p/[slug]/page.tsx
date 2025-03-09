@@ -1,7 +1,6 @@
 import { getProfileBySlug } from "@/lib/db"
-import type { Profile } from "@/lib/db"
+import type { Profile, ProfileSection, ProfileAttribute, ProfileImage, ProfileSocial } from "@/lib/db"
 import { notFound } from "next/navigation"
-import type { ProfileSection, ProfileAttribute, ProfileImage, ProfileSocial } from "@/lib/models"
 import { Facebook, Twitter, Instagram, Linkedin, Github, Youtube, Globe } from "lucide-react"
 import type { Metadata } from "next"
 import Image from "next/image"
@@ -111,7 +110,7 @@ export default async function ProfilePage({ params }: PageProps) {
                 >
                   <Image
                     src={image.url || "/placeholder.svg?height=300&width=300"}
-                    alt={image.caption || "Gallery image"}
+                    alt={image.altText || "Gallery image"}
                     width={300}
                     height={300}
                     className="h-full w-full object-cover"

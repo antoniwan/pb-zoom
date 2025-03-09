@@ -9,7 +9,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Trash2, Upload, Check } from "lucide-react"
 import Image from "next/image"
-import type { Profile, ProfilePicture } from "@/lib/models"
+import type { Profile } from "@/lib/db"
+
+interface ProfilePicture {
+  url: string
+  altText?: string
+  isPrimary: boolean
+}
 
 interface HeaderEditorProps {
   profile: Profile

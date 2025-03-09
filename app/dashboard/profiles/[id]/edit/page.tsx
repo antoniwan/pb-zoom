@@ -5,12 +5,11 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Save, ArrowLeft } from "lucide-react"
-import type { Profile } from "@/lib/models"
+import type { Profile, ProfileSection } from "@/lib/db"
 import { ProfileEditorTabs } from "@/components/profile-editor/tabs"
 import Link from "next/link"
 import { use } from "react"
 import { v4 as uuidv4 } from "uuid"
-import type { ProfileSection } from "@/lib/models"
 
 // Add a function to ensure all sections have an _id before updating
 const ensureSectionIds = (sections: ProfileSection[] = []): ProfileSection[] => {
@@ -19,6 +18,15 @@ const ensureSectionIds = (sections: ProfileSection[] = []): ProfileSection[] => 
       return {
         ...section,
         _id: uuidv4(),
+        type: section.type as "bio" | "attributes" | "gallery" | "videos" | "markdown" | "custom",
+        content: {
+          text: section.content.text || "",
+          attributes: section.content.attributes || [],
+          images: section.content.images || [],
+          videos: section.content.videos || [],
+          markdown: section.content.markdown || "",
+          html: section.content.html || "",
+        },
       }
     }
     return section

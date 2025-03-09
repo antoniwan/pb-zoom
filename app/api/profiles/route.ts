@@ -93,33 +93,32 @@ export async function POST(req: Request) {
             type: z.enum(["bio", "attributes", "gallery", "videos", "markdown", "custom"]),
             title: z.string(),
             content: z.object({
-              text: z.string().optional(),
-              attributes: z
-                .array(
-                  z.object({
-                    label: z.string(),
-                    value: z.string(),
-                  }),
-                )
-                .optional(),
-              images: z
-                .array(
-                  z.object({
-                    url: z.string(),
-                    caption: z.string().optional(),
-                  }),
-                )
-                .optional(),
-              videos: z
-                .array(
-                  z.object({
-                    url: z.string(),
-                    title: z.string().optional(),
-                  }),
-                )
-                .optional(),
-              markdown: z.string().optional(),
-              html: z.string().optional(),
+              text: z.string(),
+              attributes: z.array(
+                z.object({
+                  _id: z.string(),
+                  label: z.string(),
+                  value: z.string(),
+                }),
+              ),
+              images: z.array(
+                z.object({
+                  _id: z.string(),
+                  url: z.string(),
+                  altText: z.string(),
+                  isPrimary: z.boolean(),
+                }),
+              ),
+              videos: z.array(
+                z.object({
+                  _id: z.string(),
+                  url: z.string(),
+                  title: z.string(),
+                  description: z.string(),
+                }),
+              ),
+              markdown: z.string(),
+              html: z.string(),
             }),
             order: z.number(),
           }),
@@ -137,10 +136,13 @@ export async function POST(req: Request) {
     })
 
     const validatedData = profileSchema.parse(body)
+    const now = new Date()
 
     const profileId = await createProfile({
       ...validatedData,
       userId: session.user.id,
+      createdAt: now,
+      updatedAt: now,
     })
 
     return NextResponse.json({ message: "Profile created successfully", profileId }, { status: 201 })

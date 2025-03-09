@@ -1,83 +1,69 @@
-import type { Session } from "next-auth"
-import type { AuthOptions as NextAuthOptions } from "next-auth"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
-import GithubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
+import { AuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { compare } from "bcrypt"
-import clientPromise from "@/lib/mongodb"
-import type { JWT } from "next-auth/jwt"
+import { clientPromise } from "@/lib/db"
+import bcrypt from "bcrypt"
 
-// Ensure NEXTAUTH_SECRET is set
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error("Please set NEXTAUTH_SECRET environment variable")
-}
-
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
-  secret: process.env.NEXTAUTH_SECRET,
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
     CredentialsProvider({
-      name: "Credentials",
+      name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          throw new Error("Missing credentials")
         }
 
         const client = await clientPromise
         const db = client.db()
         const user = await db.collection("users").findOne({ email: credentials.email })
 
-        if (!user || !user.password) {
-          return null
+        if (!user) {
+          throw new Error("Invalid credentials")
         }
 
-        const isPasswordValid = await compare(credentials.password, user.password)
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
         if (!isPasswordValid) {
-          return null
+          throw new Error("Invalid credentials")
         }
 
         return {
           id: user._id.toString(),
           email: user.email,
           name: user.name,
-          image: user.image,
+          username: user.username,
         }
       },
     }),
   ],
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  jwt: {
-    secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.username = user.username
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id as string
+        session.user.username = token.username as string
+      }
+      return session
+    },
   },
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",
     verifyRequest: "/auth/verify-request",
-    newUser: "/dashboard",
   },
-  callbacks: {
-    async session({ session, token }: { session: Session; token: JWT }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub
-      }
-      return session
-    },
-  },
-} 
+}
+

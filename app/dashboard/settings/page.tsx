@@ -13,8 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/hooks/use-toast"
-import { Save, User, Lock, Bell, Moon, Sun } from "lucide-react"
+import { Save, User, Lock, Bell, Moon, Sun, User2 } from "lucide-react"
 import Image from "next/image"
+import { UserProfileSettings } from "@/components/user-profile-settings"
 
 export default function SettingsPage() {
   const { data: session, status, update } = useSession()
@@ -126,6 +127,10 @@ export default function SettingsPage() {
           <TabsTrigger value="appearance">
             {darkMode ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
             Appearance
+          </TabsTrigger>
+          <TabsTrigger value="public-profile">
+            <User2 className="mr-2 h-4 w-4" />
+            Public Profile
           </TabsTrigger>
         </TabsList>
 
@@ -384,6 +389,16 @@ export default function SettingsPage() {
               <Button>Save Appearance Settings</Button>
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="public-profile">
+          <UserProfileSettings
+            user={{
+              id: session?.user?.id || "",
+              name: userData.name,
+              username: session?.user?.username || "",
+              bio: session?.user?.bio || "",
+            }}
+          />
         </TabsContent>
       </Tabs>
     </div>
