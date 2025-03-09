@@ -87,3 +87,20 @@
   }
 }
 
+@layer utilities {
+  /* Extra small devices */
+  @media (min-width: 475px) {
+    .xs\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .xs\:flex-row {
+      flex-direction: row;
+    }
+
+    .xs\:justify-between {
+      justify-content: space-between;
+    }
+  }
+}
+

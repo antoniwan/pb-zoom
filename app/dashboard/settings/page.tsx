@@ -102,7 +102,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
       {error && <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500">{error}</div>}
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Settings</h1>
@@ -110,7 +110,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList>
+        <TabsList className="w-full overflow-x-auto flex-wrap">
           <TabsTrigger value="profile">
             <User className="mr-2 h-4 w-4" />
             Profile

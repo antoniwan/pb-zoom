@@ -81,7 +81,9 @@ export default function RegisterPage() {
         // More detailed error handling
         if (result.errors && Array.isArray(result.errors)) {
           // Handle Zod validation errors
-          const errorMessage = result.errors.map((err: ZodValidationError) => `${err.path.join(".")}: ${err.message}`).join(", ")
+          const errorMessage = result.errors
+            .map((err: ZodValidationError) => `${err.path.join(".")}: ${err.message}`)
+            .join(", ")
           setError(errorMessage || result.message || "Registration failed")
         } else {
           setError(result.message || "Registration failed")
@@ -92,7 +94,7 @@ export default function RegisterPage() {
 
       // Show success message before redirecting
       toast.success("Account created successfully!", {
-        description: "You can now sign in with your credentials."
+        description: "You can now sign in with your credentials.",
       })
 
       // Redirect with a slight delay to show the toast

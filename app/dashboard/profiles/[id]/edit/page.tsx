@@ -151,8 +151,8 @@ export default function EditProfilePage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+      <div className="mb-4 sm:mb-6 flex flex-col xs:flex-row space-y-3 xs:space-y-0 xs:items-center xs:justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard">

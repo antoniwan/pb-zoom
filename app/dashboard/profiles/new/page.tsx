@@ -160,7 +160,7 @@ export default function NewProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
       <div className="mb-6 flex items-center gap-4">
         <Button variant="outline" size="sm" className="rounded-xl" asChild>
           <Link href="/dashboard">
@@ -171,7 +171,7 @@ export default function NewProfilePage() {
       </div>
 
       <Card className="rounded-xl border-secondary/30">
-        <CardContent className="pt-6">
+        <CardContent className="p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-500">{error}</div>}
 

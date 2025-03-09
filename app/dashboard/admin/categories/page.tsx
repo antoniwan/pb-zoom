@@ -282,7 +282,7 @@ export default function AdminCategoriesPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Manage Categories</h1>
@@ -300,7 +300,7 @@ export default function AdminCategoriesPage() {
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((category) => (
           <Card key={category._id} className={`${!category.isEnabled ? "border-muted bg-muted/50" : ""}`}>
             <CardHeader className="pb-2">
