@@ -1,4 +1,3 @@
-// Adding or updating the Profile interface to include the new header fields
 export interface ProfileHeader {
   name: string
   title: string

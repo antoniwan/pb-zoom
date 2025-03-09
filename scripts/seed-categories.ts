@@ -1,4 +1,3 @@
-// This script can be run to seed initial categories
 import { createCategory } from "../lib/db"
 
 const ADMIN_USER_ID = process.env.ADMIN_USER_ID || "admin"
