@@ -128,7 +128,7 @@ export function ProfileHeaderEditor({ profile, updateProfile }: HeaderEditorProp
               placeholder="John Doe"
               className="rounded-xl"
             />
-            <p className="text-sm text-muted-foreground">Your full name as you'd like it to appear.</p>
+            <p className="text-sm text-muted-foreground">Your full name as you&apos;d like it to appear.</p>
           </div>
 
           <div className="space-y-2">

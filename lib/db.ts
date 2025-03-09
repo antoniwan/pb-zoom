@@ -3,31 +3,29 @@ import { MongoClient, ObjectId } from "mongodb"
 const uri = process.env.MONGODB_URI
 const options = {}
 
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please add your Mongo URI to .env.local")
-}
-
 let client: MongoClient
 let clientPromise: Promise<MongoClient>
 
+declare global {
+  let _mongoClientPromise: Promise<MongoClient>
+}
+
+if (!uri) {
+  throw new Error("Please add your Mongo URI to .env.local")
+}
+
 if (process.env.NODE_ENV === "development") {
-  // In development mode, use a global variable so that the value
-  // is preserved across module reloads caused by HMR (Hot Module Replacement).
   if (!global._mongoClientPromise) {
-    client = new MongoClient(uri!, options)
+    client = new MongoClient(uri, options)
     global._mongoClientPromise = client.connect()
   }
   clientPromise = global._mongoClientPromise
 } else {
-  // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri!, options)
+  client = new MongoClient(uri, options)
   clientPromise = client.connect()
 }
 
-// Export a module-scoped MongoClient promise. By doing this in a
-// separate module, the client can be safely reused across multiple
-// functions.
-export default clientPromise
+export { clientPromise }
 
 export interface ProfileCategory {
   _id?: ObjectId
@@ -35,7 +33,50 @@ export interface ProfileCategory {
   description: string
   isEnabled: boolean
   isCorrect: boolean
+  isOfficial: boolean
   usageCount: number
+  createdBy: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface Profile {
+  _id?: ObjectId
+  userId: string
+  title: string
+  slug: string
+  isPublic: boolean
+  header: {
+    name: string
+    title: string
+    subtitle: string
+    shortBio: string
+    pictures: Array<{
+      url: string
+      altText?: string
+      isPrimary: boolean
+    }>
+  }
+  theme: {
+    primaryColor: string
+    secondaryColor: string
+    backgroundColor: string
+    textColor: string
+    fontFamily: string
+    customCSS?: string
+  }
+  layout: string
+  sections: Array<{
+    _id: string
+    type: string
+    title: string
+    content: Record<string, unknown>
+    order: number
+  }>
+  socialLinks: Array<{
+    platform: string
+    url: string
+  }>
   createdAt?: Date
   updatedAt?: Date
 }
@@ -53,7 +94,7 @@ export async function getCategories(
     const client = await clientPromise
     const db = client.db()
 
-    const query: any = {}
+    const query: Partial<ProfileCategory> = {}
 
     if (!includeDisabled) {
       query.isEnabled = true
@@ -63,12 +104,10 @@ export async function getCategories(
       query.isCorrect = true
     }
 
-    const categories = await db.collection("profileCategories").find(query).sort({ usageCount: -1, name: 1 }).toArray()
-
-    return JSON.parse(JSON.stringify(categories))
+    return await db.collection<ProfileCategory>("categories").find(query).toArray()
   } catch (error) {
-    console.error("Error fetching categories:", error)
-    return []
+    console.error("Error getting categories:", error)
+    throw error
   }
 }
 
@@ -236,65 +275,45 @@ export async function getProfileBySlug(slug: string) {
 }
 
 // Create a new profile
-export async function createProfile(data: any) {
+export async function createProfile(data: Omit<Profile, "_id" | "createdAt" | "updatedAt">) {
   try {
     const client = await clientPromise
     const db = client.db()
 
     const now = new Date()
-    const result = await db.collection("profiles").insertOne({
+    const result = await db.collection<Profile>("profiles").insertOne({
       ...data,
       createdAt: now,
       updatedAt: now,
     })
 
-    // If the profile has a categoryId, increment its usage count
-    if (data.categoryId) {
-      await incrementCategoryUsage(data.categoryId)
-    }
-
     return result.insertedId.toString()
   } catch (error) {
     console.error("Error creating profile:", error)
-    return null
+    throw error
   }
 }
 
 // Update a profile
-export async function updateProfile(id: string, data: any) {
+export async function updateProfile(id: string, data: Partial<Omit<Profile, "_id" | "createdAt" | "updatedAt">>) {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    // Get the current profile to check if categoryId changed
-    const currentProfile = await getProfile(id)
-    const oldCategoryId = currentProfile?.categoryId
-    const newCategoryId = data.categoryId
-
-    // Update category usage counts if needed
-    if (oldCategoryId !== newCategoryId) {
-      if (oldCategoryId) {
-        await decrementCategoryUsage(oldCategoryId)
-      }
-      if (newCategoryId) {
-        await incrementCategoryUsage(newCategoryId)
-      }
-    }
-
-    const result = await db.collection("profiles").updateOne(
+    const result = await db.collection<Profile>("profiles").updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
           ...data,
           updatedAt: new Date(),
         },
-      },
+      }
     )
 
     return result.modifiedCount > 0
   } catch (error) {
     console.error("Error updating profile:", error)
-    return false
+    throw error
   }
 }
 

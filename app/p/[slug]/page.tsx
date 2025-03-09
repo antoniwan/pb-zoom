@@ -1,4 +1,5 @@
 import { getProfileBySlug } from "@/lib/db"
+import type { Profile } from "@/lib/db"
 import { notFound } from "next/navigation"
 import type { ProfileSection, ProfileAttribute, ProfileImage, ProfileSocial } from "@/lib/models"
 import { Facebook, Twitter, Instagram, Linkedin, Github, Youtube, Globe } from "lucide-react"
@@ -113,16 +114,16 @@ export default async function ProfilePage({ params }: PageProps) {
   }
 
   // Get the primary profile picture or the first one if no primary is set
-  const getPrimaryPicture = () => {
-    if (!profile.header?.pictures || profile.header.pictures.length === 0) {
+  function getPrimaryPicture(profile: Profile) {
+    if (!profile.header?.pictures?.length) {
       return null
     }
 
-    const primaryPic = profile.header.pictures.find((pic) => pic.isPrimary)
+    const primaryPic = profile.header.pictures.find((pic: { isPrimary: boolean }) => pic.isPrimary)
     return primaryPic || profile.header.pictures[0]
   }
 
-  const primaryPicture = getPrimaryPicture()
+  const primaryPicture = getPrimaryPicture(profile)
 
   return (
     <div

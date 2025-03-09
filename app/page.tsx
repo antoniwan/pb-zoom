@@ -30,13 +30,13 @@ function CyclingProfileTypes() {
       setIsVisible(false)
 
       setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % profileTypes.length)
+        setCurrentIndex((current) => (current + 1) % profileTypes.length)
         setIsVisible(true)
       }, 500) // Wait for fade out before changing text
     }, 3000) // Change every 3 seconds
 
     return () => clearInterval(interval)
-  }, [])
+  }, [profileTypes.length])
 
   return (
     <span

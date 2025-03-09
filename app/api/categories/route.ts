@@ -57,6 +57,7 @@ export async function POST(req: Request) {
       isCorrect: isAdmin, // Only mark as correct immediately if created by admin
       isOfficial: isAdmin, // Only mark as official if created by admin
       createdBy: session.user.id,
+      usageCount: 0,
     })
 
     if (!categoryId) {
