@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { updateUser, getUserByUsername } from "@/lib/db"
+import { handleApiError } from "@/lib/api/error-handler"
 import { z } from "zod"
 import type { Session } from "next-auth"
 
@@ -40,29 +41,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ userna
 
     const validatedData = userSchema.parse(body)
 
-    // If username is being updated, check if it's already taken
-    if (validatedData.username && validatedData.username !== username) {
-      const existingUser = await getUserByUsername(validatedData.username)
-      if (existingUser) {
-        return NextResponse.json({ message: "Username is already taken" }, { status: 400 })
-      }
-    }
+    const updatedUser = await updateUser(user._id.toString(), validatedData)
 
-    const success = await updateUser(user._id.toString(), validatedData)
-
-    if (!success) {
-      return NextResponse.json({ message: "Failed to update user" }, { status: 500 })
-    }
-
-    return NextResponse.json({ message: "User updated successfully" })
+    return NextResponse.json({
+      message: "User updated successfully",
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        username: updatedUser.username,
+        bio: updatedUser.bio,
+      },
+    })
   } catch (error) {
-    console.error("Error updating user:", error)
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Invalid input data", errors: error.errors }, { status: 400 })
-    }
-
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 

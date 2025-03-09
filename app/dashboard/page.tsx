@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { useDebounce } from "@/hooks/use-debounce"
+import { useDebounce } from "@/lib/hooks/ui/use-debounce"
 
 // UI Components
 import { Button } from "@/components/ui/button"

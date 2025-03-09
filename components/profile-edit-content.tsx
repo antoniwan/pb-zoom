@@ -1,6 +1,6 @@
 "use client"
 
-import { useProfile } from "@/components/profile-context"
+import { useProfile } from "@/lib/hooks/data/use-profile"
 import { ProfileSettings } from "@/components/profile-settings"
 import { SectionEditor } from "@/components/section-editor"
 import { ScrollArea } from "@/components/ui/scroll-area"

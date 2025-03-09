@@ -1,43 +1,53 @@
 import { NextResponse } from "next/server"
-import { getToken } from "next-auth/jwt"
 import type { NextRequest } from "next/server"
+import { getToken } from "next-auth/jwt"
+
+// Paths that require authentication
+const protectedPaths = ["/api/profiles", "/api/users", "/dashboard"]
+
+// Paths that are public
+const publicPaths = [
+  "/api/auth",
+  "/api/profiles/slug",
+  "/api/users/*/profiles", // Public profiles endpoint
+  "/",
+  "/login",
+  "/register",
+  "/p/",
+  "/u/",
+]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Get the token
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  })
+  // Check if the path is protected
+  const isProtectedPath = protectedPaths.some(
+    (path) => pathname.startsWith(path) && !publicPaths.some((publicPath) => pathname.startsWith(publicPath)),
+  )
 
-  // Check if the path starts with /dashboard (protected routes)
-  if (pathname.startsWith("/dashboard")) {
-    // If the user is not authenticated, redirect to the login page
-    if (!token) {
-      const url = new URL("/auth/login", request.url)
-      url.searchParams.set("callbackUrl", encodeURI(request.url))
-      return NextResponse.redirect(url)
-    }
+  if (!isProtectedPath) {
+    return NextResponse.next()
   }
 
-  // Check if the path starts with /auth (auth routes)
-  if (pathname.startsWith("/auth")) {
-    // If the user is authenticated, redirect to the dashboard
-    if (token) {
-      // If there's a callbackUrl in the URL, use that, otherwise go to dashboard
-      const callbackUrl = new URL(request.url).searchParams.get("callbackUrl")
-      if (callbackUrl) {
-        return NextResponse.redirect(callbackUrl)
-      }
-      return NextResponse.redirect(new URL("/dashboard", request.url))
-    }
+  // Check for the session token
+  const token = await getToken({ req: request })
+
+  // If there's no token and the path is protected, return unauthorized
+  if (!token) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "unauthorized",
+        message: "Authentication required",
+      },
+      { status: 401 },
+    )
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/:path*"],
+  matcher: ["/api/:path*", "/dashboard/:path*"],
 }
 

@@ -24,6 +24,8 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import { v4 as uuidv4 } from "uuid"
 import type { ProfileSection } from "@/lib/db"
+// OR
+// import { useMediaQuery } from "@/lib/hooks";
 
 interface SortableItemProps {
   section: ProfileSection

@@ -20,9 +20,9 @@ export function useProfile(id: string): UseProfileReturn {
     try {
       setIsLoading(true)
       setError(null)
-      
+
       const response = await fetch(`/api/profiles/${id}`)
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           setError("Profile not found")
@@ -46,17 +46,21 @@ export function useProfile(id: string): UseProfileReturn {
     try {
       // If we're updating the entire profile, use PUT, otherwise use PATCH
       const method = Object.keys(updates).length === Object.keys(profile || {}).length ? "PUT" : "PATCH"
-      
+
       const response = await fetch(`/api/profiles/${id}`, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(method === "PUT" ? updates : {
-          ...profile,
-          ...updates,
-          updatedAt: new Date().toISOString()
-        }),
+        body: JSON.stringify(
+          method === "PUT"
+            ? updates
+            : {
+                ...profile,
+                ...updates,
+                updatedAt: new Date().toISOString(),
+              },
+        ),
       })
 
       if (!response.ok) {
@@ -65,7 +69,7 @@ export function useProfile(id: string): UseProfileReturn {
 
       const updatedProfile = await response.json()
       setProfile(updatedProfile)
-      
+
       // Refresh the profile to ensure we have the latest data
       await fetchProfile()
     } catch (error) {
@@ -85,4 +89,5 @@ export function useProfile(id: string): UseProfileReturn {
     saveProfile,
     refreshProfile: fetchProfile,
   }
-} 
+}
+

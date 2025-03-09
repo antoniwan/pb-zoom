@@ -32,3 +32,9 @@ if (process.env.NODE_ENV === "development") {
 // separate module, the client can be shared across functions.
 export default clientPromise
 
+// Helper function to get the database instance
+export async function getDb() {
+  const client = await clientPromise
+  return client.db()
+}
+

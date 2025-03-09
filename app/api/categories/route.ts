@@ -1,19 +1,35 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
+import { createApiHandler } from "@/lib/api/api-handler"
 import { getCategories, createCategory } from "@/lib/db"
 import { z } from "zod"
-import type { Session } from "next-auth"
+
+// Schema for category creation
+const categorySchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  description: z.string().min(10, { message: "Description must be at least 10 characters" }),
+  icon: z.string().optional(),
+  color: z.string().optional(),
+})
+
+// Query parameters schema for GET request
+const getCategoriesParamsSchema = z
+  .object({
+    includeDisabled: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((val) => val === "true"),
+    includeIncorrect: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((val) => val === "true"),
+  })
+  .default({})
 
 // GET /api/categories - Get all categories
-export async function GET(req: Request) {
-  try {
-    const url = new URL(req.url)
-    const includeDisabled = url.searchParams.get("includeDisabled") === "true"
-    const includeIncorrect = url.searchParams.get("includeIncorrect") === "true"
+export const GET = createApiHandler(
+  async (request, data, session) => {
+    const { includeDisabled, includeIncorrect } = data
 
     // Only admins should be able to see disabled or incorrect categories
-    const session = (await getServerSession(authOptions)) as Session
     const isAdmin = session?.user?.email === process.env.ADMIN_EMAIL
 
     const categories = await getCategories({
@@ -21,38 +37,31 @@ export async function GET(req: Request) {
       includeIncorrect: isAdmin && includeIncorrect,
     })
 
-    return NextResponse.json(categories)
-  } catch (error) {
-    console.error("Error fetching categories:", error)
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 })
-  }
-}
+    return {
+      categories,
+      meta: {
+        total: categories.length,
+      },
+    }
+  },
+  {
+    validation: getCategoriesParamsSchema,
+    cache: {
+      maxAge: 300, // 5 minutes
+      staleWhileRevalidate: 600, // 10 minutes
+      isPublic: true, // Categories can be publicly cached
+    },
+  },
+)
 
 // POST /api/categories - Create a new category
-export async function POST(req: Request) {
-  try {
-    const session = (await getServerSession(authOptions)) as Session
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-    }
-
-    const body = await req.json()
-
-    const categorySchema = z.object({
-      name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-      description: z.string().min(10, { message: "Description must be at least 10 characters" }),
-      icon: z.string().optional(),
-      color: z.string().optional(),
-    })
-
-    const validatedData = categorySchema.parse(body)
-
+export const POST = createApiHandler(
+  async (request, data, session) => {
     // By default, user-created categories need approval
     const isAdmin = session?.user?.email === process.env.ADMIN_EMAIL
 
     const categoryId = await createCategory({
-      ...validatedData,
+      ...data,
       isEnabled: isAdmin, // Only enable immediately if created by admin
       isCorrect: isAdmin, // Only mark as correct immediately if created by admin
       isOfficial: isAdmin, // Only mark as official if created by admin
@@ -60,25 +69,14 @@ export async function POST(req: Request) {
       usageCount: 0,
     })
 
-    if (!categoryId) {
-      return NextResponse.json({ message: "Failed to create category" }, { status: 500 })
+    return {
+      categoryId,
+      message: isAdmin ? "Category created successfully" : "Category submitted for approval",
     }
-
-    return NextResponse.json(
-      {
-        message: isAdmin ? "Category created successfully" : "Category submitted for approval",
-        categoryId,
-      },
-      { status: 201 },
-    )
-  } catch (error) {
-    console.error("Error creating category:", error)
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Invalid input data", errors: error.errors }, { status: 400 })
-    }
-
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 })
-  }
-}
+  },
+  {
+    requireAuth: true,
+    validation: categorySchema,
+  },
+)
 

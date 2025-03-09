@@ -39,19 +39,29 @@ export interface ProfileAttribute {
 
 export interface ProfileImage {
   url: string
-  alt?: string
-  caption?: string
+  altText?: string
+  isPrimary: boolean
 }
 
 export interface ProfileVideo {
+  _id: string
   url: string
-  title?: string
+  title: string
+  description: string
+}
+
+export interface LinkItem {
+  _id: string
+  title: string
+  url: string
+  icon: string
   description?: string
 }
 
 export interface ProfileSocial {
   platform: string
   url: string
+  icon?: string
 }
 
 export interface ProfileSection {
@@ -65,8 +75,11 @@ export interface ProfileSection {
     videos: ProfileVideo[]
     markdown: string
     html: string
+    links?: LinkItem[]
+    customCSS?: string
   }
   order: number
+  isVisible?: boolean
 }
 
 export interface Profile {
@@ -85,55 +98,214 @@ export interface Profile {
   resume?: string
   socialLinks?: ProfileSocial[]
   header?: {
-    avatarImage?: string
-    coverImage?: string
+    name: string
+    title: string
+    subtitle: string
+    shortBio: string
+    pictures: ProfileImage[]
   }
-  theme?: {
-    backgroundColor?: string
-    textColor?: string
-    primaryColor?: string
-    secondaryColor?: string
-    accentColor?: string
+  theme: {
+    primaryColor: string
+    secondaryColor: string
+    backgroundColor: string
+    textColor: string
+    fontFamily: string
+    customCSS?: string
+  }
+  layout: string
+  layoutOptions?: {
+    columnCount?: number
+    sectionSpacing?: number
+    fullWidth?: boolean
   }
   sections: ProfileSection[]
   updatedAt?: string
-  userId?: string
+  userId: string
+  categoryIds?: string[]
+  seo?: {
+    title?: string
+    description?: string
+    keywords?: string
+    ogImage?: string
+    twitterCard?: boolean
+    indexed?: boolean
+  }
 }
 
-// Database functions
+export interface Category {
+  _id?: string
+  name: string
+  description: string
+  icon?: string
+  color: string
+  isEnabled: boolean
+  isCorrect: boolean
+  isOfficial: boolean
+  createdBy: string
+  usageCount: number
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export async function getCategories(options: { includeDisabled?: boolean; includeIncorrect?: boolean } = {}) {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const query: any = {}
+
+    if (!options.includeDisabled) {
+      query.isEnabled = true
+    }
+
+    if (!options.includeIncorrect) {
+      query.isCorrect = true
+    }
+
+    const categories = await db.collection("profileCategories").find(query).toArray()
+    return categories as Category[]
+  } catch (error) {
+    console.error("Error getting categories:", error)
+    return []
+  }
+}
+
+export async function createCategory(
+  category: Omit<Category, "_id" | "createdAt" | "updatedAt">,
+): Promise<string | null> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const now = new Date()
+    const result = await db.collection("profileCategories").insertOne({
+      ...category,
+      createdAt: now,
+      updatedAt: now,
+    })
+
+    return result.insertedId.toString()
+  } catch (error) {
+    console.error("Error creating category:", error)
+    return null
+  }
+}
+
+export async function getCategory(id: string): Promise<Category | null> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    let query = { _id: id }
+    try {
+      if (ObjectId.isValid(id)) {
+        query = { _id: new ObjectId(id) }
+      }
+    } catch (e) {
+      // If conversion fails, use the string ID
+    }
+
+    const category = (await db.collection("profileCategories").findOne(query)) as Category | null
+    return category
+  } catch (error) {
+    console.error("Error getting category:", error)
+    return null
+  }
+}
+
+export async function updateCategory(id: string, data: Partial<Category>): Promise<boolean> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    let query = { _id: id }
+    try {
+      if (ObjectId.isValid(id)) {
+        query = { _id: new ObjectId(id) }
+      }
+    } catch (e) {
+      // If conversion fails, use the string ID
+    }
+
+    const updateData = {
+      ...data,
+      updatedAt: new Date(),
+    }
+
+    const result = await db.collection("profileCategories").updateOne(query, { $set: updateData })
+    return result.modifiedCount > 0
+  } catch (error) {
+    console.error("Error updating category:", error)
+    return false
+  }
+}
+
+export async function deleteCategory(id: string): Promise<boolean> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    let query = { _id: id }
+    try {
+      if (ObjectId.isValid(id)) {
+        query = { _id: new ObjectId(id) }
+      }
+    } catch (e) {
+      // If conversion fails, use the string ID
+    }
+
+    const result = await db.collection("profileCategories").deleteOne(query)
+    return result.deletedCount > 0
+  } catch (error) {
+    console.error("Error deleting category:", error)
+    return false
+  }
+}
+
+export async function getProfiles(userId: string): Promise<Profile[]> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const profiles = (await db.collection("profiles").find({ userId }).toArray()) as Profile[]
+    return profiles
+  } catch (error) {
+    console.error("Error getting profiles:", error)
+    return []
+  }
+}
+
+export async function createProfile(profile: Omit<Profile, "_id">): Promise<string | null> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const result = await db.collection("profiles").insertOne(profile)
+    return result.insertedId.toString()
+  } catch (error) {
+    console.error("Error creating profile:", error)
+    return null
+  }
+}
+
 export async function getProfileBySlug(slug: string): Promise<Profile | null> {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    // Try to fetch the profile from the database
     const profile = (await db.collection("profiles").findOne({ slug })) as Profile | null
-
-    // If no profile is found in the database, return a mock profile for testing
-    if (!profile && process.env.NODE_ENV === "development") {
-      return getMockProfile(slug)
-    }
-
     return profile
   } catch (error) {
-    console.error("Error fetching profile by slug:", error)
-
-    // In development, return a mock profile even if there's an error
-    if (process.env.NODE_ENV === "development") {
-      return getMockProfile(slug)
-    }
-
+    console.error("Error getting profile by slug:", error)
     return null
   }
 }
 
-// Get profile by ID
 export async function getProfile(id: string): Promise<Profile | null> {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    // Try to convert the ID to ObjectId if it's in the right format
     let query = { _id: id }
     try {
       if (ObjectId.isValid(id)) {
@@ -143,34 +315,19 @@ export async function getProfile(id: string): Promise<Profile | null> {
       // If conversion fails, use the string ID
     }
 
-    // Try to fetch the profile from the database
     const profile = (await db.collection("profiles").findOne(query)) as Profile | null
-
-    // If no profile is found in the database, return a mock profile for testing
-    if (!profile && process.env.NODE_ENV === "development") {
-      return getMockProfile("test-profile", id)
-    }
-
     return profile
   } catch (error) {
-    console.error("Error fetching profile by ID:", error)
-
-    // In development, return a mock profile even if there's an error
-    if (process.env.NODE_ENV === "development") {
-      return getMockProfile("test-profile", id)
-    }
-
+    console.error("Error getting profile:", error)
     return null
   }
 }
 
-// Update profile
-export async function updateProfile(id: string, data: Partial<Profile>): Promise<Profile | null> {
+export async function updateProfile(id: string, data: Partial<Profile>): Promise<boolean> {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    // Try to convert the ID to ObjectId if it's in the right format
     let query = { _id: id }
     try {
       if (ObjectId.isValid(id)) {
@@ -180,31 +337,24 @@ export async function updateProfile(id: string, data: Partial<Profile>): Promise
       // If conversion fails, use the string ID
     }
 
-    // Add updatedAt timestamp
     const updateData = {
       ...data,
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date(),
     }
 
-    // Update the profile in the database
-    const result = await db
-      .collection("profiles")
-      .findOneAndUpdate(query, { $set: updateData }, { returnDocument: "after" })
-
-    return result as unknown as Profile | null
+    const result = await db.collection("profiles").updateOne(query, { $set: updateData })
+    return result.modifiedCount > 0
   } catch (error) {
     console.error("Error updating profile:", error)
-    return null
+    return false
   }
 }
 
-// Delete profile
 export async function deleteProfile(id: string): Promise<boolean> {
   try {
     const client = await clientPromise
     const db = client.db()
 
-    // Try to convert the ID to ObjectId if it's in the right format
     let query = { _id: id }
     try {
       if (ObjectId.isValid(id)) {
@@ -214,9 +364,7 @@ export async function deleteProfile(id: string): Promise<boolean> {
       // If conversion fails, use the string ID
     }
 
-    // Delete the profile from the database
     const result = await db.collection("profiles").deleteOne(query)
-
     return result.deletedCount > 0
   } catch (error) {
     console.error("Error deleting profile:", error)
@@ -224,72 +372,73 @@ export async function deleteProfile(id: string): Promise<boolean> {
   }
 }
 
-// Helper function to get a mock profile for development
-function getMockProfile(slug: string, id = "profile123"): Profile {
-  return {
-    _id: id,
-    slug: slug,
-    title: "Test Profile",
-    subtitle: "Web Developer & Designer",
-    bio: "This is a test profile for development purposes.",
-    isPublic: true,
-    completionPercentage: 85,
-    viewCount: 42,
-    tags: ["Web Development", "UI/UX", "JavaScript"],
-    location: "San Francisco, CA",
-    email: "test@example.com",
-    website: "https://example.com",
-    socialLinks: [
-      { platform: "GitHub", url: "https://github.com" },
-      { platform: "LinkedIn", url: "https://linkedin.com" },
-    ],
-    header: {
-      avatarImage: "/placeholder.svg?height=200&width=200",
-      coverImage: "/placeholder.svg?height=1200&width=600",
-    },
-    theme: {
-      backgroundColor: "#ffffff",
-      textColor: "#333333",
-      primaryColor: "#3b82f6",
-      secondaryColor: "#6b7280",
-      accentColor: "#f59e0b",
-    },
-    sections: [
-      {
-        _id: "section1",
-        type: "bio",
-        title: "About Me",
-        content: {
-          text: "I'm a passionate developer with experience in web technologies.",
-          attributes: [],
-          images: [],
-          videos: [],
-          markdown: "",
-          html: "",
-        },
-        order: 0,
-      },
-      {
-        _id: "section2",
-        type: "attributes",
-        title: "Skills",
-        content: {
-          text: "",
-          attributes: [
-            { _id: "attr1", label: "JavaScript", value: "90" },
-            { _id: "attr2", label: "React", value: "85" },
-            { _id: "attr3", label: "Node.js", value: "80" },
-          ],
-          images: [],
-          videos: [],
-          markdown: "",
-          html: "",
-        },
-        order: 1,
-      },
-    ],
-    updatedAt: new Date().toISOString(),
-    userId: "user123",
+export async function getUserByUsername(
+  username: string,
+): Promise<{ _id: ObjectId; name: string; email: string; username: string; image?: string; bio?: string } | null> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const user = await db.collection("users").findOne({ username })
+
+    if (!user) {
+      return null
+    }
+
+    return {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      image: user.image,
+      bio: user.bio,
+    }
+  } catch (error) {
+    console.error("Error fetching user by username:", error)
+    return null
+  }
+}
+
+export async function getUserPublicProfiles(userId: string): Promise<Profile[]> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    const profiles = (await db.collection("profiles").find({ userId, isPublic: true }).toArray()) as Profile[]
+    return profiles
+  } catch (error) {
+    console.error("Error fetching user profiles:", error)
+    return []
+  }
+}
+
+export async function updateUser(
+  userId: string,
+  data: Partial<{ username: string; bio: string; name: string }>,
+): Promise<boolean> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+
+    let query = { _id: userId }
+    try {
+      if (ObjectId.isValid(userId)) {
+        query = { _id: new ObjectId(userId) }
+      }
+    } catch (e) {
+      // If conversion fails, use the string ID
+    }
+
+    const updateData = {
+      ...data,
+      updatedAt: new Date(),
+    }
+
+    const result = await db.collection("users").updateOne(query, { $set: updateData })
+    return result.modifiedCount > 0
+  } catch (error) {
+    console.error("Error updating user:", error)
+    return false
   }
 }
 
